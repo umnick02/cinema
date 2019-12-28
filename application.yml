@@ -1,0 +1,23 @@
+debug: true
+java.util.logging.manager: org.apache.logging.log4j.jul.LogManager
+spring:
+  devtools:
+    add-properties: false
+    livereload:
+      enabled: false
+  profiles:
+    active: dev
+  datasource:
+    username: cinema_db
+    password: cinema_db
+    jdbc-url: jdbc:h2:file:C:/Users/umnick/IdeaProjects/cinema/h2_db
+  jpa:
+    open-in-view: false
+    hibernate.ddl-auto: update
+    show-sql: true
+    database-platform: org.hibernate.dialect.H2Dialect
+  h2.console:
+    enabled: true
+    settings.trace: false
+logging.level:
+  org.springframework.boot.autoconfigure: INFO

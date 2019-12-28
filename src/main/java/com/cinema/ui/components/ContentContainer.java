@@ -16,7 +16,7 @@ public class ContentContainer extends SplitPane {
         AnchorPane.setLeftAnchor(this, 0d);
         AnchorPane.setTopAnchor(this, 25d);
         AnchorPane.setBottomAnchor(this, 0d);
-        getChildren().addAll(sideMenuContainer.getWrapper(), scrollCardsContainer.getWrapper());
+        getItems().addAll(sideMenuContainer.getWrapper(), scrollCardsContainer.getWrapper());
     }
 
     public SideMenuContainer getSideMenuContainer() {

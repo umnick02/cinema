@@ -2,7 +2,6 @@ package com.cinema.ui.components;
 
 import com.cinema.config.Config;
 import com.cinema.entity.Movie;
-import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 
@@ -12,8 +11,8 @@ public class CardContainer extends VBox {
 
     private Movie movie;
 
-    public CardContainer(Movie movie, Node... nodes) {
-        super(nodes);
+    public CardContainer(Movie movie) {
+        super();
         setMovie(movie);
     }
 

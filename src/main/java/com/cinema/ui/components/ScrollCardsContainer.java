@@ -11,7 +11,7 @@ public class ScrollCardsContainer extends ScrollPane implements Anchorable {
         super();
         cardsContainer = new CardsContainer();
         wrapper = SceneBuilder.wrapNodeToAnchor(this);
-        getChildren().addAll(cardsContainer.getWrapper());
+        setContent(cardsContainer.getWrapper());
     }
 
     public CardsContainer getCardsContainer() {

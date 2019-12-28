@@ -1,6 +1,8 @@
 debug: true
 java.util.logging.manager: org.apache.logging.log4j.jul.LogManager
 spring:
+  main:
+    lazy-initialization: true
   devtools:
     add-properties: false
     livereload:
@@ -10,7 +12,7 @@ spring:
   datasource:
     username: cinema_db
     password: cinema_db
-    jdbc-url: jdbc:h2:file:C:/Users/umnick/IdeaProjects/cinema/h2_db
+    jdbc-url: jdbc:h2:file:~/IdeaProjects/cinema/h2_db
   jpa:
     open-in-view: false
     hibernate.ddl-auto: update
@@ -20,4 +22,4 @@ spring:
     enabled: true
     settings.trace: false
 logging.level:
-  org.springframework.boot.autoconfigure: INFO
+  org.springframework.boot.autoconfigure: DEBUG

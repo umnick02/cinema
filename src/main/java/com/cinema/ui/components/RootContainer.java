@@ -2,17 +2,21 @@ package com.cinema.ui.components;
 
 import javafx.scene.control.MenuBar;
 import javafx.scene.layout.AnchorPane;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.util.Set;
 
+@Component
 public class RootContainer extends AnchorPane {
-    private final TopMenuContainer topMenuContainer;
-    private final ContentContainer contentContainer;
+    @Autowired
+    private TopMenuContainer topMenuContainer;
+    @Autowired
+    private ContentContainer contentContainer;
 
-    public RootContainer() {
-        super();
-        topMenuContainer = new TopMenuContainer();
-        contentContainer = new ContentContainer();
+    @PostConstruct
+    public void postConstruct() {
         getChildren().addAll(topMenuContainer, contentContainer);
     }
 

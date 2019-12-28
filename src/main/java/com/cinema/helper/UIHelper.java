@@ -1,19 +1,10 @@
-package com.cinema.ui.components;
+package com.cinema.helper;
 
 import javafx.scene.Node;
 import javafx.scene.layout.AnchorPane;
 
-public class SceneBuilder {
-    private static RootContainer root;
-
-    public static RootContainer buildRootContainer() {
-        if (root == null) {
-            root = new RootContainer();
-        }
-        return root;
-    }
-
-    static AnchorPane wrapNodeToAnchor(Node node) {
+public class UIHelper {
+    public static AnchorPane wrapNodeToAnchor(Node node) {
         AnchorPane anchorPane = new AnchorPane(node);
         AnchorPane.setTopAnchor(node, 0d);
         AnchorPane.setBottomAnchor(node, 0d);

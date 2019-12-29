@@ -4,6 +4,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -11,7 +12,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "movie")
-public class Movie {
+public class Movie implements Serializable {
 
     @Id
     @GeneratedValue
@@ -72,7 +73,7 @@ public class Movie {
     @OneToMany(mappedBy = "serial")
     private List<Episode> episodes;
 
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @OneToOne(fetch = FetchType.LAZY)
     private MovieEn movieEn;
 
     @OneToOne(fetch = FetchType.LAZY)

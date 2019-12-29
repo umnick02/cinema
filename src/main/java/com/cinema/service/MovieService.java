@@ -1,54 +1,66 @@
 package com.cinema.service;
 
 import com.cinema.config.Config;
+import com.cinema.config.HibernateUtil;
 import com.cinema.entity.Movie;
-import com.cinema.repository.CastEnRepository;
-import com.cinema.repository.MovieEnRepository;
-import com.cinema.repository.MovieRepository;
-import com.cinema.repository.MovieRuRepository;
 import com.cinema.ui.components.SideMenuContainer;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
+import com.google.inject.Singleton;
 
+import javax.persistence.EntityGraph;
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaQuery;
 import javax.transaction.Transactional;
 import java.util.*;
 
-@Service
-public class MovieService {
-    private final MovieRepository movieRepository;
-    private final CastEnRepository castEnRepository;
-    private final MovieEnRepository movieEnRepository;
-    private final MovieRuRepository movieRuRepository;
+import static com.cinema.config.Config.getLang;
 
-    public MovieService(MovieRepository movieRepository, CastEnRepository castEnRepository,
-                        MovieEnRepository movieEnRepository, MovieRuRepository movieRuRepository) {
-        this.movieRepository = movieRepository;
-        this.castEnRepository = castEnRepository;
-        this.movieEnRepository = movieEnRepository;
-        this.movieRuRepository = movieRuRepository;
-    }
+@Singleton
+public class MovieService {
+    private EntityManager entityManager = HibernateUtil.entityManager();
 
     @Transactional
     public Movie saveMovie(Movie movie) {
-        movieEnRepository.save(movie.getMovieEn());
-        castEnRepository.saveAll(movie.getMovieEn().getCasts());
-        movieRepository.save(movie);
+        entityManager.persist(movie.getMovieEn());
+        entityManager.persist(movie.getMovieEn().getCasts());
+        entityManager.persist(movie);
         return movie;
     }
 
     public Movie getMovie(Long id) {
-        return movieRepository.findById(id).orElse(null);
+        return entityManager.find(Movie.class, id);
     }
 
-    public Set<Movie> getMovies(Pageable pageable, Config.PrefKey.Language language) {
-        return new HashSet<>(language == Config.PrefKey.Language.RU ? movieRepository.findMoviesRu(pageable) : movieRepository.findMoviesEn(pageable));
+    public Set<Movie> getMovies(int page, int cardsPerPage) {
+        Config.PrefKey.Language language = getLang();
+        EntityGraph<Movie> entityGraph = entityManager.createEntityGraph(Movie.class);
+        entityGraph.addAttributeNodes(language == Config.PrefKey.Language.RU ? "movieRu" : "movieEn");
+        CriteriaQuery<Movie> criteriaQuery = entityManager.getCriteriaBuilder().createQuery(Movie.class);
+        criteriaQuery.from(Movie.class);
+        TypedQuery<Movie> typedQuery = entityManager.createQuery(criteriaQuery).setFirstResult(page * cardsPerPage).setMaxResults(cardsPerPage);
+        typedQuery.setHint("javax.persistence.loadgraph", entityGraph);
+        List<Movie> movies = typedQuery.getResultList();
+        return new HashSet<>(movies);
     }
 
-    public Set<SideMenuContainer.GenreItem> getGenres(Config.PrefKey.Language language) {
-        List<String[]> genreList = language == Config.PrefKey.Language.RU ? movieRuRepository.findAllGenres() : movieEnRepository.findAllGenres();
+    private List<Object[]> findAllGenres(Config.PrefKey.Language language) {
+        String localization = language == Config.PrefKey.Language.RU ? "MOVIE_RU" : "MOVIE_EN";
+        String query = String.format("select genres.genre, cast(sum(genres.cnt) as int) as CNT from" +
+                " (select GENRE_1 as genre, count(GENRE_1) as cnt from %s where GENRE_1 is not null group by GENRE_1" +
+                " union select GENRE_2, count(GENRE_2) from %s where GENRE_2 is not null group by GENRE_2" +
+                " union select GENRE_3, count(GENRE_3) from %s where GENRE_3 is not null group by GENRE_3) as genres" +
+                " group by genres.genre order by CNT desc, GENRE asc", localization, localization, localization);
+        @SuppressWarnings("unchecked")
+        List<Object[]> genres = HibernateUtil.entityManager().createNativeQuery(query).getResultList();
+        return genres;
+    }
+
+    public Set<SideMenuContainer.GenreItem> getGenres() {
+        Config.PrefKey.Language language = getLang();
+        List<Object[]> genreList = findAllGenres(language);
         Set<SideMenuContainer.GenreItem> genres = new HashSet<>();
-        for (String[] genre : genreList) {
-            genres.add(new SideMenuContainer.GenreItem(genre[0], Integer.parseInt(genre[1])));
+        for (Object[] genre : genreList) {
+            genres.add(new SideMenuContainer.GenreItem(genre[0].toString(), (int) genre[1]));
         }
         return genres;
     }

@@ -2,16 +2,15 @@ package com.cinema.ui.components;
 
 import com.cinema.config.Config;
 import com.cinema.entity.Movie;
-import com.cinema.helper.UIHelper;
+import com.cinema.ui.Anchorable;
+import com.cinema.ui.UIBuilder;
 import javafx.geometry.Insets;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
-import org.springframework.stereotype.Component;
 
 import java.util.*;
 
-@Component
 public class CardsContainer extends GridPane implements Anchorable {
 
     private final AnchorPane wrapper;
@@ -25,7 +24,7 @@ public class CardsContainer extends GridPane implements Anchorable {
         setHgap(10);
         setVgap(10);
         setPadding(new Insets(25, 25, 25, 25));
-        wrapper = UIHelper.wrapNodeToAnchor(this);
+        wrapper = UIBuilder.wrapNodeToAnchor(this);
     }
 
     public void addCards(Set<Movie> movies) {

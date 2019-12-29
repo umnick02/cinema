@@ -1,20 +1,29 @@
 package com.cinema;
 
 import com.cinema.config.Config;
-import com.cinema.ui.ApplicationUI;
+import com.cinema.entity.Movie;
+import com.cinema.parser.MagnetParser;
+import com.cinema.service.MovieService;
 import com.cinema.ui.components.RootContainer;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import static com.cinema.config.Config.TITLE;
 
-@SpringBootApplication
-public class CinemaApplication extends ApplicationUI {
+public class CinemaApplication extends Application {
 
-    @Autowired
     private RootContainer root;
+    private MovieService movieService;
+
+    @Override
+    public void init() {
+        Injector injector = Guice.createInjector();
+        root = injector.getInstance(RootContainer.class);
+        movieService = injector.getInstance(MovieService.class);
+    }
 
     @Override
     public void start(Stage stage) {
@@ -26,12 +35,12 @@ public class CinemaApplication extends ApplicationUI {
         stage.show();
     }
 
-//    public void run(String magnet) {
-//        try {
-//            Movie movie = new MagnetParser().parse(magnet);
-//            movieService.saveMovie(movie);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
+    public void run(String magnet) {
+        try {
+            Movie movie = new MagnetParser().parse(magnet);
+            movieService.saveMovie(movie);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

@@ -1,38 +1,32 @@
 package com.cinema.ui.components;
 
 import com.cinema.config.Config;
-import com.cinema.helper.UIHelper;
+import com.cinema.ui.Anchorable;
+import com.cinema.ui.UIBuilder;
 import com.cinema.service.MovieService;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.AnchorPane;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.util.Objects;
 import java.util.Set;
 
-@Component
+@Singleton
 public class SideMenuContainer extends TreeView<String> implements Anchorable {
-    @Autowired
-    private MovieService movieService;
 
     private final AnchorPane wrapper;
-    public SideMenuContainer() {
+    @Inject
+    public SideMenuContainer(MovieService movieService) {
         super();
-        wrapper = UIHelper.wrapNodeToAnchor(this);
-    }
-
-    @PostConstruct
-    public void postConstruct() {
-        Config.PrefKey.Language lang = Config.getLang();
-        Set<GenreItem> genreItems = movieService.getGenres(lang);
+        Set<GenreItem> genreItems = movieService.getGenres();
         TreeItem<String> root = new TreeItem<>(Config.getGenre());
         root.setExpanded(true);
         setShowRoot(true);
         root.getChildren().addAll(genreItems);
         setRoot(root);
+        wrapper = UIBuilder.wrapNodeToAnchor(this);
     }
 
     @Override
@@ -41,8 +35,8 @@ public class SideMenuContainer extends TreeView<String> implements Anchorable {
     }
 
     public static class GenreItem extends TreeItem<String> {
-        private String genre;
-        private Integer cnt;
+        private final String genre;
+        private final Integer cnt;
         public GenreItem(String genre, Integer cnt) {
             super(String.format("%s (%d)", genre, cnt));
             this.genre = genre;

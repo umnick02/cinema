@@ -9,13 +9,11 @@ import bt.runtime.BtClient;
 import bt.runtime.Config;
 import bt.torrent.selector.SequentialSelector;
 import com.google.inject.Module;
-import org.springframework.stereotype.Service;
 
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.concurrent.Callable;
 
-@Service
 public class BitTorrentClient implements Callable<Void> {
 
     private String magnet;

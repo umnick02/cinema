@@ -1,9 +1,9 @@
-package com.cinema.helper;
+package com.cinema.ui;
 
 import javafx.scene.Node;
 import javafx.scene.layout.AnchorPane;
 
-public class UIHelper {
+public class UIBuilder {
     public static AnchorPane wrapNodeToAnchor(Node node) {
         AnchorPane anchorPane = new AnchorPane(node);
         AnchorPane.setTopAnchor(node, 0d);

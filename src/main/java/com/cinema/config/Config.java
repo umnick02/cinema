@@ -1,6 +1,6 @@
 package com.cinema.config;
 
-import com.cinema.Main;
+import com.cinema.CinemaApplication;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,7 +28,7 @@ public class Config {
         return getLang() == Language.RU ? "Жанры" : "Genres";
     }
 
-    private static final Preferences preferences = Preferences.userNodeForPackage(Main.class);
+    private static final Preferences preferences = Preferences.userNodeForPackage(CinemaApplication.class);
     private static final Map<PrefKey, String> defaultPreferences = new HashMap<>();
     static {
         defaultPreferences.put(SCREEN_WIDTH, "1024");

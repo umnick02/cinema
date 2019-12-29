@@ -4,11 +4,9 @@ public enum Currency {
     USD, EUR, RUB;
 
     public static Currency getCurrencyFromChar(char symbol) {
-        switch (symbol) {
-            case '$':
-                return USD;
-            default:
-                return null;
+        if (symbol == '$') {
+            return USD;
         }
+        return null;
     }
 }

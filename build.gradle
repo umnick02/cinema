@@ -1,18 +1,11 @@
 plugins {
     id 'org.springframework.boot' version '2.2.2.RELEASE'
-    id 'io.spring.dependency-management' version '1.0.8.RELEASE'
     id 'java'
     id 'org.openjfx.javafxplugin' version '0.0.8'
 }
 group = 'com.cinema'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '12'
-configurations {
-    developmentOnly
-    runtimeClasspath {
-        extendsFrom developmentOnly
-    }
-}
 repositories {
     mavenCentral()
     maven {
@@ -36,10 +29,9 @@ dependencies {
     compile 'com.github.atomashpolskiy:bt-core:1.9'
     compile 'commons-logging:commons-logging:1.2'
     compile 'org.hibernate:hibernate-core:5.4.10.Final'
+    compile 'org.hibernate:hibernate-entitymanager:5.4.10.Final'
     runtimeOnly 'com.h2database:h2:1.4.200'
     compile 'com.eclipsesource.minimal-json:minimal-json:0.9.5'
-
-    compile('org.springframework.boot:spring-boot-starter-data-jpa') {
-        exclude group: 'org.eclipse.jetty', module: 'jetty-server'
-    }
+    compile 'com.google.inject:guice:4.2.2'
+    compile 'javax.persistence:javax.persistence-api:2.2'
 }

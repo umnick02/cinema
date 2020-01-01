@@ -14,6 +14,10 @@ import java.util.Objects;
 @Table(name = "movie")
 public class Movie implements Serializable {
 
+    public Movie() {}
+    public Movie(Long id) {
+        this.id = id;
+    }
     @Id
     @GeneratedValue
     private Long id;
@@ -61,7 +65,7 @@ public class Movie implements Serializable {
     @Column(name = "is_custom")
     private Boolean isCustom;
 
-    @Column(name = "magnet", nullable = false)
+    @Column(name = "magnet", nullable = false, columnDefinition = "text")
     private String magnet;
 
     @CreationTimestamp
@@ -70,14 +74,25 @@ public class Movie implements Serializable {
     @UpdateTimestamp
     private LocalDateTime updated;
 
-    @OneToMany(mappedBy = "serial")
+    @OneToMany(mappedBy = "series", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private List<Episode> episodes;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private MovieEn movieEn;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private MovieRu movieRu;
+
+    @Column(name = "file", columnDefinition = "text")
+    private String file;
+
+    public String getFile() {
+        return file;
+    }
+
+    public void setFile(String file) {
+        this.file = file;
+    }
 
     public Long getId() {
         return id;
@@ -254,5 +269,10 @@ public class Movie implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(movieEn);
+    }
+
+    @Override
+    public String toString() {
+        return movieRu != null ? movieRu.getTitle() : movieEn.getTitle();
     }
 }

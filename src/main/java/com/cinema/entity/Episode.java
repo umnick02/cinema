@@ -6,7 +6,7 @@ import java.util.Objects;
 
 @Entity
 @Table(indexes = {
-        @Index(columnList = "serial_id desc, season desc, episode desc")
+        @Index(columnList = "series_id desc, season desc, episode desc")
 })
 public class Episode {
     @Id
@@ -14,10 +14,10 @@ public class Episode {
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private Movie serial;
+    private Movie series;
 
-    @Column(name = "serial_id", nullable = false, updatable = false, insertable = false)
-    private Integer serialId;
+    @Column(name = "SERIES_ID", nullable = false, updatable = false, insertable = false)
+    private Integer seriesId;
 
     @Column(nullable = false)
     private Short season;
@@ -25,23 +25,82 @@ public class Episode {
     @Column(nullable = false)
     private Short episode;
 
+    @Column(name = "title")
     private String title;
+
+    @Column(name = "rating")
     private Float rating;
-    private String posterUrl;
+
+    @Column(name = "poster", columnDefinition = "varchar(511)")
+    private String poster;
+
+    @Column(name = "release_date")
     private LocalDate releaseDate;
+
+    @Column(name = "magnet", nullable = false, columnDefinition = "text")
     private String magnet;
 
+    @Column(name = "file", columnDefinition = "varchar(511)")
+    private String file;
+
+    public String getFile() {
+        return file;
+    }
+
+    public void setFile(String file) {
+        this.file = file;
+    }
+
+    public String getPoster() {
+        return poster;
+    }
+
+    public void setPoster(String poster) {
+        this.poster = poster;
+    }
+
+    public Float getRating() {
+        return rating;
+    }
+
+    public void setRating(Float rating) {
+        this.rating = rating;
+    }
+
+    public LocalDate getReleaseDate() {
+        return releaseDate;
+    }
+
+    public void setReleaseDate(LocalDate releaseDate) {
+        this.releaseDate = releaseDate;
+    }
+
+    public String getMagnet() {
+        return magnet;
+    }
+
+    public void setMagnet(String magnet) {
+        this.magnet = magnet;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
     public Integer getId() {
         return id;
     }
 
-    public Movie getSerial() {
-        return serial;
+    public Movie getSeries() {
+        return series;
     }
 
-    public void setSerial(Movie serial) {
-        this.serial = serial;
+    public void setSeries(Movie series) {
+        this.series = series;
     }
 
     public Short getSeason() {
@@ -60,8 +119,12 @@ public class Episode {
         this.episode = episode;
     }
 
-    public Integer getSerialId() {
-        return serialId;
+    public Integer getSeriesId() {
+        return seriesId;
+    }
+
+    public void setSeriesId(Integer seriesId) {
+        this.seriesId = seriesId;
     }
 
     @Override
@@ -69,13 +132,13 @@ public class Episode {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Episode episode = (Episode) o;
-        return serialId.equals(episode.serialId) &&
+        return seriesId.equals(episode.seriesId) &&
                 season.equals(episode.season) &&
                 this.episode.equals(episode.episode);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(serialId, season, episode);
+        return Objects.hash(seriesId, season, episode);
     }
 }

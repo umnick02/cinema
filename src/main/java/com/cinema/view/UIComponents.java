@@ -1,42 +1,42 @@
-package com.cinema.ui;
-
-public class UIComponents {
-
+//package com.cinema.ui;
+//
+//import uk.co.caprica.vlcj.player.base.Marquee;
+//import uk.co.caprica.vlcj.player.base.MarqueePosition;
+//import uk.co.caprica.vlcj.player.base.MediaPlayer;
+//import uk.co.caprica.vlcj.player.component.EmbeddedMediaPlayerComponent;
+//
+//import javax.swing.*;
+//import java.awt.*;
+//import java.awt.event.WindowAdapter;
+//import java.awt.event.WindowEvent;
+//
+//public class UIComponents {
+//    public static EmbeddedMediaPlayerComponent mediaPlayerComponent;
 //    private static void player() {
+//        JFrame frame = new JFrame();
 //        mediaPlayerComponent = new EmbeddedMediaPlayerComponent() {
 //            @Override
 //            public void playing(MediaPlayer mediaPlayer) {
-//                SwingUtilities.invokeLater(new Runnable() {
-//                    @Override
-//                    public void run() {
+//                SwingUtilities.invokeLater(() -> {
 ////                                showVideoView();
-//                    }
 //                });
 //            }
 //
 //            @Override
 //            public void finished(MediaPlayer mediaPlayer) {
-//                SwingUtilities.invokeLater(new Runnable() {
-//                    @Override
-//                    public void run() {
+//                SwingUtilities.invokeLater(() -> {
 ////                                showDefaultView();
-//                    }
 //                });
 //            }
 //
 //            @Override
 //            public void error(MediaPlayer mediaPlayer) {
-//                SwingUtilities.invokeLater(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        JOptionPane.showMessageDialog(
-//                                frame,
-//                                "Failed to play media",
-//                                "Error",
-//                                JOptionPane.ERROR_MESSAGE
-//                        );
-//                    }
-//                });
+//                SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(
+//                        frame,
+//                        "Failed to play media",
+//                        "Error",
+//                        JOptionPane.ERROR_MESSAGE
+//                ));
 //            }
 //        };
 //        frame.setBounds(100, 100, 600, 400);
@@ -63,27 +63,11 @@ public class UIComponents {
 //        controlsPane.add(skipButton);
 //        contentPane.add(controlsPane, BorderLayout.SOUTH);
 //
-//        pauseButton.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                mediaPlayerComponent.mediaPlayer().controls().pause();
-//            }
-//        });
+//        pauseButton.addActionListener(e -> mediaPlayerComponent.mediaPlayer().controls().pause());
 //
-//        rewindButton.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                mediaPlayerComponent.mediaPlayer().controls().skipTime(-10000);
-//            }
-//        });
+//        rewindButton.addActionListener(e -> mediaPlayerComponent.mediaPlayer().controls().skipTime(-10000));
 //
-//        skipButton.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                mediaPlayerComponent.mediaPlayer().controls().skipTime(10000);
-//
-//            }
-//        });
+//        skipButton.addActionListener(e -> mediaPlayerComponent.mediaPlayer().controls().skipTime(10000));
 //
 //        frame.setVisible(true);
 //        frame.setContentPane(contentPane);
@@ -101,4 +85,4 @@ public class UIComponents {
 //        mediaPlayerComponent.mediaPlayer().media().play(file);
 //
 //    }
-}
+//}

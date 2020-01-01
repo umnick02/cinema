@@ -3,17 +3,22 @@ package com.cinema.config;
 import com.cinema.CinemaApplication;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.prefs.Preferences;
 
 import static com.cinema.config.Config.PrefKey.*;
 
 public class Config {
     public enum PrefKey {
-        SCREEN_WIDTH, CARD_WIDTH, LANGUAGE; public enum Language {EN, RU}
+        SCREEN_WIDTH, CARD_WIDTH, LANGUAGE, STORAGE;
+        public enum Language {EN, RU}
     }
 
     private static Language lang = Language.EN;
+    public static final ExecutorService EXECUTORS = Executors.newFixedThreadPool(3);
     public static final String TITLE = "Cinema";
 
     public static Language getLang() {
@@ -32,6 +37,7 @@ public class Config {
     private static final Map<PrefKey, String> defaultPreferences = new HashMap<>();
     static {
         defaultPreferences.put(SCREEN_WIDTH, "1024");
+        defaultPreferences.put(STORAGE, "C://Users/umnick/Downloads/Cinema/");
         defaultPreferences.put(CARD_WIDTH, "150");
         defaultPreferences.put(LANGUAGE, Language.EN.name());
     }

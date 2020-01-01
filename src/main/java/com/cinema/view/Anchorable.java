@@ -1,4 +1,4 @@
-package com.cinema.ui;
+package com.cinema.view;
 
 import javafx.scene.layout.AnchorPane;
 

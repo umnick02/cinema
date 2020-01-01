@@ -1,34 +1,67 @@
-package com.cinema.service;
+package com.cinema.model;
 
 import com.cinema.config.Config;
 import com.cinema.config.HibernateUtil;
+import com.cinema.dao.MovieDAO;
 import com.cinema.entity.Movie;
-import com.cinema.ui.components.SideMenuContainer;
+import com.cinema.view.components.SideMenuContainer;
+import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 import javax.persistence.EntityGraph;
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaQuery;
-import javax.transaction.Transactional;
 import java.util.*;
 
 import static com.cinema.config.Config.getLang;
 
 @Singleton
-public class MovieService {
-    private EntityManager entityManager = HibernateUtil.entityManager();
+public class MovieModel {
 
-    @Transactional
-    public Movie saveMovie(Movie movie) {
-        entityManager.persist(movie.getMovieEn());
-        entityManager.persist(movie.getMovieEn().getCasts());
-        entityManager.persist(movie);
+    private EntityManager entityManager = HibernateUtil.entityManager();
+    private MovieDAO movieDAO;
+
+    @Inject
+    public MovieModel(MovieDAO movieDAO) {
+        this.movieDAO = movieDAO;
+    }
+
+    public void saveMovie(Movie movie) {
+        movieDAO.create(movie);
+    }
+
+    public Movie updateFilePath(Movie movie) {
+        entityManager.getTransaction().begin();
+        Query query = entityManager.createQuery("update Movie set file=:file where id=:id");
+        query.setParameter("file", movie.getFile());
+        query.setParameter("id", movie.getId());
+        entityManager.getTransaction().commit();
         return movie;
     }
 
     public Movie getMovie(Long id) {
         return entityManager.find(Movie.class, id);
+    }
+
+    public boolean isValid(Movie movie) {
+        return (movie.getMovieRu() != null && movie.getMovieRu().getTitle() != null) ||
+                (movie.getMovieEn() != null && movie.getMovieEn().getTitle() != null);
+    }
+
+    public Movie getMovieByTitle(Movie movie) {
+        Query query;
+        if (movie.getMovieRu() != null) {
+            query = entityManager.createQuery("from Movie where movieRu.title=:title");
+            query.setParameter("title", movie.getMovieRu().getTitle());
+        } else {
+            query = entityManager.createQuery("from Movie where movieEn.title=:title");
+            query.setParameter("title", movie.getMovieEn().getTitle());
+        }
+        @SuppressWarnings("unchecked")
+        List<Movie> movies = query.getResultList();
+        return movies.size() > 0 ? movies.get(0) : null;
     }
 
     public Set<Movie> getMovies(int page, int cardsPerPage) {
@@ -63,5 +96,15 @@ public class MovieService {
             genres.add(new SideMenuContainer.GenreItem(genre[0].toString(), (int) genre[1]));
         }
         return genres;
+    }
+
+    public Movie processMovieFromMagnet(Movie movie) {
+        if (isValid(movie)) {
+            Movie dbMovie = getMovieByTitle(movie);
+            if (dbMovie != null) return dbMovie;
+            saveMovie(movie);
+            return movie;
+        }
+        return null;
     }
 }

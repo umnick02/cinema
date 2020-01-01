@@ -8,7 +8,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "movie_ru")
-public class MovieRu {
+public class MovieRu implements MovieInternalize {
     @Id
     @GeneratedValue
     private Integer id;
@@ -50,7 +50,7 @@ public class MovieRu {
     @OneToOne(fetch = FetchType.LAZY, mappedBy = "movieRu", optional = false)
     private Movie movie;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "movie")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "movie", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private List<CastRu> casts;
 
     public Integer getId() {

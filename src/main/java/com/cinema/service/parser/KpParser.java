@@ -1,4 +1,4 @@
-package com.cinema.parser;
+package com.cinema.service.parser;
 
 import com.cinema.entity.Movie;
 import org.jsoup.Jsoup;

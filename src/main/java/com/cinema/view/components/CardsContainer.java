@@ -1,9 +1,11 @@
-package com.cinema.ui.components;
+package com.cinema.view.components;
 
 import com.cinema.config.Config;
 import com.cinema.entity.Movie;
-import com.cinema.ui.Anchorable;
-import com.cinema.ui.UIBuilder;
+import com.cinema.service.bt.BtService;
+import com.cinema.view.Anchorable;
+import com.cinema.view.UIBuilder;
+import com.google.inject.Inject;
 import javafx.geometry.Insets;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.ColumnConstraints;
@@ -15,8 +17,10 @@ public class CardsContainer extends GridPane implements Anchorable {
 
     private final AnchorPane wrapper;
     private final Set<CardContainer> cards = new HashSet<>();
+    private final BtService btService;
 
-    public CardsContainer() {
+    @Inject
+    public CardsContainer(BtService btService) {
         super();
         ColumnConstraints columnConstraints = new ColumnConstraints();
         columnConstraints.setPercentWidth(20);
@@ -24,12 +28,13 @@ public class CardsContainer extends GridPane implements Anchorable {
         setHgap(10);
         setVgap(10);
         setPadding(new Insets(25, 25, 25, 25));
+        this.btService = btService;
         wrapper = UIBuilder.wrapNodeToAnchor(this);
     }
 
     public void addCards(Set<Movie> movies) {
         int fromCard = cards.size();
-        movies.forEach(m -> cards.add(new CardContainer(m)));
+        movies.forEach(m -> cards.add(new CardContainer(m, btService)));
         showCards(fromCard);
     }
 

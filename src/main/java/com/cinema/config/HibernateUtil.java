@@ -5,16 +5,10 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
 public class HibernateUtil {
-    private static EntityManagerFactory entityManagerFactory;
-
-    private static void setupEntityManagerFactory() {
-        entityManagerFactory = Persistence.createEntityManagerFactory("com.cinema");
-    }
+    private static final EntityManagerFactory entityManagerFactory =
+            Persistence.createEntityManagerFactory("cinema");
 
     public static EntityManager entityManager() {
-        if (entityManagerFactory == null) {
-            setupEntityManagerFactory();
-        }
         return entityManagerFactory.createEntityManager();
     }
 }

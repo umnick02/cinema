@@ -21,10 +21,14 @@ public class HttpHelper {
     }
 
     public static String requestAndGetBody(String url) throws IOException, InterruptedException {
+        HttpResponse<String> response = requestAndGetResponse(url);
+        return fetchResponseBody(response);
+    }
+
+    public static HttpResponse<String> requestAndGetResponse(String url) throws IOException, InterruptedException {
         if (url == null) throw new IOException("URL is null!");
         HttpRequest request = buildRequest(url);
-        HttpResponse<String> response = sendRequest(request);
-        return fetchResponseBody(response);
+        return sendRequest(request);
     }
 
     private static HttpRequest buildRequest(String url) {

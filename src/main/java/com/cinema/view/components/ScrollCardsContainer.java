@@ -1,9 +1,9 @@
-package com.cinema.ui.components;
+package com.cinema.view.components;
 
 import com.cinema.entity.Movie;
-import com.cinema.service.MovieService;
-import com.cinema.ui.Anchorable;
-import com.cinema.ui.UIBuilder;
+import com.cinema.model.MovieModel;
+import com.cinema.view.Anchorable;
+import com.cinema.view.UIBuilder;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import javafx.scene.control.ScrollPane;
@@ -18,12 +18,12 @@ public class ScrollCardsContainer extends ScrollPane implements Anchorable {
     private final int cardsPerPage = 10;
 
     @Inject
-    public ScrollCardsContainer(CardsContainer cardsContainer, MovieService movieService) {
+    public ScrollCardsContainer(CardsContainer cardsContainer, MovieModel movieModel) {
         super();
         setContent(cardsContainer.getWrapper());
-        Set<Movie> movies = movieService.getMovies(page++, cardsPerPage);
+        Set<Movie> movies = movieModel.getMovies(page++, cardsPerPage);
         cardsContainer.addCards(movies);
-        wrapper = UIBuilder.wrapNodeToAnchor(this);
+        wrapper = UIBuilder.wrapNodeToAnchor(this, 30d);
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.cinema.parser;
+package com.cinema.service.parser;
 
 import com.cinema.entity.*;
 import com.cinema.helper.HttpHelper;
@@ -6,6 +6,9 @@ import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
+import com.google.inject.Singleton;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -16,29 +19,27 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
 import static com.cinema.helper.HttpHelper.requestAndGetBody;
 
-public class ImdbParser implements Callable<Movie> {
+@Singleton
+public class ImdbParser {
 
-    private final String url;
-    private final Movie movie;
+    private static final Logger logger = LogManager.getLogger(ImdbParser.class);
 
     private static final String HOST = "https://www.imdb.com";
 
-    public ImdbParser(String url, Movie movie) {
-        this.url = url;
-        this.movie = movie;
-    }
-
-    @Override
-    public Movie call() throws Exception {
-        String body = requestAndGetBody(url);
-        Document html = Jsoup.parse(body);
-        Parser.parse(html, movie);
-        return movie;
+    public void parse(String url, Movie movie) throws Exception {
+        logger.info("Trying to fetch IMDB data from url=[{}]", url);
+        String body = requestAndGetBody(HOST + url + "/");
+        try {
+            Document html = Jsoup.parse(body);
+            Parser.parse(html, movie);
+            logger.info("Successfully fetching IMDB data for movie=[{}]", movie.getMovieEn().getTitle());
+        } catch (RuntimeException e) {
+            logger.info("Successfully fetching IMDB data for movie=[{}]", movie.getMovieEn().getTitle());
+        }
     }
 
     private static final class Parser {
@@ -109,8 +110,8 @@ public class ImdbParser implements Callable<Movie> {
 
         private static void fillPosters(Document html, Movie movie) {
             try {
-                String url = HOST + html.select(".poster > a").attr("href");
-                String body = HttpHelper.requestAndGetBody(url);
+                String url = html.select(".poster > a").attr("href");
+                String body = HttpHelper.requestAndGetBody(HOST + url);
                 html = Jsoup.parse(body);
                 Elements scripts = html.select("script:not([type],[id],[src])");
                 for (Element element : scripts) {

@@ -1,6 +1,7 @@
 package com.cinema;
 
 import com.cinema.config.Config;
+import com.cinema.config.GuiceModule;
 import com.cinema.model.MovieModel;
 import com.cinema.view.components.RootContainer;
 import com.google.inject.Guice;

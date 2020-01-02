@@ -14,10 +14,6 @@ import java.util.Objects;
 @Table(name = "movie")
 public class Movie implements Serializable {
 
-    public Movie() {}
-    public Movie(Long id) {
-        this.id = id;
-    }
     @Id
     @GeneratedValue
     private Long id;
@@ -74,7 +70,7 @@ public class Movie implements Serializable {
     @UpdateTimestamp
     private LocalDateTime updated;
 
-    @OneToMany(mappedBy = "series", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+    @OneToMany(mappedBy = "series", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private List<Episode> episodes;
 
     @OneToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
@@ -273,6 +269,6 @@ public class Movie implements Serializable {
 
     @Override
     public String toString() {
-        return movieRu != null ? movieRu.getTitle() : movieEn.getTitle();
+        return (movieRu != null && movieRu.getTitle() != null) ? movieRu.getTitle() : movieEn.getTitle();
     }
 }

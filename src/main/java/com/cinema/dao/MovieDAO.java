@@ -1,34 +1,64 @@
 package com.cinema.dao;
 
-import com.cinema.config.HibernateUtil;
 import com.cinema.entity.Movie;
 import com.cinema.entity.MovieEn;
 import com.cinema.entity.MovieInternalize;
 import com.cinema.entity.MovieRu;
+import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 
 import javax.persistence.EntityManager;
-import javax.transaction.Transactional;
 
 @Singleton
 public class MovieDAO {
 
-    private final EntityManager entityManager = HibernateUtil.entityManager();
+    private static final Logger logger = LogManager.getLogger(MovieDAO.class);
 
-    @Transactional(rollbackOn = Exception.class)
+    private final EntityManager entityManager;
+
+    public EntityManager getEntityManager() {
+        return entityManager;
+    }
+
+    @Inject
+    public MovieDAO(EntityManager entityManager) {
+        this.entityManager = entityManager;
+    }
+
     public void create(Movie movie) {
-        entityManager.persist(movie);
+        try {
+            entityManager.getTransaction().begin();
+            entityManager.persist(movie);
+            entityManager.getTransaction().commit();
+        } catch (Exception e) {
+            entityManager.getTransaction().rollback();
+            logger.error(e.getMessage(), e);
+        }
     }
 
-    @Transactional(rollbackOn = Exception.class)
     public void update(Movie movie) {
-        entityManager.merge(movie);
+        try {
+            entityManager.getTransaction().begin();
+            entityManager.merge(movie);
+            entityManager.getTransaction().commit();
+        } catch (Exception e) {
+            entityManager.getTransaction().rollback();
+            logger.error(e.getMessage(), e);
+        }
     }
 
-    @Transactional(rollbackOn = Exception.class)
-    public void delete(Long id) {
-        entityManager.remove(new Movie(id));
+    public void delete(Movie id) {
+        try {
+            entityManager.getTransaction().begin();
+            entityManager.remove(id);
+            entityManager.getTransaction().commit();
+        } catch (Exception e) {
+            entityManager.getTransaction().rollback();
+            logger.error(e.getMessage(), e);
+        }
     }
 
     public Movie getMovie(Long id) {

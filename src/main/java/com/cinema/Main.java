@@ -1,13 +1,19 @@
 package com.cinema;
 
 import javafx.application.Application;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
 
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
+@SpringBootApplication
+public class Main implements CommandLineRunner {
 
-public class Main {
     public static void main(String[] args) {
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("cinema");
+        new SpringApplicationBuilder(Main.class).headless(false).run(args);
+    }
+
+    @Override
+    public void run(String... args) {
         Application.launch(CinemaApplication.class);
     }
 }

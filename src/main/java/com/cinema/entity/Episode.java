@@ -17,7 +17,7 @@ public class Episode {
     private Movie series;
 
     @Column(name = "SERIES_ID", nullable = false, updatable = false, insertable = false)
-    private Integer seriesId;
+    private Long seriesId;
 
     @Column(nullable = false)
     private Short season;
@@ -119,11 +119,11 @@ public class Episode {
         this.episode = episode;
     }
 
-    public Integer getSeriesId() {
+    public Long getSeriesId() {
         return seriesId;
     }
 
-    public void setSeriesId(Integer seriesId) {
+    public void setSeriesId(Long seriesId) {
         this.seriesId = seriesId;
     }
 

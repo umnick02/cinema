@@ -29,6 +29,14 @@ public class Config {
         Config.lang = lang;
     }
 
+    public static String getEntity() {
+        return getLang() == Language.RU ? "movieRu" : "movieEn";
+    }
+
+    public static String getTable() {
+        return getLang() == Language.RU ? "MOVIE_RU" : "MOVIE_EN";
+    }
+
     public static String getGenre() {
         return getLang() == Language.RU ? "Жанры" : "Genres";
     }

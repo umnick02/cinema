@@ -13,8 +13,8 @@ repositories {
     }
 }
 javafx {
-    version = '12'
-    modules = [ 'javafx.controls', 'javafx.base', 'javafx.media' ]
+    version = '13'
+    modules = [ 'javafx.controls' ]
 }
 dependencies {
     compile 'uk.co.caprica:vlcj:4.1.0'

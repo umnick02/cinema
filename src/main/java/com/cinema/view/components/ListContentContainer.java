@@ -7,10 +7,11 @@ import javafx.scene.layout.AnchorPane;
 
 @Singleton
 public class ListContentContainer extends AnchorPane {
-
+    ScrollCardsContainer scrollCardsContainer;
     @Inject
     public ListContentContainer(MenuContentContainer menuContentContainer, ScrollCardsContainer scrollCardsContainer) {
-        super(menuContentContainer.getWrapper(), scrollCardsContainer.getWrapper());
+        super(menuContentContainer, scrollCardsContainer);
+        this.scrollCardsContainer = scrollCardsContainer;
         UIBuilder.setAnchor(this, 0d, 0d, 0d, 0d);
     }
 }

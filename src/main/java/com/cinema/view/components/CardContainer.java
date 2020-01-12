@@ -3,6 +3,7 @@ package com.cinema.view.components;
 import com.cinema.service.bt.BtService;
 import com.cinema.config.Config;
 import com.cinema.entity.Movie;
+import com.cinema.view.UIComponents;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
@@ -19,11 +20,12 @@ public class CardContainer extends VBox {
         super();
         setMovie(movie);
         addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
+            UIComponents.play(movie.getFile());
             btService.setMagnet(movie.getMagnet());
             try {
                 EXECUTORS.submit(btService::start);
             } catch (NullPointerException e) {
-                System.out.println();
+                System.out.println(e);
             }
         });
     }

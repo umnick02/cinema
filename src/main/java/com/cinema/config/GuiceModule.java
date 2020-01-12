@@ -2,7 +2,11 @@ package com.cinema.config;
 
 import bt.torrent.fileselector.TorrentFileSelector;
 import com.cinema.entity.*;
+import com.cinema.presenter.Presentable;
+import com.cinema.presenter.Presenter;
 import com.cinema.service.bt.selectors.DraftFilesSelector;
+import com.cinema.view.Viewable;
+import com.cinema.view.components.RootContainer;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
@@ -20,7 +24,10 @@ public class GuiceModule extends AbstractModule {
     @Override
     protected void configure() {
         bind(TorrentFileSelector.class).to(DraftFilesSelector.class);
+        bind(Presentable.class).to(Presenter.class);
+        bind(Viewable.class).to(RootContainer.class);
     }
+
     private static final ThreadLocal<EntityManager> ENTITY_MANAGER_CACHE = new ThreadLocal<>();
 
     @Provides
@@ -34,6 +41,7 @@ public class GuiceModule extends AbstractModule {
         settings.put(Environment.URL, "jdbc:h2:file:~/IdeaProjects/cinema/h2_db");
         settings.put(Environment.DIALECT, "org.hibernate.dialect.H2Dialect");
         settings.put(Environment.SHOW_SQL, "true");
+        settings.put(Environment.FORMAT_SQL, "true");
         settings.put(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
 //        settings.put(Environment.HBM2DDL_AUTO, "update");
         configuration.setProperties(settings);

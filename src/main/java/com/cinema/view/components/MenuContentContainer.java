@@ -1,7 +1,5 @@
 package com.cinema.view.components;
 
-import com.cinema.view.Anchorable;
-import com.cinema.view.UIBuilder;
 import com.google.inject.Singleton;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -10,17 +8,18 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 
 @Singleton
-public class MenuContentContainer extends HBox implements Anchorable {
-    private final AnchorPane wrapper;
+public class MenuContentContainer extends HBox {
 
     public MenuContentContainer() {
         super();
+        AnchorPane.setTopAnchor(this, 0d);
+        AnchorPane.setLeftAnchor(this, 0d);
+        AnchorPane.setRightAnchor(this, 0d);
         setMaxHeight(30);
         setMinHeight(30);
         setFillHeight(true);
         getChildren().addAll(buildSearch(), buildSubmitButton());
         setAlignment(Pos.CENTER);
-        wrapper = UIBuilder.wrapNodeToAnchorWidth(this);
     }
 
     private TextField buildSearch() {
@@ -32,10 +31,5 @@ public class MenuContentContainer extends HBox implements Anchorable {
         Button button = new Button("Search");
         button.setDefaultButton(true);
         return button;
-    }
-
-    @Override
-    public AnchorPane getWrapper() {
-        return wrapper;
     }
 }

@@ -80,9 +80,7 @@ public class CardsContainer extends GridPane implements Anchorable {
     }
 
     private void updateCard(CardContainer card, Movie movie) {
-        getChildren().remove(card);
         card.setMovie(movie);
-        getChildren().add(card);
     }
 
     private void showCards(int fromCard) {

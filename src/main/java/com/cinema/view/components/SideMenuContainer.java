@@ -1,29 +1,24 @@
 package com.cinema.view.components;
 
 import com.cinema.config.Config;
-import com.cinema.model.MovieModel;
 import com.cinema.view.Anchorable;
 import com.cinema.view.UIBuilder;
-import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.AnchorPane;
 
 import java.util.Objects;
-import java.util.Set;
 
 @Singleton
 public class SideMenuContainer extends TreeView<String> implements Anchorable {
 
     private final AnchorPane wrapper;
-    @Inject
-    public SideMenuContainer(MovieModel movieModel) {
+    TreeItem<String> root = new TreeItem<>(Config.getGenre());
+
+    public SideMenuContainer() {
         super();
-        Set<GenreItem> genreItems = movieModel.getGenres();
-        TreeItem<String> root = new TreeItem<>(Config.getGenre());
         root.setExpanded(true);
-        root.getChildren().addAll(genreItems);
         setRoot(root);
         setShowRoot(true);
         wrapper = UIBuilder.wrapNodeToAnchor(this);

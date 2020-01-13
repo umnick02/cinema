@@ -60,8 +60,9 @@ public class DraftFilesSelector extends TorrentFileSelector {
     protected SelectionResult select(TorrentFile file) {
         if (movie != null && movie.getFile() == null) {
             movie.setFile(String.join("/", file.getPathElements()));
+            movie.setFileStatus(Movie.FileStatus.UNPLAYABLE);
             logger.info("Set file=[{}] for movie=[{}]", movie.getFile(), movie);
-            movieModel.updateFilePath(movie);
+            movieModel.updateMovie(movie);
         }
         return SelectionResult.select().build();
     }

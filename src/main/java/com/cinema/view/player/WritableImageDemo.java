@@ -90,17 +90,17 @@ public class WritableImageDemo extends Application {
         videoImageView.fitHeightProperty().bind(root.heightProperty());
         root.getChildren().add(videoImageView);
 
-        // =========== Just for fun ===================
-        Label label = new Label("This is JavaFX");
-        label.setStyle("-fx-font-size: 60; -fx-text-fill: red;");
-        Group group = new Group(label);
-        root.getChildren().add(group);
-
-        RotateTransition rt = new RotateTransition(Duration.millis(3000), label);
-        rt.setByAngle(360);
-        rt.setCycleCount(RotateTransition.INDEFINITE);
-        rt.play();
-        // ============================================
+//        // =========== Just for fun ===================
+//        Label label = new Label("This is JavaFX");
+//        label.setStyle("-fx-font-size: 60; -fx-text-fill: red;");
+//        Group group = new Group(label);
+//        root.getChildren().add(group);
+//
+//        RotateTransition rt = new RotateTransition(Duration.millis(3000), label);
+//        rt.setByAngle(360);
+//        rt.setCycleCount(RotateTransition.INDEFINITE);
+//        rt.play();
+//        // ============================================
 
         Scene scene = new Scene(root, 1200, 675);
         primaryStage.setScene(scene);

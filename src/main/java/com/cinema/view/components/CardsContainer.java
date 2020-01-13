@@ -2,10 +2,9 @@ package com.cinema.view.components;
 
 import com.cinema.config.Config;
 import com.cinema.entity.Movie;
-import com.cinema.service.bt.BtService;
 import com.cinema.view.Anchorable;
 import com.cinema.view.UIBuilder;
-import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import javafx.geometry.Insets;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.ColumnConstraints;
@@ -13,14 +12,13 @@ import javafx.scene.layout.GridPane;
 
 import java.util.*;
 
+@Singleton
 public class CardsContainer extends GridPane implements Anchorable {
 
     private final AnchorPane wrapper;
     private final Set<CardContainer> cards = new HashSet<>();
-    private final BtService btService;
 
-    @Inject
-    public CardsContainer(BtService btService) {
+    public CardsContainer() {
         super();
         ColumnConstraints columnConstraints = new ColumnConstraints();
         columnConstraints.setPercentWidth(20);
@@ -28,18 +26,13 @@ public class CardsContainer extends GridPane implements Anchorable {
         setHgap(10);
         setVgap(10);
         setPadding(new Insets(25, 25, 25, 25));
-        this.btService = btService;
         wrapper = UIBuilder.wrapNodeToAnchor(this);
     }
 
     public void addCards(Set<Movie> movies) {
         int fromCard = cards.size();
-        movies.forEach(m -> cards.add(new CardContainer(m, btService)));
+        movies.forEach(m -> cards.add(new CardContainer(m)));
         showCards(fromCard);
-    }
-
-    public Set<CardContainer> getCards() {
-        return cards;
     }
 
     public void resetCards(Set<Movie> movies) {

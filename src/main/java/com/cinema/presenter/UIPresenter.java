@@ -11,12 +11,12 @@ import java.util.Set;
 
 import static com.cinema.CinemaApplication.INJECTOR;
 
-public class Presenter implements Presentable {
+public class UIPresenter implements UIPresentable {
     private final Viewable view;
     private final MovieModel movieModel = INJECTOR.getInstance(MovieModel.class);
 
     @Inject
-    public Presenter(Viewable view) {
+    public UIPresenter(Viewable view) {
         this.view = view;
     }
 

@@ -24,7 +24,7 @@ public class MovieModel {
         this.entityManager = entityManager;
     }
 
-    public void updateFilePath(Movie movie) {
+    public void updateMovie(Movie movie) {
         movieDAO.update(movie);
     }
 

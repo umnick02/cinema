@@ -1,38 +1,29 @@
 package com.cinema.view.components;
 
-import com.cinema.service.bt.BtService;
 import com.cinema.config.Config;
 import com.cinema.entity.Movie;
-import com.cinema.view.UIComponents;
+import com.cinema.presenter.PlayerPresentable;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 
 import java.util.Objects;
 
-import static com.cinema.config.Config.EXECUTORS;
+import static com.cinema.CinemaApplication.INJECTOR;
 
 public class CardContainer extends VBox {
 
     private Movie movie;
 
-    public CardContainer(Movie movie, BtService btService) {
+    public CardContainer(Movie movie) {
         super();
         setMovie(movie);
-        addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
-            UIComponents.play(movie.getFile());
-            btService.setMagnet(movie.getMagnet());
-            try {
-                EXECUTORS.submit(btService::start);
-            } catch (NullPointerException e) {
-                System.out.println(e);
-            }
-        });
     }
 
     public void setMovie(Movie movie) {
         this.movie = movie;
         setupCard();
+        addEventHandler(MouseEvent.MOUSE_CLICKED, event -> INJECTOR.getInstance(PlayerPresentable.class).tryPlay(movie));
     }
 
     public Movie getMovie() {

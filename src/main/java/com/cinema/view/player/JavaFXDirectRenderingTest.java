@@ -180,7 +180,7 @@ public abstract class JavaFXDirectRenderingTest extends Application {
     /**
      *
      */
-    private PixelBuffer pixelBuffer;
+    private PixelBuffer<ByteBuffer> pixelBuffer;
 
     private WritableImage img;
 
@@ -234,7 +234,7 @@ public abstract class JavaFXDirectRenderingTest extends Application {
         canvas.widthProperty().addListener(event -> {if (!mediaPlayer.status().isPlaying()) renderFrame();});
         canvas.heightProperty().addListener(event -> {if (!mediaPlayer.status().isPlaying()) renderFrame();});
 
-        imageView = new ImageView(new Image(getClass().getResourceAsStream("/vlcj-logo.png")));
+        imageView = new ImageView(new Image(getClass().getResourceAsStream("/icons/vlcj-logo.png")));
 
         stackPane = new StackPane();
         stackPane.getChildren().addAll(canvasPane, imageView);
@@ -376,11 +376,11 @@ public abstract class JavaFXDirectRenderingTest extends Application {
             return new RV32BufferFormat(sourceWidth, sourceHeight);
         }
 
-//        @Override
+        @Override
         public void allocatedBuffers(ByteBuffer[] buffers) {
             // This is the new magic sauce, the native video buffer is used directly for the image buffer - there is no
             // full-frame buffer copy here
-            pixelBuffer = new PixelBuffer(bufferWidth, bufferHeight, buffers[0], pixelFormat);
+            pixelBuffer = new PixelBuffer<>(bufferWidth, bufferHeight, buffers[0], pixelFormat);
             img = new WritableImage(pixelBuffer);
             // Since for every frame the entire buffer will be updated, we can optimise by caching the result here
             updatedBuffer = new Rectangle2D(0, 0, bufferWidth, bufferHeight);

@@ -11,6 +11,7 @@ import bt.torrent.fileselector.TorrentFileSelector;
 import bt.torrent.selector.SequentialSelector;
 import com.cinema.entity.Movie;
 import com.cinema.model.MovieModel;
+import com.cinema.presenter.PlayerPresentable;
 import com.cinema.service.parser.MagnetParser;
 import com.cinema.service.bt.selectors.DraftFilesSelector;
 import com.google.inject.Inject;
@@ -20,18 +21,18 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.nio.file.Paths;
-import java.time.Duration;
+
+import static com.cinema.CinemaApplication.INJECTOR;
 
 @Singleton
 public class BtService {
 
     private static final Logger logger = LogManager.getLogger(BtService.class);
 
-    private BtClient btClient;
-    private String magnet;
     private final TorrentFileSelector fileSelector;
     private final MagnetParser magnetParser;
     private final MovieModel movieModel;
+    private static final double preloadDuration = 0.5;
 
     @Inject
     public BtService(TorrentFileSelector fileSelector, MagnetParser magnetParser, MovieModel movieModel) {
@@ -40,16 +41,7 @@ public class BtService {
         this.movieModel = movieModel;
     }
 
-    public void setMagnet(String magnet) {
-        this.magnet = magnet;
-    }
-
-    public BtClient getBtClient() {
-        return btClient;
-    }
-
-    public void start() {
-        if (magnet == null) throw new NullPointerException("Magnet link is null for movie!");
+    public void start(Movie movie) {
         Config config = new Config() {
             @Override
             public int getNumOfHashingThreads() {
@@ -63,25 +55,42 @@ public class BtService {
             }
         });
         Storage storage = new FileSystemStorage(Paths.get(com.cinema.config.Config.getPreference(com.cinema.config.Config.PrefKey.STORAGE)));
-        btClient = Bt.client()
+        ((DraftFilesSelector) fileSelector).setMovie(movie);
+        BtClient btClient = Bt.client()
                 .config(config)
+                .module(dhtModule)
                 .storage(storage)
-                .magnet(magnet)
+                .magnet(movie.getMagnet())
                 .autoLoadModules()
-                .afterTorrentFetched(torrent -> {
-                    Movie movie = movieModel.processMovieFromMagnet(magnetParser.parse(magnet, torrent));
-                    ((DraftFilesSelector) fileSelector).setMovie(movie);
-                })
+                .afterTorrentFetched(torrent -> movieModel.processMovieFromMagnet(magnetParser.parse(movie.getMagnet(), torrent)))
                 .initEagerly()
                 .fileSelector(fileSelector)
                 .selector(SequentialSelector.sequential())
-                .module(dhtModule)
                 .stopWhenDownloaded()
                 .build();
-        long t0 = System.currentTimeMillis();
+        logger.info("Preloading movie [{}]", movie.getMovieEn().getTitle());
+        Preloader preloader = new Preloader();
         btClient.startAsync(state -> {
-            System.err.println("Peers: " + state.getConnectedPeers().size() + "; Downloaded: " + (((double)state.getPiecesComplete()) / state.getPiecesTotal()) * 100 + "%");
-        }, 5000).join();
-        System.err.println("Done in " + Duration.ofMillis(System.currentTimeMillis() - t0));
+            double loadDuration = (double) state.getPiecesComplete() * movie.getDuration() / state.getPiecesTotal();
+            preloader.check(loadDuration, movie, movieModel);
+            logger.info(String.format("Preloaded [%.1f / {}] min of movie [{}]", loadDuration),
+                    movie.getDuration(), movie.getMovieEn().getTitle());
+        }, 1000).join();
+        logger.info("Movie [{}] downloaded!", movie.getMovieEn().getTitle());
+        movie.setFileStatus(Movie.FileStatus.DOWNLOADED);
+        movieModel.updateMovie(movie);
+    }
+
+    private static final class Preloader {
+        boolean preloaded = false;
+        private void check(double loadDuration, Movie movie, MovieModel movieModel) {
+            if (!preloaded && loadDuration >= preloadDuration) {
+                logger.info("Movie [{}] preloaded!", movie.getMovieEn().getTitle());
+                movie.setFileStatus(Movie.FileStatus.PLAYABLE);
+                movieModel.updateMovie(movie);
+                INJECTOR.getInstance(PlayerPresentable.class).tryPlay(movie);
+                preloaded = true;
+            }
+        }
     }
 }

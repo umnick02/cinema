@@ -82,6 +82,25 @@ public class Movie implements Serializable {
     @Column(name = "file", columnDefinition = "text")
     private String file;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "file_status")
+    private FileStatus fileStatus;
+
+    public enum FileStatus {
+        UNPLAYABLE, PLAYABLE, DOWNLOADED;
+        public static boolean canPlay(FileStatus status) {
+            return status == PLAYABLE || status == DOWNLOADED;
+        }
+    }
+
+    public FileStatus getFileStatus() {
+        return fileStatus;
+    }
+
+    public void setFileStatus(FileStatus fileStatus) {
+        this.fileStatus = fileStatus;
+    }
+
     public String getFile() {
         return file;
     }

@@ -2,9 +2,12 @@ package com.cinema.config;
 
 import bt.torrent.fileselector.TorrentFileSelector;
 import com.cinema.entity.*;
-import com.cinema.presenter.Presentable;
-import com.cinema.presenter.Presenter;
+import com.cinema.presenter.PlayerPresentable;
+import com.cinema.presenter.PlayerPresenter;
+import com.cinema.presenter.UIPresentable;
+import com.cinema.presenter.UIPresenter;
 import com.cinema.service.bt.selectors.DraftFilesSelector;
+import com.cinema.view.Playable;
 import com.cinema.view.Viewable;
 import com.cinema.view.components.RootContainer;
 import com.google.inject.AbstractModule;
@@ -24,11 +27,11 @@ public class GuiceModule extends AbstractModule {
     @Override
     protected void configure() {
         bind(TorrentFileSelector.class).to(DraftFilesSelector.class);
-        bind(Presentable.class).to(Presenter.class);
+        bind(UIPresentable.class).to(UIPresenter.class);
         bind(Viewable.class).to(RootContainer.class);
+        bind(PlayerPresentable.class).to(PlayerPresenter.class);
+        bind(Playable.class).to(RootContainer.class);
     }
-
-    private static final ThreadLocal<EntityManager> ENTITY_MANAGER_CACHE = new ThreadLocal<>();
 
     @Provides
     @Singleton
@@ -58,10 +61,6 @@ public class GuiceModule extends AbstractModule {
 
     @Provides
     public EntityManager provideEntityManager(EntityManagerFactory entityManagerFactory) {
-        EntityManager entityManager = ENTITY_MANAGER_CACHE.get();
-        if (entityManager == null) {
-            ENTITY_MANAGER_CACHE.set(entityManager = entityManagerFactory.createEntityManager());
-        }
-        return entityManager;
+        return entityManagerFactory.createEntityManager();
     }
 }

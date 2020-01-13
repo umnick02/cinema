@@ -17,16 +17,16 @@ javafx {
     modules = [ 'javafx.controls' ]
 }
 dependencies {
-    compile 'uk.co.caprica:vlcj:4.1.0'
-    compile 'uk.co.caprica:vlcj-natives:4.1.0'
-    compile 'uk.co.caprica:vlcj-osx-stubs:1.0.0'
+    compile 'uk.co.caprica:vlcj:+'
+    compile 'uk.co.caprica:vlcj-natives:+'
+    compile 'uk.co.caprica:vlcj-osx-stubs:+'
     compile 'net.java.dev.jna:jna:5.5.0'
     compile 'net.java.dev.jna:jna-platform:5.5.0'
     compile 'org.jsoup:jsoup:1.12.1'
-    compile 'com.github.atomashpolskiy:bt-upnp:1.9'
-    compile 'com.github.atomashpolskiy:bt-dht:1.9'
-    compile 'com.github.atomashpolskiy:bt-http-tracker-client:1.9'
-    compile 'com.github.atomashpolskiy:bt-core:1.9'
+    compile 'com.github.atomashpolskiy:bt-upnp:+'
+    compile 'com.github.atomashpolskiy:bt-dht:+'
+    compile 'com.github.atomashpolskiy:bt-http-tracker-client:+'
+    compile 'com.github.atomashpolskiy:bt-core:+'
     compile 'commons-logging:commons-logging:1.2'
     compile 'org.hibernate:hibernate-core:5.4.10.Final'
     compile 'org.hibernate:hibernate-entitymanager:5.4.10.Final'

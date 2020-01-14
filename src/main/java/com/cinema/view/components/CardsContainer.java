@@ -35,45 +35,14 @@ public class CardsContainer extends GridPane implements Anchorable {
         showCards(fromCard);
     }
 
+    private void removeCards() {
+        getChildren().clear();
+        cards.clear();
+    }
+
     public void resetCards(Set<Movie> movies) {
-        Iterator<CardContainer> cardsIterator = cards.iterator();
-        Iterator<Movie> movieIterator = movies.iterator();
-        Set<Movie> newMovies = null;
-        Set<CardContainer> staleCards = null;
-        while (movieIterator.hasNext()) {
-            Movie movie = movieIterator.next();
-            if (cardsIterator.hasNext()) {
-                CardContainer card = cardsIterator.next();
-                if (!movie.equals(card.getMovie())) {
-                    updateCard(card, movie);
-                }
-            } else {
-                if (newMovies == null) newMovies = new HashSet<>();
-                newMovies.add(movie);
-            }
-        }
-        if (newMovies != null && newMovies.size() > 0) {
-            addCards(newMovies);
-        } else {
-            while (cardsIterator.hasNext()) {
-                if (staleCards == null) staleCards = new HashSet<>();
-                staleCards.add(cardsIterator.next());
-            }
-            if (staleCards != null && staleCards.size() > 0) {
-                removeCards(staleCards);
-            }
-        }
-    }
-
-    private void removeCards(Set<CardContainer> cards) {
-        for (CardContainer card : cards) {
-            this.cards.remove(card);
-            getChildren().remove(card);
-        }
-    }
-
-    private void updateCard(CardContainer card, Movie movie) {
-        card.setMovie(movie);
+        removeCards();
+        addCards(movies);
     }
 
     private void showCards(int fromCard) {

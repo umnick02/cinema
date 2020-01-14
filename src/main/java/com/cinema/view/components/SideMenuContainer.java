@@ -4,6 +4,7 @@ import com.cinema.config.Config;
 import com.cinema.view.Anchorable;
 import com.cinema.view.UIBuilder;
 import com.google.inject.Singleton;
+import javafx.scene.control.SplitPane;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.AnchorPane;
@@ -22,6 +23,7 @@ public class SideMenuContainer extends TreeView<String> implements Anchorable {
         setRoot(root);
         setShowRoot(true);
         wrapper = UIBuilder.wrapNodeToAnchor(this);
+        SplitPane.setResizableWithParent(this.getWrapper(), Boolean.FALSE);
     }
 
     @Override

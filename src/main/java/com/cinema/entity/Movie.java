@@ -1,5 +1,6 @@
 package com.cinema.entity;
 
+import com.cinema.config.Config;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -243,6 +244,10 @@ public class Movie implements Serializable {
 
     public MovieRu getMovieRu() {
         return movieRu;
+    }
+
+    public MovieInternalize getMovieDetails() {
+        return Config.getLang() == Config.PrefKey.Language.RU && movieRu != null ? movieRu : movieEn;
     }
 
     public void setMovieRu(MovieRu movieRu) {

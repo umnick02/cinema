@@ -81,4 +81,14 @@ public class MovieModel {
         }
         return null;
     }
+
+    public Set<Movie> findByTitleLike(String pattern) {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Movie> query = builder.createQuery(Movie.class);
+        Root<Movie> root = query.from(Movie.class);
+        query.where(builder.like(builder.lower(root.get(getEntity()).get("title")),
+                "%" + pattern.toLowerCase() + "%"));
+        List<Movie> movies = entityManager.createQuery(query).getResultList();
+        return new HashSet<>(movies);
+    }
 }

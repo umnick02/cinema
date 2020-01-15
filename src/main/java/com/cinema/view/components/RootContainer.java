@@ -7,6 +7,7 @@ import com.cinema.presenter.PlayerPresentable;
 import com.cinema.presenter.PlayerPresenter;
 import com.cinema.presenter.UIPresentable;
 import com.cinema.presenter.UIPresenter;
+import com.cinema.view.Anchorable;
 import com.cinema.view.Playable;
 import com.cinema.view.UIBuilder;
 import com.cinema.view.Viewable;
@@ -16,8 +17,10 @@ import com.google.inject.Singleton;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.ProgressIndicator;
+import javafx.scene.control.SplitPane;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 import java.util.Map;
@@ -26,12 +29,13 @@ import java.util.Set;
 import static com.cinema.config.Config.getPreference;
 
 @Singleton
-public class RootContainer extends AnchorPane implements Viewable, Playable {
+public class RootContainer extends StackPane implements Viewable, Playable, Anchorable {
     private final UIPresentable uiPresenter;
     private final PlayerPresentable playerPresentable;
     SplitContainer splitContainer;
     FxPlayer fxPlayer;
     private final VBox loadingView = new VBox();
+    private final AnchorPane wrapper;
 
     @Inject
     public RootContainer(SplitContainer splitContainer, FxPlayer fxPlayer) {
@@ -41,6 +45,7 @@ public class RootContainer extends AnchorPane implements Viewable, Playable {
         uiPresenter = new UIPresenter(this);
         playerPresentable = new PlayerPresenter(this);
         initLoadingView();
+        wrapper = UIBuilder.wrapNodeToAnchor(this);
     }
 
     public void setGenres() {
@@ -110,5 +115,10 @@ public class RootContainer extends AnchorPane implements Viewable, Playable {
     @Override
     public void play(String file) {
         fxPlayer.getEmbeddedMediaPlayer().media().play(getPreference(Config.PrefKey.STORAGE) + file);
+    }
+
+    @Override
+    public AnchorPane getWrapper() {
+        return wrapper;
     }
 }

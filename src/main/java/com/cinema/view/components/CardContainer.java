@@ -2,7 +2,6 @@ package com.cinema.view.components;
 
 import com.cinema.config.Config;
 import com.cinema.entity.Movie;
-import com.cinema.presenter.PlayerPresentable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.image.Image;
@@ -19,6 +18,7 @@ public class CardContainer extends StackPane {
     private Movie movie;
     private VBox card;
     private BorderPane hover;
+    private MovieDetailsContainer movieDetailsContainer;
     private static final Font first = Font.font("Helvetica", FontWeight.BOLD, FontPosture.ITALIC, 14);
     private static final Font second = Font.font("Helvetica", FontWeight.NORMAL, FontPosture.REGULAR, 14);
     private static final Font third = Font.font("Helvetica", FontWeight.BOLD, FontPosture.REGULAR, 13);
@@ -30,6 +30,13 @@ public class CardContainer extends StackPane {
 
         setMovie(movie);
         getChildren().add(card);
+    }
+
+    public MovieDetailsContainer getMovieDetailsContainer() {
+        if (movieDetailsContainer == null) {
+            movieDetailsContainer = new MovieDetailsContainer(movie);
+        }
+        return movieDetailsContainer;
     }
 
     private BorderPane buildHover(Movie movie) {
@@ -59,7 +66,11 @@ public class CardContainer extends StackPane {
     public void setMovie(Movie movie) {
         this.movie = movie;
         setupCard();
-        addEventHandler(MouseEvent.MOUSE_CLICKED, event -> INJECTOR.getInstance(PlayerPresentable.class).tryPlay(movie));
+        addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
+            if (!getChildren().contains(getMovieDetailsContainer())) {
+                INJECTOR.getInstance(RootContainer.class).getChildren().add(getMovieDetailsContainer());
+            }
+        });
         addEventHandler(MouseEvent.MOUSE_ENTERED, event -> showOnHover());
         addEventHandler(MouseEvent.MOUSE_EXITED, event -> hideOnHover());
     }

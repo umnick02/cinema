@@ -35,7 +35,7 @@ public class CinemaApplication extends Application {
     public void start(Stage stage) {
         logger.info("start");
         int width = Integer.parseInt(Config.getPreference(Config.PrefKey.SCREEN_WIDTH));
-        Scene scene = new Scene(rootContainer, width, width * 9 / 16d);
+        Scene scene = new Scene(rootContainer.getWrapper(), width, width * 9 / 16d);
         stage.setScene(scene);
         stage.setTitle(TITLE);
         stage.show();

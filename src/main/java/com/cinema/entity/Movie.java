@@ -2,6 +2,7 @@ package com.cinema.entity;
 
 import com.cinema.config.Config;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
@@ -24,6 +25,10 @@ public class Movie implements Serializable {
 
     @Column(name = "release_date")
     private LocalDate releaseDate;
+
+    @Column(name = "title", updatable = false, nullable = false)
+    @NaturalId(mutable = true)
+    private String title;
 
     @Column(name = "last_season_date")
     private LocalDate lastSeasonDate;
@@ -65,6 +70,15 @@ public class Movie implements Serializable {
     @Column(name = "magnet", nullable = false, columnDefinition = "text")
     private String magnet;
 
+    @Column(name = "company")
+    private String company;
+
+    @Column(name = "poster_thumbnail", columnDefinition = "varchar(511)")
+    private String posterThumbnail;
+
+    @Column(name = "poster", columnDefinition = "varchar(511)")
+    private String poster;
+
     @CreationTimestamp
     private LocalDateTime created;
 
@@ -102,12 +116,36 @@ public class Movie implements Serializable {
         this.fileStatus = fileStatus;
     }
 
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
     public String getFile() {
         return file;
     }
 
     public void setFile(String file) {
         this.file = file;
+    }
+
+    public String getPoster() {
+        return poster;
+    }
+
+    public void setPoster(String poster) {
+        this.poster = poster;
+    }
+
+    public String getPosterThumbnail() {
+        return posterThumbnail;
+    }
+
+    public void setPosterThumbnail(String posterThumbnail) {
+        this.posterThumbnail = posterThumbnail;
     }
 
     public Long getId() {
@@ -136,6 +174,14 @@ public class Movie implements Serializable {
 
     public void setLastSeasonDate(LocalDate lastSeasonDate) {
         this.lastSeasonDate = lastSeasonDate;
+    }
+
+    public String getCompany() {
+        return company;
+    }
+
+    public void setCompany(String company) {
+        this.company = company;
     }
 
     public Float getRatingImdb() {
@@ -293,6 +339,6 @@ public class Movie implements Serializable {
 
     @Override
     public String toString() {
-        return (movieRu != null && movieRu.getTitle() != null) ? movieRu.getTitle() : movieEn.getTitle();
+        return getTitle();
     }
 }

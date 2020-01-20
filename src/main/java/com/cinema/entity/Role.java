@@ -1,5 +1,5 @@
 package com.cinema.entity;
 
 public enum Role {
-    CREATOR, DIRECTOR, ACTOR
+    COMPOSER, DIRECTOR, ACTOR, SCREENWRITER
 }

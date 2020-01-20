@@ -14,7 +14,7 @@ repositories {
 }
 javafx {
     version = '13'
-    modules = [ 'javafx.controls' ]
+    modules = [ 'javafx.controls', 'javafx.web' ]
 }
 dependencies {
     compile 'uk.co.caprica:vlcj:+'

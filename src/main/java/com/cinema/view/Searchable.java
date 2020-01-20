@@ -6,5 +6,7 @@ import java.util.Set;
 
 public interface Searchable {
     String getText();
-    void showResults(Set<Movie> movies);
+    void showMovies(Set<Movie> movies);
+    void showLoading();
+    void hideLoading();
 }

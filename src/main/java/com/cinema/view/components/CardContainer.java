@@ -26,6 +26,7 @@ public class CardContainer extends StackPane {
     public CardContainer(Movie movie) {
         super();
         card = new VBox();
+        card.getStyleClass().add("card");
         hover = buildHover(movie);
 
         setMovie(movie);
@@ -68,7 +69,7 @@ public class CardContainer extends StackPane {
         setupCard();
         addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
             if (!getChildren().contains(getMovieDetailsContainer())) {
-                INJECTOR.getInstance(RootContainer.class).getChildren().add(getMovieDetailsContainer());
+                INJECTOR.getInstance(RootContainer.class).getStackPane().getChildren().add(getMovieDetailsContainer());
             }
         });
         addEventHandler(MouseEvent.MOUSE_ENTERED, event -> showOnHover());
@@ -94,8 +95,7 @@ public class CardContainer extends StackPane {
 
     private void setBackground() {
         int width = Integer.parseInt(Config.getPreference(Config.PrefKey.CARD_WIDTH));
-        String url = movie.getMovieRu() != null ? movie.getMovieRu().getPosterThumbnail() : movie.getMovieEn().getPosterThumbnail();
-        Image image = new Image(url, width, -1, true, false);
+        Image image = new Image(movie.getPosterThumbnail(), width, -1, true, false);
         BackgroundImage backgroundImage = new BackgroundImage(image, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, BackgroundSize.DEFAULT);
         card.setBackground(new Background(backgroundImage));
     }

@@ -10,7 +10,8 @@ public class HttpHelper {
 
     private static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
     private static final String[] DEFAULT_HEADERS = {
-            "User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.79 Safari/537.36"
+            "User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.79 Safari/537.36",
+            "Accept-Language", "en-US"
     };
 
     public static String requestAndGetBody(String url, String... headers) throws IOException, InterruptedException {

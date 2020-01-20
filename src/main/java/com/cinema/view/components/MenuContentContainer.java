@@ -1,72 +1,79 @@
 package com.cinema.view.components;
 
-import com.cinema.entity.Movie;
-import com.cinema.presenter.SearchPresentable;
-import com.cinema.presenter.SearchPresenter;
-import com.cinema.view.Searchable;
 import com.google.inject.Singleton;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 
-import java.util.Set;
-
-import static com.cinema.CinemaApplication.INJECTOR;
-
 @Singleton
-public class MenuContentContainer extends HBox implements Searchable {
+public class MenuContentContainer {
 
-    private final TextField searchField;
-    private final SearchPresentable searchPresentable;
+    TextField textField = buildTextField();
+    Button button = buildButton();
+    HBox hBox = buildHBox(textField, button);
+    private final int width = 24;
+    private final ImageView searchIcon = buildSearchIcon();
+    private final ProgressIndicator progressIndicator = buildIndicator();
 
-    public MenuContentContainer() {
-        super();
-        searchPresentable = new SearchPresenter(this);
-        AnchorPane.setTopAnchor(this, 0d);
-        AnchorPane.setLeftAnchor(this, 0d);
-        AnchorPane.setRightAnchor(this, 0d);
-        setMaxHeight(30);
-        setMinHeight(30);
-        setFillHeight(true);
-        searchField = buildSearch();
-        getChildren().addAll(searchField, buildSubmitButton());
-        setSpacing(10);
-        setAlignment(Pos.CENTER);
+    private ImageView buildSearchIcon() {
+        ImageView searchIcon = new ImageView("/icons/icons8-search-32.png");
+        searchIcon.setFitWidth(width*0.9);
+        searchIcon.setFitHeight(width*0.9);
+        return searchIcon;
     }
 
-    private TextField buildSearch() {
+    private ProgressIndicator buildIndicator() {
+        ProgressIndicator progressIndicator = new ProgressIndicator();
+        progressIndicator.setMinWidth(width*0.8);
+        progressIndicator.setMinHeight(width*0.8);
+        progressIndicator.setMaxWidth(width*0.8);
+        progressIndicator.setMaxHeight(width*0.8);
+        return progressIndicator;
+    }
+
+    private HBox buildHBox(TextField textField, Button button) {
+        HBox hBox = new HBox();
+        AnchorPane.setTopAnchor(hBox, 0d);
+        AnchorPane.setLeftAnchor(hBox, 0d);
+        AnchorPane.setRightAnchor(hBox, 0d);
+        hBox.setMaxHeight(30);
+        hBox.setMinHeight(30);
+        hBox.setFillHeight(true);
+        hBox.setSpacing(10);
+        hBox.setAlignment(Pos.CENTER);
+        hBox.getChildren().addAll(textField, button);
+        return hBox;
+    }
+
+    private TextField buildTextField() {
         TextField textField = new TextField();
         textField.setMinWidth(200);
         textField.setPrefWidth(500);
-//        textField.setOnKeyPressed(event -> searchPresentable.search());
         return textField;
     }
 
-    private Button buildSubmitButton() {
-        int width = 24;
+    private Button buildButton() {
         Button button = new Button();
         button.setMaxWidth(width);
         button.setMinWidth(width);
         button.setMinHeight(width);
         button.setMaxHeight(width);
+        button.setDefaultButton(true);
         ImageView imageView = new ImageView("/icons/icons8-search-32.png");
         imageView.setFitWidth(width*0.9);
         imageView.setFitHeight(width*0.9);
         button.setGraphic(imageView);
-        button.setDefaultButton(true);
-        button.setOnAction(event -> searchPresentable.search());
         return button;
     }
 
-    @Override
-    public String getText() {
-        return searchField.getText();
+    void showLoadingIcon() {
+        if (button.getGraphic() != progressIndicator) button.setGraphic(progressIndicator);
     }
 
-    @Override
-    public void showResults(Set<Movie> movies) {
-        INJECTOR.getInstance(RootContainer.class).setMovies(movies);
+    void hideLoadingIcon() {
+        if (button.getGraphic() != searchIcon) button.setGraphic(searchIcon);
     }
 }

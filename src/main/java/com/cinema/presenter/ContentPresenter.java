@@ -11,24 +11,25 @@ import java.util.Set;
 
 import static com.cinema.CinemaApplication.INJECTOR;
 
-public class UIPresenter implements UIPresentable {
+public class ContentPresenter implements ContentPresentable {
     private final Viewable view;
     private final MovieModel movieModel = INJECTOR.getInstance(MovieModel.class);
 
     @Inject
-    public UIPresenter(Viewable view) {
+    public ContentPresenter(Viewable view) {
         this.view = view;
     }
 
     @Override
     public void setGenres() {
         Map<String, Integer> genres = movieModel.getGenres();
-        view.setGenres(genres);
+        view.showGenres(genres);
     }
 
     @Override
-    public void setMovies(Filter filter) {
+    public void setMovies() {
+        Filter filter = view.getFilter();
         Set<Movie> movies = movieModel.getMovies(filter);
-        view.setMovies(movies);
+        view.showMovies(movies);
     }
 }

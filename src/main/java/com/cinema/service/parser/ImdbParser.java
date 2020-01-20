@@ -2,6 +2,7 @@ package com.cinema.service.parser;
 
 import com.cinema.entity.*;
 import com.cinema.helper.HttpHelper;
+import com.cinema.helper.YoutubeHelper;
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
@@ -38,7 +39,7 @@ public class ImdbParser {
             Parser.parse(html, movie);
             logger.info("Successfully fetching IMDB data for movie=[{}]", movie.getMovieEn().getTitle());
         } catch (RuntimeException e) {
-            logger.info("Successfully fetching IMDB data for movie=[{}]", movie.getMovieEn().getTitle());
+            logger.error(e.getMessage(), e);
         }
     }
 
@@ -46,8 +47,11 @@ public class ImdbParser {
 
         private static void parse(Document html, Movie movie) {
             JsonObject json = fetchJsonFromHtml(html);
-            movie.getMovieEn().setTitle(getTitle(json));
+            movie.setTitle(getOriginalTitle(json));
+            movie.getMovieEn().setTitle(getTitle(html));
 
+            movie.setPosterThumbnail(getPosterThumbnail(html));
+            movie.setCompany(getCompany(html));
             movie.setRatingImdb(getRating(json));
             movie.setRatingImdbVotes(getRatingVotes(json));
             movie.setSeries(isSeries(json));
@@ -60,12 +64,10 @@ public class ImdbParser {
 
             movie.getMovieEn().setMovie(movie);
             movie.getMovieEn().setUrl(getUrl(json));
-            movie.getMovieEn().setTrailer(getTrailer(json));
-            movie.getMovieEn().setTrailerThumbnail(getTrailerThumbnail(json));
+            movie.getMovieEn().setTrailer(getTrailer(movie.getMovieEn().getTitle()));
+            movie.getMovieEn().setTrailerThumbnail(getTrailerThumbnail(movie.getMovieEn().getTrailer()));
             movie.getMovieEn().setDescription(getDescription(html));
             movie.getMovieEn().setCountry(getCountry(html));
-            movie.getMovieEn().setCompany(getCompany(html));
-            movie.getMovieEn().setPosterThumbnail(getPosterThumbnail(html));
             fillPosters(html, movie);
             fillCasts(json, movie.getMovieEn());
         }
@@ -91,12 +93,17 @@ public class ImdbParser {
             return json.getString("url", null);
         }
 
-        private static String getTrailer(JsonObject json) {
-            return json.get("trailer").asObject().getString("embedUrl", null);
+        private static String getTrailer(String name) {
+            try {
+                return YoutubeHelper.getTrailer(name);
+            } catch (InterruptedException | IOException e) {
+                logger.error(e.getMessage(), e);
+            }
+            return null;
         }
 
-        private static String getTrailerThumbnail(JsonObject json) {
-            return json.get("trailer").asObject().getString("thumbnailUrl", null);
+        private static String getTrailerThumbnail(String trailerUrl) {
+            return YoutubeHelper.getTrailerThumbnail(trailerUrl);
         }
 
         private static JsonObject fetchJsonFromHtml(Document html) {
@@ -137,8 +144,8 @@ public class ImdbParser {
                                         .map(JsonValue::asString)
                                         .anyMatch(c -> c.equals("en"));
                                 if (countryUs && langEn) {
-                                    if (movie.getMovieEn().getPoster() == null) {
-                                        movie.getMovieEn().setPoster(image.getString("src", null));
+                                    if (movie.getPoster() == null) {
+                                        movie.setPoster(image.getString("src", null));
                                     }
                                 }
                             }
@@ -154,8 +161,12 @@ public class ImdbParser {
             }
         }
 
-        private static String getTitle(JsonObject json) {
+        private static String getOriginalTitle(JsonObject json) {
             return json.getString("name", null);
+        }
+
+        private static String getTitle(Document html) {
+            return html.selectFirst(".title_wrapper > h1").ownText();
         }
 
         private static String getDescription(Document html) {
@@ -209,6 +220,10 @@ public class ImdbParser {
         }
 
         private static void fillGenres(JsonObject json, MovieEn movie) {
+            if (json.get("genre").isString()) {
+                movie.setGenre1(json.get("genre").asString());
+                return;
+            }
             JsonArray genres = json.get("genre").asArray();
             for (int i = 0; i < genres.size() && i < 3; i++) {
                 switch (i) {

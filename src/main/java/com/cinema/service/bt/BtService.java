@@ -5,6 +5,7 @@ import bt.data.Storage;
 import bt.data.file.FileSystemStorage;
 import bt.dht.DHTConfig;
 import bt.dht.DHTModule;
+import bt.metainfo.Torrent;
 import bt.runtime.BtClient;
 import bt.runtime.Config;
 import bt.torrent.fileselector.TorrentFileSelector;
@@ -12,7 +13,6 @@ import bt.torrent.selector.SequentialSelector;
 import com.cinema.entity.Movie;
 import com.cinema.model.MovieModel;
 import com.cinema.presenter.PlayerPresentable;
-import com.cinema.service.parser.MagnetParser;
 import com.cinema.service.bt.selectors.DraftFilesSelector;
 import com.google.inject.Inject;
 import com.google.inject.Module;
@@ -21,6 +21,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.nio.file.Paths;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import static com.cinema.CinemaApplication.INJECTOR;
 
@@ -30,31 +32,70 @@ public class BtService {
     private static final Logger logger = LogManager.getLogger(BtService.class);
 
     private final TorrentFileSelector fileSelector;
-    private final MagnetParser magnetParser;
     private final MovieModel movieModel;
     private static final double preloadDuration = 0.5;
+    private final Module dhtModule = new DHTModule(new DHTConfig() {
+        @Override
+        public boolean shouldUseRouterBootstrap() {
+            return true;
+        }
+    });
+    private final Config config = new Config() {
+        @Override
+        public int getNumOfHashingThreads() {
+            return Runtime.getRuntime().availableProcessors() * 2;
+        }
+    };
+    private final Storage storage = new FileSystemStorage(Paths.get(com.cinema.config.Config.getPreference(com.cinema.config.Config.PrefKey.STORAGE)));
+    private BtClient btClient;
 
     @Inject
-    public BtService(TorrentFileSelector fileSelector, MagnetParser magnetParser, MovieModel movieModel) {
+    public BtService(TorrentFileSelector fileSelector, MovieModel movieModel) {
         this.fileSelector = fileSelector;
-        this.magnetParser = magnetParser;
         this.movieModel = movieModel;
     }
 
+    public boolean stop() {
+        if (btClient != null && btClient.isStarted()) {
+            btClient.stop();
+            return true;
+        }
+        return false;
+    }
+
+    public Torrent fillMovie(Movie movie) {
+        TorrentHolder torrentHolder = new TorrentHolder();
+        ((DraftFilesSelector) fileSelector).setMovie(movie);
+        btClient = Bt.client()
+                .config(config)
+                .module(dhtModule)
+                .storage(storage)
+                .magnet(movie.getMagnet())
+                .autoLoadModules()
+                .afterTorrentFetched(t -> torrentHolder.torrent = t)
+                .initEagerly()
+                .fileSelector(fileSelector)
+                .selector(SequentialSelector.sequential())
+                .stopWhenDownloaded()
+                .build();
+        CompletableFuture<?> future = btClient.startAsync(torrentSessionState -> {
+            if (torrentHolder.torrent != null) {
+                try {
+                    btClient.stop();
+                } catch (RuntimeException e) {
+                    logger.info("BtClient was stopped!");
+                }
+            }
+        }, 1000);
+        try {
+            future.get();
+        } catch (InterruptedException | ExecutionException e) {
+            logger.error(e.getMessage(), e);
+        }
+        return torrentHolder.torrent;
+    }
+
     public void start(Movie movie) {
-        Config config = new Config() {
-            @Override
-            public int getNumOfHashingThreads() {
-                return Runtime.getRuntime().availableProcessors() * 2;
-            }
-        };
-        Module dhtModule = new DHTModule(new DHTConfig() {
-            @Override
-            public boolean shouldUseRouterBootstrap() {
-                return true;
-            }
-        });
-        Storage storage = new FileSystemStorage(Paths.get(com.cinema.config.Config.getPreference(com.cinema.config.Config.PrefKey.STORAGE)));
         ((DraftFilesSelector) fileSelector).setMovie(movie);
         BtClient btClient = Bt.client()
                 .config(config)
@@ -62,7 +103,6 @@ public class BtService {
                 .storage(storage)
                 .magnet(movie.getMagnet())
                 .autoLoadModules()
-                .afterTorrentFetched(torrent -> movieModel.processMovieFromMagnet(magnetParser.parse(movie.getMagnet(), torrent)))
                 .initEagerly()
                 .fileSelector(fileSelector)
                 .selector(SequentialSelector.sequential())
@@ -79,6 +119,10 @@ public class BtService {
         logger.info("Movie [{}] downloaded!", movie.getMovieEn().getTitle());
         movie.setFileStatus(Movie.FileStatus.DOWNLOADED);
         movieModel.updateMovie(movie);
+    }
+
+    private static final class TorrentHolder {
+        private Torrent torrent;
     }
 
     private static final class Preloader {

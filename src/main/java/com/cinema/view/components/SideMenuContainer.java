@@ -1,8 +1,6 @@
 package com.cinema.view.components;
 
 import com.cinema.config.Config;
-import com.cinema.view.Anchorable;
-import com.cinema.view.UIBuilder;
 import com.google.inject.Singleton;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TreeItem;
@@ -12,23 +10,38 @@ import javafx.scene.layout.AnchorPane;
 import java.util.Objects;
 
 @Singleton
-public class SideMenuContainer extends TreeView<String> implements Anchorable {
+public class SideMenuContainer {
 
-    private final AnchorPane wrapper;
-    TreeItem<String> root = new TreeItem<>(Config.getGenre());
+    TreeItem<String> treeItem = buildTreeItem();
+    TreeView<String> treeView = buildTreeView(treeItem);
+    AnchorPane anchorPane = buildAnchorPane(treeView);
 
     public SideMenuContainer() {
-        super();
-        root.setExpanded(true);
-        setRoot(root);
-        setShowRoot(true);
-        wrapper = UIBuilder.wrapNodeToAnchor(this);
-        SplitPane.setResizableWithParent(this.getWrapper(), Boolean.FALSE);
+        SplitPane.setResizableWithParent(anchorPane, Boolean.FALSE);
     }
 
-    @Override
-    public AnchorPane getWrapper() {
-        return wrapper;
+    private TreeItem<String> buildTreeItem() {
+        TreeItem<String> treeItem = new TreeItem<>(Config.getGenre());
+        treeItem.setExpanded(true);
+        return treeItem;
+    }
+
+    private TreeView<String> buildTreeView(TreeItem<String> treeItem) {
+        TreeView<String> treeView = new TreeView<>();
+        treeView.getStyleClass().add("side-menu_item");
+        treeView.setRoot(treeItem);
+        treeView.setShowRoot(true);
+        return treeView;
+    }
+
+    private AnchorPane buildAnchorPane(TreeView<String> treeView) {
+        AnchorPane anchorPane = new AnchorPane(treeView);
+        anchorPane.setStyle("-fx-focus-color: transparent;");
+        AnchorPane.setBottomAnchor(treeView, 0d);
+        AnchorPane.setRightAnchor(treeView, 0d);
+        AnchorPane.setLeftAnchor(treeView, 0d);
+        AnchorPane.setTopAnchor(treeView, 0d);
+        return anchorPane;
     }
 
     public static class GenreItem extends TreeItem<String> {

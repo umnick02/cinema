@@ -17,14 +17,14 @@ public class MovieRu implements MovieInternalize {
     @NaturalId
     private String title;
 
+    @Column(name = "url")
+    private String url;
+
     @Column(name = "description", columnDefinition = "text")
     private String description;
 
     @Column(name = "country")
     private String country;
-
-    @Column(name = "company")
-    private String company;
 
     @Column(name = "genre_1")
     private String genre1;
@@ -34,12 +34,6 @@ public class MovieRu implements MovieInternalize {
 
     @Column(name = "genre_3")
     private String genre3;
-
-    @Column(name = "poster_thumbnail", columnDefinition = "varchar(511)")
-    private String posterThumbnail;
-
-    @Column(name = "poster", columnDefinition = "varchar(511)")
-    private String poster;
 
     @Column(name = "trailer", columnDefinition = "varchar(511)")
     private String trailer;
@@ -65,6 +59,14 @@ public class MovieRu implements MovieInternalize {
         this.title = title;
     }
 
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
     public String getDescription() {
         return description;
     }
@@ -79,14 +81,6 @@ public class MovieRu implements MovieInternalize {
 
     public void setCountry(String country) {
         this.country = country;
-    }
-
-    public String getCompany() {
-        return company;
-    }
-
-    public void setCompany(String company) {
-        this.company = company;
     }
 
     public String getGenre1() {
@@ -127,22 +121,6 @@ public class MovieRu implements MovieInternalize {
 
     public void setTrailer(String trailer) {
         this.trailer = trailer;
-    }
-
-    public String getPosterThumbnail() {
-        return posterThumbnail;
-    }
-
-    public void setPosterThumbnail(String posterThumbnail) {
-        this.posterThumbnail = posterThumbnail;
-    }
-
-    public String getPoster() {
-        return poster;
-    }
-
-    public void setPoster(String poster) {
-        this.poster = poster;
     }
 
     public Movie getMovie() {

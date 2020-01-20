@@ -31,6 +31,9 @@ public class Episode {
     @Column(name = "rating")
     private Float rating;
 
+    @Column(name = "rating_votes")
+    private Integer ratingVotes;
+
     @Column(name = "poster", columnDefinition = "varchar(511)")
     private String poster;
 
@@ -89,6 +92,14 @@ public class Episode {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public Integer getRatingVotes() {
+        return ratingVotes;
+    }
+
+    public void setRatingVotes(Integer ratingVotes) {
+        this.ratingVotes = ratingVotes;
     }
 
     public Integer getId() {

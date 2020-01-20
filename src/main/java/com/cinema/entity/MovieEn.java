@@ -13,7 +13,7 @@ public class MovieEn implements MovieInternalize {
     @GeneratedValue
     private Integer id;
 
-    @Column(name = "title", updatable = false)
+    @Column(name = "title", updatable = false, nullable = false)
     @NaturalId(mutable = true)
     private String title;
 
@@ -26,9 +26,6 @@ public class MovieEn implements MovieInternalize {
     @Column(name = "country")
     private String country;
 
-    @Column(name = "company")
-    private String company;
-
     @Column(name = "genre_1")
     private String genre1;
 
@@ -37,12 +34,6 @@ public class MovieEn implements MovieInternalize {
 
     @Column(name = "genre_3")
     private String genre3;
-
-    @Column(name = "poster_thumbnail", columnDefinition = "varchar(511)")
-    private String posterThumbnail;
-
-    @Column(name = "poster", columnDefinition = "varchar(511)")
-    private String poster;
 
     @Column(name = "trailer", columnDefinition = "varchar(511)")
     private String trailer;
@@ -92,14 +83,6 @@ public class MovieEn implements MovieInternalize {
         this.country = country;
     }
 
-    public String getCompany() {
-        return company;
-    }
-
-    public void setCompany(String company) {
-        this.company = company;
-    }
-
     public String getGenre1() {
         return genre1;
     }
@@ -122,22 +105,6 @@ public class MovieEn implements MovieInternalize {
 
     public void setGenre3(String genre3) {
         this.genre3 = genre3;
-    }
-
-    public String getPoster() {
-        return poster;
-    }
-
-    public void setPoster(String poster) {
-        this.poster = poster;
-    }
-
-    public String getPosterThumbnail() {
-        return posterThumbnail;
-    }
-
-    public void setPosterThumbnail(String posterThumbnail) {
-        this.posterThumbnail = posterThumbnail;
     }
 
     public String getTrailer() {

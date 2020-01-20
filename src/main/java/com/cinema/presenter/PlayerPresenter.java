@@ -21,7 +21,7 @@ public class PlayerPresenter implements PlayerPresentable {
     private final Playable playable;
     private final BtService btService = INJECTOR.getInstance(BtService.class);
 
-    @Inject
+//    @Inject
     public PlayerPresenter(Playable playable) {
         this.playable = playable;
     }

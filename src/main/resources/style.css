@@ -1,0 +1,10 @@
+/*.card {*/
+/*    -fx-padding: 30 30 30 30;*/
+/*}*/
+/*.side-menu_item {*/
+/*    -fx-text-fill: #546321;*/
+/*    -fx-background-color: green;*/
+/*}*/
+.side-menu_item .tree-cell:hover {
+    -fx-cursor: hand;
+}

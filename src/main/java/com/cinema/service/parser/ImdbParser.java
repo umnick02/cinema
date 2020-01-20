@@ -1,5 +1,6 @@
 package com.cinema.service.parser;
 
+import com.cinema.config.Config;
 import com.cinema.entity.*;
 import com.cinema.helper.HttpHelper;
 import com.cinema.helper.YoutubeHelper;
@@ -37,7 +38,7 @@ public class ImdbParser {
         try {
             Document html = Jsoup.parse(body);
             Parser.parse(html, movie);
-            logger.info("Successfully fetching IMDB data for movie=[{}]", movie.getMovieEn().getTitle());
+            logger.info("Successfully fetching IMDB data for movie=[{}]", movie.getTitle());
         } catch (RuntimeException e) {
             logger.error(e.getMessage(), e);
         }
@@ -47,8 +48,8 @@ public class ImdbParser {
 
         private static void parse(Document html, Movie movie) {
             JsonObject json = fetchJsonFromHtml(html);
-            movie.setTitle(getOriginalTitle(json));
-            movie.getMovieEn().setTitle(getTitle(html));
+            movie.setOriginalTitle(getOriginalTitle(json));
+            movie.setTitle(getTitle(html));
 
             movie.setPosterThumbnail(getPosterThumbnail(html));
             movie.setCompany(getCompany(html));
@@ -56,54 +57,75 @@ public class ImdbParser {
             movie.setRatingImdbVotes(getRatingVotes(json));
             movie.setSeries(isSeries(json));
             movie.setReleaseDate(getReleaseDate(json));
-            fillGenres(json, movie.getMovieEn());
+            fillGenres(json, movie);
             movie.setDuration(getDuration(html));
             movie.setBudget(getBudget(html));
             movie.setCurrency(getCurrency(html));
             movie.setGross(getGross(html));
 
-            movie.getMovieEn().setMovie(movie);
-            movie.getMovieEn().setUrl(getUrl(json));
-            movie.getMovieEn().setTrailer(getTrailer(movie.getMovieEn().getTitle()));
-            movie.getMovieEn().setTrailerThumbnail(getTrailerThumbnail(movie.getMovieEn().getTrailer()));
-            movie.getMovieEn().setDescription(getDescription(html));
-            movie.getMovieEn().setCountry(getCountry(html));
+            movie.setUrl(getUrl(json));
+            movie.setTrailer(getTrailer(movie.getTitle()));
+            movie.setDescription(getDescription(html));
+            movie.setCountry(getCountry(html));
             fillPosters(html, movie);
-            fillCasts(json, movie.getMovieEn());
+            fillCasts(movie);
         }
 
-        private static void fillCasts(JsonObject json, MovieEn movie) {
-            List<CastEn> casts = new ArrayList<>();
-            JsonArray actors = json.get("actor").asArray();
-            for (int i = 0; i < actors.size(); i++) {
-                JsonObject actor = actors.get(i).asObject();
-                if (actor.getString("@type", "").equals("Person")) {
-                    CastEn cast = new CastEn();
-                    cast.setName(actor.getString("name", null));
-                    cast.setMovie(movie);
-                    cast.setPriority((short) i);
-                    cast.setRole(Role.ACTOR);
-                    casts.add(cast);
+        private static void fillCasts(Movie movie) {
+            try {
+                String body = requestAndGetBody(movie.getUrl() + "fullcredits");
+                Document html = Jsoup.parse(body);
+                movie.setCasts(new ArrayList<>());
+                for (int i = 0; i < html.select("h4").size(); i++) {
+                    if (html.select("h4").get(i).text().contains("Directed")) {
+                        Elements elements = html.select("table").get(i).select("tr");
+                        addCasts(elements, movie, Role.DIRECTOR, 3);
+                    } else if (html.select("h4").get(i).text().contains("Writing")) {
+                        Elements elements = html.select("table").get(i).select("tr");
+                        addCasts(elements, movie, Role.WRITER, 3);
+                    } else if (html.select("h4").get(i).text().contains("Music")) {
+                        Elements elements = html.select("table").get(i).select("tr");
+                        addCasts(elements, movie, Role.COMPOSER, 3);
+                    } else if (html.select("h4").get(i).text().contains("Cast")) {
+                        Elements elements = html.select("table").get(i).select("tr");
+                        addCasts(elements, movie, Role.ACTOR, 7);
+                    }
                 }
+            } catch (IOException | InterruptedException e) {
+                logger.error(e.getMessage(), e);
             }
-            movie.setCasts(casts);
+        }
+
+        private static void addCasts(Elements elements, Movie movie, Role role, int limit) {
+            for (int k = 0; k < Math.min(elements.size(), limit); k++) {
+                Cast cast = new Cast();
+                cast.setMovie(movie);
+                cast.setPriority((short) (k + 1));
+                cast.setRole(role);
+                if (role != Role.ACTOR) {
+                    cast.setName(elements.get(k).select("td.name a").text());
+                } else {
+                    if (!elements.get(k).hasClass("odd") && !elements.get(k).hasClass("even")) {
+                        continue;
+                    }
+                    cast.setName(elements.get(k).select("td img").attr("title"));
+                    cast.setQua(elements.get(k).select("td").get(3).selectFirst("a").ownText().strip());
+                }
+                movie.getCasts().add(cast);
+            }
         }
 
         private static String getUrl(JsonObject json) {
-            return json.getString("url", null);
+            return HOST + json.getString("url", null);
         }
 
         private static String getTrailer(String name) {
             try {
-                return YoutubeHelper.getTrailer(name);
+                return YoutubeHelper.getTrailer(name, Config.PrefKey.Language.EN);
             } catch (InterruptedException | IOException e) {
                 logger.error(e.getMessage(), e);
             }
             return null;
-        }
-
-        private static String getTrailerThumbnail(String trailerUrl) {
-            return YoutubeHelper.getTrailerThumbnail(trailerUrl);
         }
 
         private static JsonObject fetchJsonFromHtml(Document html) {
@@ -219,7 +241,7 @@ public class ImdbParser {
             return Short.parseShort(html.select("div.subtext time").attr("datetime").replaceAll("[^0-9]+", ""));
         }
 
-        private static void fillGenres(JsonObject json, MovieEn movie) {
+        private static void fillGenres(JsonObject json, Movie movie) {
             if (json.get("genre").isString()) {
                 movie.setGenre1(json.get("genre").asString());
                 return;

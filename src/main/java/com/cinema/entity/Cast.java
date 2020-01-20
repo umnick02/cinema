@@ -4,8 +4,8 @@ import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
-@Table(name = "cast_ru")
-public class CastRu {
+@Table(name = "cast")
+public class Cast {
 
     @Id
     @GeneratedValue
@@ -22,17 +22,21 @@ public class CastRu {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
-    private com.cinema.entity.Role role;
+    private Role role;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private MovieRu movie;
-
-    private enum Role {
-        CREATOR, DIRECTOR, ACTOR
-    }
+    private Movie movie;
 
     public Integer getId() {
         return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Short getPriority() {
@@ -51,39 +55,31 @@ public class CastRu {
         this.qua = qua;
     }
 
-    public MovieRu getMovie() {
-        return movie;
-    }
-
-    public void setMovie(MovieRu movie) {
-        this.movie = movie;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public com.cinema.entity.Role getRole() {
+    public Role getRole() {
         return role;
     }
 
-    public void setRole(com.cinema.entity.Role role) {
+    public void setRole(Role role) {
         this.role = role;
+    }
+
+    public Movie getMovie() {
+        return movie;
+    }
+
+    public void setMovie(Movie movie) {
+        this.movie = movie;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        CastRu castRu = (CastRu) o;
-        return name.equals(castRu.name) &&
-                priority.equals(castRu.priority) &&
-                role == castRu.role &&
-                movie.equals(castRu.movie);
+        Cast cast = (Cast) o;
+        return name.equals(cast.name) &&
+                priority.equals(cast.priority) &&
+                role == cast.role &&
+                movie.equals(cast.movie);
     }
 
     @Override

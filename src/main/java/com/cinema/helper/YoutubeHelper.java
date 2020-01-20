@@ -1,5 +1,6 @@
 package com.cinema.helper;
 
+import com.cinema.config.Config;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
@@ -8,9 +9,9 @@ import java.net.http.HttpResponse;
 
 public class YoutubeHelper {
 
-    public static String getTrailer(String name) throws IOException, InterruptedException {
-        String url = String.format("https://www.google.com/search?q=site:youtube.com+%s+официальный+трейлер",
-                name.replaceAll(" ", "+"));
+    public static String getTrailer(String name, Config.PrefKey.Language lang) throws IOException, InterruptedException {
+        String url = String.format("https://www.google.com/search?q=site:youtube.com+%s+%s",
+                name.replaceAll(" ", "+"), lang == Config.PrefKey.Language.RU ? "официальный+трейлер" : "official+trailer");
         HttpResponse<String> response = HttpHelper.requestAndGetResponse(url);
         Document html = Jsoup.parse(response.body());
         String uri = html.selectFirst(".g a").attr("href");
@@ -20,7 +21,7 @@ public class YoutubeHelper {
 
     public static String getTrailerThumbnail(String trailerUrl) {
         if (trailerUrl.contains("youtube")) {
-            String id = trailerUrl.substring(trailerUrl.lastIndexOf("/"));
+            String id = trailerUrl.substring(trailerUrl.lastIndexOf("/") + 1);
             return String.format("https://img.youtube.com/vi/%s/hqdefault.jpg", id);
         }
         return null;

@@ -108,15 +108,15 @@ public class BtService {
                 .selector(SequentialSelector.sequential())
                 .stopWhenDownloaded()
                 .build();
-        logger.info("Preloading movie [{}]", movie.getMovieEn().getTitle());
+        logger.info("Preloading movie [{}]", movie.getTitle());
         Preloader preloader = new Preloader();
         btClient.startAsync(state -> {
             double loadDuration = (double) state.getPiecesComplete() * movie.getDuration() / state.getPiecesTotal();
             preloader.check(loadDuration, movie, movieModel);
             logger.info(String.format("Preloaded [%.1f / {}] min of movie [{}]", loadDuration),
-                    movie.getDuration(), movie.getMovieEn().getTitle());
+                    movie.getDuration(), movie.getTitle());
         }, 1000).join();
-        logger.info("Movie [{}] downloaded!", movie.getMovieEn().getTitle());
+        logger.info("Movie [{}] downloaded!", movie.getTitle());
         movie.setFileStatus(Movie.FileStatus.DOWNLOADED);
         movieModel.updateMovie(movie);
     }
@@ -129,7 +129,7 @@ public class BtService {
         boolean preloaded = false;
         private void check(double loadDuration, Movie movie, MovieModel movieModel) {
             if (!preloaded && loadDuration >= preloadDuration) {
-                logger.info("Movie [{}] preloaded!", movie.getMovieEn().getTitle());
+                logger.info("Movie [{}] preloaded!", movie.getTitle());
                 movie.setFileStatus(Movie.FileStatus.PLAYABLE);
                 movieModel.updateMovie(movie);
                 INJECTOR.getInstance(PlayerPresentable.class).tryPlay(movie);

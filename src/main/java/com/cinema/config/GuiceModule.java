@@ -2,8 +2,6 @@ package com.cinema.config;
 
 import bt.torrent.fileselector.TorrentFileSelector;
 import com.cinema.entity.*;
-import com.cinema.presenter.PlayerPresentable;
-import com.cinema.presenter.PlayerPresenter;
 import com.cinema.presenter.SearchPresentable;
 import com.cinema.presenter.SearchPresenter;
 import com.cinema.service.bt.selectors.DraftFilesSelector;
@@ -46,10 +44,7 @@ public class GuiceModule extends AbstractModule {
 //        settings.put(Environment.HBM2DDL_AUTO, "update");
         configuration.setProperties(settings);
         configuration.addAnnotatedClass(Movie.class);
-        configuration.addAnnotatedClass(MovieEn.class);
-        configuration.addAnnotatedClass(MovieRu.class);
-        configuration.addAnnotatedClass(CastEn.class);
-        configuration.addAnnotatedClass(CastRu.class);
+        configuration.addAnnotatedClass(Cast.class);
         configuration.addAnnotatedClass(Episode.class);
         ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
                 .applySettings(configuration.getProperties()).build();

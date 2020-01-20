@@ -44,7 +44,7 @@ public class CardContainer extends StackPane {
         BorderPane borderPane = new BorderPane();
         borderPane.setStyle("-fx-background-color: rgba(255, 255, 255, 0.5); -fx-cursor: hand;");
         VBox vBox = new VBox();
-        Text title = new Text(movie.getMovieDetails().getTitle());
+        Text title = new Text(movie.getTitle());
         title.setWrappingWidth(Double.parseDouble(Config.getPreference(Config.PrefKey.CARD_WIDTH)) * 0.8);
         title.setTextAlignment(TextAlignment.CENTER);
         title.setFont(first);

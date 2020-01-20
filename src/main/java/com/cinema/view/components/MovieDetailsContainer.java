@@ -107,7 +107,7 @@ public class MovieDetailsContainer extends StackPane {
         detailsBox.setMaxHeight(INJECTOR.getInstance(RootContainer.class).getStackPane().getHeight());
 
         HBox titleBox = new HBox();
-        Text title = new Text(movie.getMovieDetails().getTitle());
+        Text title = new Text(movie.getTitle());
         title.setFont(first);
         title.setFill(Paint.valueOf(fontColor));
         title.setEffect(new DropShadow(BlurType.THREE_PASS_BOX, Color.BLACK,8,0,2,2));
@@ -117,16 +117,16 @@ public class MovieDetailsContainer extends StackPane {
         HBox aboutBox = new HBox();
         aboutBox.setSpacing(20);
         StringBuilder sb = new StringBuilder();
-        if (movie.getMovieDetails().getGenre1() != null) {
-            sb.append(movie.getMovieDetails().getGenre1());
+        if (movie.getGenre1() != null) {
+            sb.append(movie.getGenre1());
         }
-        if (movie.getMovieDetails().getGenre2() != null) {
+        if (movie.getGenre2() != null) {
             sb.append(" / ");
-            sb.append(movie.getMovieDetails().getGenre2());
+            sb.append(movie.getGenre2());
         }
-        if (movie.getMovieDetails().getGenre3() != null) {
+        if (movie.getGenre3() != null) {
             sb.append(" / ");
-            sb.append(movie.getMovieDetails().getGenre3());
+            sb.append(movie.getGenre3());
         }
 
         aboutBox.getChildren().addAll(buildText(sb.toString(), second),
@@ -147,14 +147,14 @@ public class MovieDetailsContainer extends StackPane {
         Button trailerButton = new Button("Trailer");
         trailerButton.setOnMouseClicked(event -> {
             WebView webview = new WebView();
-            webview.getEngine().load(movie.getMovieDetails().getTrailer());
+            webview.getEngine().load(movie.getTrailer());
             getChildren().add(webview);
         });
         trailerBox.getChildren().add(trailerButton);
         detailsBox.getChildren().add(trailerBox);
 
         HBox descriptionBox = new HBox();
-        Text descr = buildText(movie.getMovieDetails().getDescription(), second);
+        Text descr = buildText(movie.getDescription(), second);
         descr.setWrappingWidth(INJECTOR.getInstance(RootContainer.class).getStackPane().getWidth() -imageView.getFitWidth() - 20);
         descriptionBox.getChildren().add(descr);
         detailsBox.getChildren().add(descriptionBox);

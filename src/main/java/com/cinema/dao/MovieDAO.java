@@ -1,9 +1,6 @@
 package com.cinema.dao;
 
 import com.cinema.entity.Movie;
-import com.cinema.entity.MovieEn;
-import com.cinema.entity.MovieInternalize;
-import com.cinema.entity.MovieRu;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.apache.logging.log4j.LogManager;
@@ -65,13 +62,7 @@ public class MovieDAO {
         return entityManager.find(Movie.class, id);
     }
 
-    public Movie getMovie(String title, Class<? extends MovieInternalize> cls) {
-        MovieInternalize movieInternalize = null;
-        if (MovieEn.class.isAssignableFrom(cls)) {
-            movieInternalize = entityManager.unwrap(Session.class).bySimpleNaturalId(MovieEn.class).load(title);
-        } else if (MovieRu.class.isAssignableFrom(cls)) {
-            movieInternalize = entityManager.unwrap(Session.class).bySimpleNaturalId(MovieRu.class).load(title);
-        }
-        return movieInternalize != null ? movieInternalize.getMovie() : null;
+    public Movie getMovie(String title) {
+        return entityManager.unwrap(Session.class).bySimpleNaturalId(Movie.class).load(title);
     }
 }

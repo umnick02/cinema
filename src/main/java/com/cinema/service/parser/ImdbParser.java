@@ -97,6 +97,7 @@ public class ImdbParser {
         }
 
         private static void addCasts(Elements elements, Movie movie, Role role, int limit) {
+            String cls = "odd";
             for (int k = 0; k < Math.min(elements.size(), limit); k++) {
                 Cast cast = new Cast();
                 cast.setMovie(movie);
@@ -105,11 +106,18 @@ public class ImdbParser {
                 if (role != Role.ACTOR) {
                     cast.setName(elements.get(k).select("td.name a").text());
                 } else {
-                    if (!elements.get(k).hasClass("odd") && !elements.get(k).hasClass("even")) {
+                    if (!elements.get(k).hasClass(cls)) {
                         continue;
                     }
                     cast.setName(elements.get(k).select("td img").attr("title"));
-                    cast.setQua(elements.get(k).select("td").get(3).selectFirst("a").ownText().strip());
+                    if (elements.get(k).select("td").size() > 3) {
+                        if (elements.get(k).select("td").get(3).selectFirst("a") != null) {
+                            cast.setQua(elements.get(k).select("td").get(3).selectFirst("a").ownText().strip());
+                        } else {
+                            cast.setQua(elements.get(k).select("td").get(3).ownText().strip());
+                        }
+                    }
+                    cls = cls.equals("odd") ? "even" : "odd";
                 }
                 movie.getCasts().add(cast);
             }
@@ -155,7 +163,7 @@ public class ImdbParser {
                             JsonObject image = images.get(i).asObject();
                             if (image.get("relatedLanguages") == null && image.get("relatedCountries") == null && image.get("copyright") != null) {
                                 String src = image.getString("src", null);
-                                if (src != null) {
+                                if (src != null && postersUrl.size() < 48) {
                                     postersUrl.add(src);
                                 }
                             } else if (image.get("relatedLanguages") != null && image.get("relatedCountries") != null) {

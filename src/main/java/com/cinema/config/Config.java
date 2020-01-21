@@ -36,7 +36,7 @@ public class Config {
     private static final Preferences preferences = Preferences.userNodeForPackage(CinemaApplication.class);
     private static final Map<PrefKey, String> defaultPreferences = new HashMap<>();
     static {
-        defaultPreferences.put(SCREEN_WIDTH, "1024");
+        defaultPreferences.put(SCREEN_WIDTH, "1200");
         defaultPreferences.put(STORAGE, "C://Users/umnick/Downloads/Cinema/");
         defaultPreferences.put(CARD_WIDTH, "150");
         defaultPreferences.put(LANGUAGE, Language.EN.name());

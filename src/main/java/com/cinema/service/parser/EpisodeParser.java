@@ -62,13 +62,10 @@ public class EpisodeParser {
     }
 
     private String fetchSeasonAndEpisode(String path) {
-        Pattern pattern = Pattern.compile(".(S)[^.]+");
+        Pattern pattern = Pattern.compile("[s|S][\\d]{2}[e|E][\\d]{2}");
         Matcher matcher = pattern.matcher(path);
-        while (matcher.find()) {
-            String match = matcher.group();
-            if (match.length() == 7 && match.contains("E")) {
-                return match.substring(1);
-            }
+        if (matcher.find()) {
+            return matcher.group().toUpperCase();
         }
         return null;
     }

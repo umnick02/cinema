@@ -33,7 +33,7 @@ public class ListContentContainer implements Searchable {
             }
         });
         menuContentContainer.button.setOnAction(event -> searchPresentable.search());
-        anchorPane.getChildren().addAll(menuContentContainer.hBox, scrollCardsContainer);
+        anchorPane.getChildren().addAll(menuContentContainer.hBox, scrollCardsContainer.scrollPane);
     }
 
     private AnchorPane buildAnchorPane() {

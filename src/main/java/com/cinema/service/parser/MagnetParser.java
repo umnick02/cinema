@@ -77,7 +77,9 @@ public class MagnetParser {
         if (torrentName.contains(".")) {
             torrentName = torrentName.substring(0, torrentName.indexOf('.'));
         }
-        torrentName = torrentName.substring(0, torrentName.indexOf('(')).strip();
+        if (torrentName.contains("(")) {
+            torrentName = torrentName.substring(0, torrentName.indexOf('(')).strip();
+        }
         return torrentName.replaceAll(" ", "+");
     }
 }

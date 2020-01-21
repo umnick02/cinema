@@ -1,8 +1,6 @@
 package com.cinema.view.components;
 
 import com.cinema.entity.Movie;
-import com.cinema.view.Anchorable;
-import com.cinema.view.UIBuilder;
 import com.google.inject.Singleton;
 import javafx.geometry.Insets;
 import javafx.scene.layout.AnchorPane;
@@ -11,17 +9,27 @@ import javafx.scene.layout.TilePane;
 import java.util.*;
 
 @Singleton
-public class CardsContainer extends TilePane implements Anchorable {
+public class CardsContainer {
 
-    private final AnchorPane wrapper;
+    TilePane tilePane;
+    AnchorPane anchorPane;
     private final Set<CardContainer> cards = new HashSet<>();
 
     public CardsContainer() {
-        super();
-        setHgap(10);
-        setVgap(10);
-        setPadding(new Insets(25, 25, 25, 25));
-        wrapper = UIBuilder.wrapNodeToAnchor(this);
+        tilePane = buildTilePane();
+        anchorPane = new AnchorPane(tilePane);
+    }
+
+    private TilePane buildTilePane() {
+        TilePane tilePane = new TilePane();
+        tilePane.setHgap(10);
+        tilePane.setVgap(10);
+        tilePane.setPadding(new Insets(25, 25, 25, 25));
+        AnchorPane.setTopAnchor(tilePane, 0d);
+        AnchorPane.setBottomAnchor(tilePane, 0d);
+        AnchorPane.setRightAnchor(tilePane, 0d);
+        AnchorPane.setLeftAnchor(tilePane, 0d);
+        return tilePane;
     }
 
     public void addCards(Set<Movie> movies) {
@@ -31,7 +39,7 @@ public class CardsContainer extends TilePane implements Anchorable {
     }
 
     private void removeCards() {
-        getChildren().clear();
+        tilePane.getChildren().clear();
         cards.clear();
     }
 
@@ -46,13 +54,8 @@ public class CardsContainer extends TilePane implements Anchorable {
         int j = 0;
         while (iterator.hasNext()) {
             if (i < j++) continue;
-            getChildren().add(iterator.next());
+            tilePane.getChildren().add(iterator.next().stackPane);
             i++;
         }
-    }
-
-    @Override
-    public AnchorPane getWrapper() {
-        return wrapper;
     }
 }

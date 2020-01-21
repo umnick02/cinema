@@ -8,3 +8,23 @@
 .side-menu_item .tree-cell:hover {
     -fx-cursor: hand;
 }
+.scroll-pane {
+    -fx-background-color: transparent;
+}
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+.scroll-bar:horizontal .track,
+.scroll-bar:vertical .track{
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-background-radius: 0em;
+}
+.scroll-bar:horizontal .thumb,
+.scroll-bar:vertical .thumb {
+    /*-fx-background-color: black;*/
+    -fx-background-radius: 5em;
+}
+.scroll-pane > .corner {
+    -fx-background-color: black;
+}

@@ -1,7 +1,5 @@
 package com.cinema.view.player;
 
-import com.cinema.view.Anchorable;
-import com.cinema.view.UIBuilder;
 import com.google.inject.Singleton;
 import javafx.application.Platform;
 import javafx.scene.image.ImageView;
@@ -26,18 +24,18 @@ import uk.co.caprica.vlcj.player.embedded.videosurface.callback.format.RV32Buffe
 import java.nio.ByteBuffer;
 
 @Singleton
-public class FxPlayer extends BorderPane implements Anchorable {
+public class FxPlayer extends BorderPane {
 
     private static final Logger logger = LogManager.getLogger(FxPlayer.class);
 
-    private final AnchorPane wrapper;
+    private AnchorPane wrapper;
 
     private EmbeddedMediaPlayer embeddedMediaPlayer;
     private ImageView videoImageView;
     private PixelBuffer<ByteBuffer> videoPixelBuffer;
 
     public FxPlayer() {
-        wrapper = UIBuilder.wrapNodeToAnchor(this);
+//        wrapper = UIBuilder.wrapNodeToAnchor(this);
         MediaPlayerFactory mediaPlayerFactory = new MediaPlayerFactory();
         embeddedMediaPlayer = mediaPlayerFactory.mediaPlayers().newEmbeddedMediaPlayer();
         embeddedMediaPlayer.videoSurface().set(new FXCallbackVideoSurface());
@@ -57,11 +55,6 @@ public class FxPlayer extends BorderPane implements Anchorable {
 
     public EmbeddedMediaPlayer getEmbeddedMediaPlayer() {
         return embeddedMediaPlayer;
-    }
-
-    @Override
-    public AnchorPane getWrapper() {
-        return wrapper;
     }
 
     private class FXCallbackVideoSurface extends CallbackVideoSurface {

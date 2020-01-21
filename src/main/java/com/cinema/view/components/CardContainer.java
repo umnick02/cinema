@@ -13,10 +13,10 @@ import java.util.Objects;
 
 import static com.cinema.CinemaApplication.INJECTOR;
 
-public class CardContainer extends StackPane {
+public class CardContainer {
 
+    StackPane stackPane;
     private Movie movie;
-    private VBox card;
     private BorderPane hover;
     private MovieDetailsContainer movieDetailsContainer;
     private static final Font first = Font.font("Helvetica", FontWeight.BOLD, FontPosture.ITALIC, 14);
@@ -24,13 +24,29 @@ public class CardContainer extends StackPane {
     private static final Font third = Font.font("Helvetica", FontWeight.BOLD, FontPosture.REGULAR, 13);
 
     public CardContainer(Movie movie) {
-        super();
-        card = new VBox();
-        card.getStyleClass().add("card");
-        hover = buildHover(movie);
+        this.movie = movie;
+        stackPane = buildStackPane(movie);
+    }
 
-        setMovie(movie);
-        getChildren().add(card);
+    private StackPane buildStackPane(Movie movie) {
+        StackPane stackPane = new StackPane();
+        hover = buildHover(movie);
+        VBox card = buildCard(movie, stackPane);
+        stackPane.getChildren().add(card);
+        return stackPane;
+    }
+
+    private VBox buildCard(Movie movie, StackPane stackPane) {
+        VBox card = new VBox();
+        card.getStyleClass().add("card");
+        setBackground(card, movie);
+        setDimensions(card);
+        stackPane.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
+            INJECTOR.getInstance(RootContainer.class).getStackPane().getChildren().add(getMovieDetailsContainer().stackPane);
+        });
+        stackPane.addEventHandler(MouseEvent.MOUSE_ENTERED, event -> showOnHover());
+        stackPane.addEventHandler(MouseEvent.MOUSE_EXITED, event -> hideOnHover());
+        return card;
     }
 
     public MovieDetailsContainer getMovieDetailsContainer() {
@@ -64,43 +80,26 @@ public class CardContainer extends StackPane {
         return borderPane;
     }
 
-    public void setMovie(Movie movie) {
-        this.movie = movie;
-        setupCard();
-        addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
-            if (!getChildren().contains(getMovieDetailsContainer())) {
-                INJECTOR.getInstance(RootContainer.class).getStackPane().getChildren().add(getMovieDetailsContainer());
-            }
-        });
-        addEventHandler(MouseEvent.MOUSE_ENTERED, event -> showOnHover());
-        addEventHandler(MouseEvent.MOUSE_EXITED, event -> hideOnHover());
-    }
-
     private void showOnHover() {
-        getChildren().add(hover);
+        stackPane.getChildren().add(hover);
     }
 
     private void hideOnHover() {
-        getChildren().remove(hover);
+        stackPane.getChildren().remove(hover);
     }
 
     public Movie getMovie() {
         return movie;
     }
 
-    public void setupCard() {
-        setDimensions();
-        setBackground();
-    }
-
-    private void setBackground() {
+    private void setBackground(VBox card, Movie movie) {
         int width = Integer.parseInt(Config.getPreference(Config.PrefKey.CARD_WIDTH));
         Image image = new Image(movie.getPosterThumbnail(), width, -1, true, false);
         BackgroundImage backgroundImage = new BackgroundImage(image, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, BackgroundSize.DEFAULT);
         card.setBackground(new Background(backgroundImage));
     }
 
-    private void setDimensions() {
+    private void setDimensions(VBox card) {
         int width = Integer.parseInt(Config.getPreference(Config.PrefKey.CARD_WIDTH));
         int height = (int) (width * 1.4);
         card.setMinHeight(height);

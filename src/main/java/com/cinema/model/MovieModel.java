@@ -9,8 +9,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.criteria.*;
 import java.util.*;
 
-import static com.cinema.config.Config.*;
-
 @Singleton
 public class MovieModel {
 

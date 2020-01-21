@@ -31,89 +31,81 @@ import javafx.util.Duration;
 import java.time.format.DateTimeFormatter;
 
 import static com.cinema.CinemaApplication.INJECTOR;
+import static com.cinema.config.Config.PrefKey.Language.RU;
+import static com.cinema.config.Config.getLang;
 
-public class MovieDetailsContainer extends StackPane {
+public class MovieDetailsContainer {
     private Movie movie;
 
     private static final Font first = Font.font("Helvetica", FontWeight.BOLD, FontPosture.ITALIC, 22);
     private static final Font second = Font.font("Helvetica", FontWeight.BOLD, FontPosture.REGULAR, 16);
     private static final String fontColor = "#ffffff";
+
+    StackPane stackPane;
+    private ImageView poster;
+    private ImageView background;
+    private HBox backgroundBox;
+    private VBox detailsBox;
+
     public MovieDetailsContainer(Movie movie) {
-        super();
         this.movie = movie;
-
-        setStyle("-fx-background-color: black");
-
-        VBox detailsBox = new VBox();
-
-        Image image = new Image(movie.getPoster());
-        ImageView imageView = new ImageView(image);
-        imageView.setOpacity(0.9);
-        imageView.setEffect(new InnerShadow(BlurType.THREE_PASS_BOX, Color.BLACK,64,0,-16,0));
-        setViewDimensions(imageView);
-        HBox imageBorder = new HBox();
-        imageBorder.setAlignment(Pos.CENTER_LEFT);
-        imageBorder.getChildren().add(imageView);
-
-        HBox posterBorder = new HBox();
-        posterBorder.setAlignment(Pos.CENTER_RIGHT);
+        poster = buildPoster(movie.getPoster());
+        HBox posterBox = buildImageBox(poster);
         JsonArray posters = Json.parse(movie.getPosters()).asArray();
         if (posters.size() > 0) {
-            ImageView posterView = new ImageView(new Image(posters.get(0).asString()));
-            setPosterDimensions(posterView);
-            FadeTransition fadeOut = new FadeTransition(Duration.millis(1500), posterView);
-            fadeOut.setFromValue(1);
-            fadeOut.setToValue(0);
-            FadeTransition fadeIn = new FadeTransition(Duration.millis(1500), posterView);
-            fadeIn.setFromValue(0);
-            fadeIn.setToValue(1);
-            Timeline fiveSecondsWonder = new Timeline(new KeyFrame(Duration.seconds(10), new EventHandler<>() {
-                int i = 1;
-
-                @Override
-                public void handle(ActionEvent event) {
-                    fadeOut.setOnFinished(fadeOutEvent -> {
-                        Image poster = new Image(posters.get(i++ % posters.size()).asString());
-                        posterView.setImage(poster);
-                        setPosterDimensions(posterView);
-                        fadeIn.play();
-                    });
-                    fadeOut.play();
-                }
-            }));
-            fiveSecondsWonder.setCycleCount(Timeline.INDEFINITE);
-            fiveSecondsWonder.play();
-            posterBorder.getChildren().add(posterView);
+            background = buildBackground(posters.get(0).asString());
+            backgroundBox = buildBackgroundBox(posters, background);
+        }
+        stackPane = buildStackPane(posterBox, backgroundBox);
+        detailsBox = buildDetailsBox(stackPane, movie, poster.getFitWidth());
+        if (background != null) {
             ChangeListener<Number> stageSizeListener = (observable, oldValue, newValue) -> {
-                setViewDimensions(imageView);
-                setPosterDimensions(posterView);
-                detailsBox.setPrefWidth(INJECTOR.getInstance(RootContainer.class).getStackPane().getWidth() - imageView.getFitWidth());
+                setBackgroundDimensions(background);
+                setPosterDimensions(poster);
+                detailsBox.setPrefWidth(INJECTOR.getInstance(RootContainer.class).getStackPane().getWidth() - poster.getFitWidth());
             };
             INJECTOR.getInstance(RootContainer.class).getStackPane().widthProperty().addListener(stageSizeListener);
             INJECTOR.getInstance(RootContainer.class).getStackPane().heightProperty().addListener(stageSizeListener);
         }
-        getChildren().add(posterBorder);
-        getChildren().add(imageBorder);
+        stackPane.getChildren().add(buildContainer(detailsBox));
+    }
 
+    private HBox buildContainer(Pane pane) {
+        HBox hBox = new HBox();
+        hBox.getChildren().add(pane);
+        hBox.setAlignment(Pos.CENTER_RIGHT);
+        return hBox;
+    }
 
-        Pane darkPane = new Pane();
-        darkPane.setStyle("-fx-background-color: rgba(0, 0, 0, 0.2)");
-        getChildren().add(darkPane);
+    private HBox buildDescriptionBox(double margin) {
+        HBox descriptionBox = new HBox();
+        Text description = buildText(movie.getDescription(), second);
+        description.setWrappingWidth(INJECTOR.getInstance(RootContainer.class).getStackPane().getWidth() - margin - 20);
+        descriptionBox.getChildren().add(description);
+        return descriptionBox;
+    }
 
+    private HBox buildPlayBox() {
+        HBox playBox = new HBox();
+        Button playButton = new Button("Play");
+        playButton.setOnMouseClicked(event -> INJECTOR.getInstance(PlayerPresentable.class).tryPlay(movie));
+        playBox.getChildren().add(playButton);
+        return playBox;
+    }
 
-        detailsBox.setPadding(new Insets(30, 10, 30, 10));
-        detailsBox.setSpacing(20);
-        detailsBox.setPrefWidth(INJECTOR.getInstance(RootContainer.class).getStackPane().getWidth() - imageView.getFitWidth());
-        detailsBox.setMaxHeight(INJECTOR.getInstance(RootContainer.class).getStackPane().getHeight());
+    private HBox buildTrailerBox(StackPane stackPane, String url) {
+        HBox trailerBox = new HBox();
+        Button trailerButton = new Button("Trailer");
+        trailerButton.setOnMouseClicked(event -> {
+            WebView webview = new WebView();
+            webview.getEngine().load(url);
+            stackPane.getChildren().add(webview);
+        });
+        trailerBox.getChildren().add(trailerButton);
+        return trailerBox;
+    }
 
-        HBox titleBox = new HBox();
-        Text title = new Text(movie.getTitle());
-        title.setFont(first);
-        title.setFill(Paint.valueOf(fontColor));
-        title.setEffect(new DropShadow(BlurType.THREE_PASS_BOX, Color.BLACK,8,0,2,2));
-        titleBox.getChildren().add(title);
-        detailsBox.getChildren().add(titleBox);
-
+    private HBox buildAboutBox(Movie movie) {
         HBox aboutBox = new HBox();
         aboutBox.setSpacing(20);
         StringBuilder sb = new StringBuilder();
@@ -128,7 +120,6 @@ public class MovieDetailsContainer extends StackPane {
             sb.append(" / ");
             sb.append(movie.getGenre3());
         }
-
         aboutBox.getChildren().addAll(buildText(sb.toString(), second),
                 buildText(movie.getReleaseDate().format(DateTimeFormatter.ofPattern("dd LLLL yyyy")), second),
                 buildText(movie.getDuration() + " min", second)
@@ -141,41 +132,111 @@ public class MovieDetailsContainer extends StackPane {
             aboutBox.getChildren().add(buildText(String.format("%.1f (%s)",
                     movie.getRatingImdb(), intByGroup(movie.getRatingImdbVotes())),  second));
         }
-        detailsBox.getChildren().add(aboutBox);
-
-        HBox trailerBox = new HBox();
-        Button trailerButton = new Button("Trailer");
-        trailerButton.setOnMouseClicked(event -> {
-            WebView webview = new WebView();
-            webview.getEngine().load(movie.getTrailer());
-            getChildren().add(webview);
-        });
-        trailerBox.getChildren().add(trailerButton);
-        detailsBox.getChildren().add(trailerBox);
-
-        HBox descriptionBox = new HBox();
-        Text descr = buildText(movie.getDescription(), second);
-        descr.setWrappingWidth(INJECTOR.getInstance(RootContainer.class).getStackPane().getWidth() -imageView.getFitWidth() - 20);
-        descriptionBox.getChildren().add(descr);
-        detailsBox.getChildren().add(descriptionBox);
-
-        HBox playBox = new HBox();
-        Button playButton = new Button("Play");
-        playButton.setOnMouseClicked(event -> {
-            INJECTOR.getInstance(PlayerPresentable.class).tryPlay(movie);
-        });
-        playBox.getChildren().add(playButton);
-        detailsBox.getChildren().add(playBox);
-
-        HBox anchorPane = new HBox();
-        anchorPane.getChildren().add(detailsBox);
-        anchorPane.setAlignment(Pos.CENTER_RIGHT);
-        getChildren().add(anchorPane);
+        return aboutBox;
     }
 
-    private String intByGroup(int value) {
+    private HBox buildTitleBox(String title) {
+        HBox titleBox = new HBox();
+        Text text = new Text(title);
+        text.setFont(first);
+        text.setFill(Paint.valueOf(fontColor));
+        text.setEffect(new DropShadow(BlurType.THREE_PASS_BOX, Color.BLACK,8,0,2,2));
+        titleBox.getChildren().add(text);
+        return titleBox;
+    }
+
+    private HBox buildBackgroundBox(JsonArray posters, ImageView background) {
+        HBox hBox = new HBox();
+        hBox.setAlignment(Pos.CENTER_RIGHT);
+        if (posters.size() > 0) {
+            setBackgroundDimensions(background);
+            FadeTransition fadeOut = new FadeTransition(Duration.millis(1000), background);
+            fadeOut.setFromValue(1);
+            fadeOut.setToValue(0);
+            FadeTransition fadeIn = new FadeTransition(Duration.millis(1000), background);
+            fadeIn.setFromValue(0);
+            fadeIn.setToValue(1);
+            Timeline fiveSecondsWonder = new Timeline(new KeyFrame(Duration.seconds(10), new EventHandler<>() {
+                int i = 1;
+                @Override
+                public void handle(ActionEvent event) {
+                    fadeOut.setOnFinished(fadeOutEvent -> {
+                        Image poster = new Image(posters.get(i++ % posters.size()).asString());
+                        background.setImage(poster);
+                        setBackgroundDimensions(background);
+                        fadeIn.play();
+                    });
+                    fadeOut.play();
+                }
+            }));
+            fiveSecondsWonder.setCycleCount(Timeline.INDEFINITE);
+            fiveSecondsWonder.play();
+            hBox.getChildren().add(background);
+        }
+        return hBox;
+    }
+
+    private HBox buildImageBox(ImageView imageView) {
+        HBox hBox = new HBox();
+        hBox.setAlignment(Pos.CENTER_LEFT);
+        hBox.getChildren().add(imageView);
+        return hBox;
+    }
+
+    private StackPane buildStackPane(HBox posterBox, HBox backgroundBox) {
+        StackPane stackPane = new StackPane();
+        stackPane.setStyle("-fx-background-color: black");
+        stackPane.getChildren().add(buildDarkBackground());
+        if (backgroundBox != null) stackPane.getChildren().add(backgroundBox);
+        stackPane.getChildren().add(posterBox);
+        return stackPane;
+    }
+
+    private Pane buildDarkBackground() {
+        Pane pane = new Pane();
+        pane.setStyle("-fx-background-color: rgba(0, 0, 0, 0.2)");
+        return pane;
+    }
+
+    private ImageView buildPoster(String url) {
+        Image image = new Image(url);
+        ImageView imageView = new ImageView(image);
+        imageView.setOpacity(0.9);
+        imageView.setEffect(new InnerShadow(BlurType.THREE_PASS_BOX, Color.BLACK,64,0,-16,0));
+        setPosterDimensions(imageView);
+        return imageView;
+    }
+
+    private ImageView buildBackground(String url) {
+        Image image = new Image(url);
+        ImageView imageView = new ImageView(image);
+        setBackgroundDimensions(imageView);
+        return imageView;
+    }
+
+    private VBox buildDetailsBox(StackPane stackPane, Movie movie, double margin) {
+        VBox vBox = new VBox();
+        vBox.setPadding(new Insets(30, 10, 30, 10));
+        vBox.setSpacing(20);
+        vBox.setPrefWidth(INJECTOR.getInstance(RootContainer.class).getStackPane().getWidth() - margin);
+        vBox.setMaxHeight(INJECTOR.getInstance(RootContainer.class).getStackPane().getHeight());
+        vBox.getChildren().add(buildTitleBox(movie.getTitle()));
+        vBox.getChildren().add(buildAboutBox(movie));
+        vBox.getChildren().add(buildTrailerBox(stackPane,
+                (getLang() == RU && movie.getTrailerRu() != null) ? movie.getTrailerRu() : movie.getTrailer())
+        );
+        vBox.getChildren().add(buildDescriptionBox(margin));
+        if (!movie.getSeries()) {
+            vBox.getChildren().add(buildPlayBox());
+        } else {
+            vBox.getChildren().add(new EpisodesContainer(movie.getEpisodes()).serialContainer);
+        }
+        return vBox;
+    }
+
+    public static String intByGroup(int value) {
         if (value >= 1000) {
-            return String.format("%d %d", value / 1000, value % 1000);
+            return String.format("%d %03d", value / 1000, value % 1000);
         } else {
             return Integer.toString(value);
         }
@@ -188,7 +249,7 @@ public class MovieDetailsContainer extends StackPane {
         return text;
     }
 
-    private void setPosterDimensions(ImageView imageView) {
+    private void setBackgroundDimensions(ImageView imageView) {
         double byWidth = INJECTOR.getInstance(RootContainer.class).getStackPane().getHeight() / imageView.getImage().getHeight() * imageView.getImage().getWidth();
         double byHeight = INJECTOR.getInstance(RootContainer.class).getStackPane().getWidth() / imageView.getImage().getWidth() * imageView.getImage().getHeight();
         if (byWidth > INJECTOR.getInstance(RootContainer.class).getStackPane().getWidth()) {
@@ -200,7 +261,7 @@ public class MovieDetailsContainer extends StackPane {
         }
     }
 
-    private void setViewDimensions(ImageView imageView) {
+    private void setPosterDimensions(ImageView imageView) {
         imageView.setFitHeight(INJECTOR.getInstance(RootContainer.class).getStackPane().getHeight());
         imageView.setFitWidth(imageView.getFitHeight() / imageView.getImage().getHeight() * imageView.getImage().getWidth());
     }

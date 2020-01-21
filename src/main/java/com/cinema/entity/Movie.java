@@ -59,7 +59,7 @@ public class Movie implements Serializable {
     @Column(name = "is_custom")
     private Boolean isCustom;
 
-    @Column(name = "magnet", nullable = false, columnDefinition = "text")
+    @Column(name = "magnet", columnDefinition = "text")
     private String magnet;
 
     @Column(name = "company")

@@ -108,7 +108,7 @@ public class WritableImageDemo extends Application {
 
 //        String mrl = getParameters().getRaw().get(0);
 
-        embeddedMediaPlayer.media().play(getPreference(Config.PrefKey.STORAGE) + "Однажды в Голливуде (2019) BDRip-AVC_ivanes.mkv");
+        embeddedMediaPlayer.media().play(getPreference(Config.PrefKey.STORAGE) + "La Vita e bella (DVDrip, Rus)_int_.avi");
     }
 
     @Override
@@ -160,5 +160,5 @@ public class WritableImageDemo extends Application {
 }
 
 // Launch via this class to avoid module system headaches.
-class WritableImageDemoLauncher {public static void main(String[] args) {WritableImageDemo.main(args);}}
+//class WritableImageDemoLauncher {public static void main(String[] args) {WritableImageDemo.main(args);}}
 

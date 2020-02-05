@@ -6,7 +6,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelBuffer;
 import javafx.scene.image.PixelFormat;
 import javafx.scene.image.WritableImage;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import org.apache.logging.log4j.LogManager;
@@ -24,33 +23,29 @@ import uk.co.caprica.vlcj.player.embedded.videosurface.callback.format.RV32Buffe
 import java.nio.ByteBuffer;
 
 @Singleton
-public class FxPlayer extends BorderPane {
+public class FxPlayer {
 
     private static final Logger logger = LogManager.getLogger(FxPlayer.class);
 
-    private AnchorPane wrapper;
-
+    public StackPane stackPane;
     private EmbeddedMediaPlayer embeddedMediaPlayer;
     private ImageView videoImageView;
     private PixelBuffer<ByteBuffer> videoPixelBuffer;
 
     public FxPlayer() {
-//        wrapper = UIBuilder.wrapNodeToAnchor(this);
+        stackPane = new StackPane();
+        BorderPane borderPane = new BorderPane();
         MediaPlayerFactory mediaPlayerFactory = new MediaPlayerFactory();
         embeddedMediaPlayer = mediaPlayerFactory.mediaPlayers().newEmbeddedMediaPlayer();
         embeddedMediaPlayer.videoSurface().set(new FXCallbackVideoSurface());
-
-        StackPane stackPane = new StackPane();
         ControlsPane controlsPane = new ControlsPane(embeddedMediaPlayer);
-        setBottom(controlsPane);
-        stackPane.getChildren().addAll(this);
-
-        setStyle("-fx-background-color: black;");
+        borderPane.setBottom(controlsPane);
+        borderPane.setStyle("-fx-background-color: black;");
         videoImageView = new ImageView();
         videoImageView.setPreserveRatio(true);
-        videoImageView.fitWidthProperty().bind(widthProperty());
-        videoImageView.fitHeightProperty().bind(heightProperty());
-        getChildren().add(videoImageView);
+//        videoImageView.fitWidthProperty().bind(borderPane.widthProperty());
+//        videoImageView.fitHeightProperty().bind(borderPane.heightProperty());
+        stackPane.getChildren().add(videoImageView);
     }
 
     public EmbeddedMediaPlayer getEmbeddedMediaPlayer() {

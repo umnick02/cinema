@@ -25,29 +25,42 @@ public class EpisodesContainer {
     private static final String fontColor = "#ffffff";
 
     VBox serialContainer;
+    private VBox episodeContainer;
+    private List<Episode> episodes;
 
     EpisodesContainer(List<Episode> episodes) {
-        VBox vBox = buildEpisodesBox();
+        this.episodes = episodes;
+        episodeContainer = buildEpisodesBox();
         Set<Short> seasons = new HashSet<>();
         for (Episode episode : episodes) {
             seasons.add(episode.getSeason());
         }
         List<Short> sortedSeasons = new ArrayList<>(seasons);
         Collections.sort(sortedSeasons);
+        episodeContainer.getChildren().addAll(buildEpisodes((short) 1));
+        HBox seasonBox = buildSeasonsBox(sortedSeasons);
+        ScrollPane scrollPane = buildScrollPane(episodeContainer);
+        serialContainer = new VBox(seasonBox, scrollPane);
+    }
+
+    private List<HBox> buildEpisodes(short season) {
+        List<HBox> result = new ArrayList<>();
         for (Episode episode : episodes) {
-            if (episode.getSeason().equals(sortedSeasons.get(0))) {
-                vBox.getChildren().add(buildEpisodeBox(episode));
+            if (episode.getSeason().equals(season)) {
+                result.add(buildEpisodeBox(episode));
             }
         }
-        HBox seasonBox = buildSeasonsBox(sortedSeasons);
-        ScrollPane scrollPane = buildScrollPane(vBox);
-        serialContainer = new VBox(seasonBox, scrollPane);
+        return result;
     }
 
     private HBox buildSeasonsBox(List<Short> seasons) {
         HBox hBox = new HBox();
         for (short season : seasons) {
             Text text = new Text("Season " + season);
+            text.setOnMouseClicked(event -> {
+                episodeContainer.getChildren().clear();
+                episodeContainer.getChildren().addAll(buildEpisodes(season));
+            });
             text.setFont(second);
             hBox.getChildren().add(text);
         }
@@ -75,7 +88,7 @@ public class EpisodesContainer {
         hBox.setSpacing(10);
         hBox.setMinHeight(63);
         hBox.setMaxHeight(63);
-        hBox.getChildren().add(buildImageView(episode.getPoster()));
+//        hBox.getChildren().add(buildImageView(episode.getPoster()));
         VBox titleBox = buildBox(224, buildTitle(episode.getEpisode(), episode.getTitle()),
                 buildRating(episode.getRating(), episode.getRatingVotes())
         );

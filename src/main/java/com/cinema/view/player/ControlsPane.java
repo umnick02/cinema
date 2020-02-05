@@ -59,7 +59,7 @@ public class ControlsPane extends VBox {
 
     private final AtomicBoolean tracking = new AtomicBoolean();
 
-    private Timer clockTimer;
+    private Timer clockTimer = new Timer();
 
     public ControlsPane(MediaPlayer mediaPlayer) {
         this.mediaPlayer = mediaPlayer;

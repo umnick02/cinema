@@ -5,6 +5,7 @@ import com.cinema.entity.Movie;
 import com.cinema.service.bt.BtService;
 import com.cinema.view.Playable;
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -14,6 +15,7 @@ import static com.cinema.CinemaApplication.INJECTOR;
 import static com.cinema.config.Config.EXECUTORS;
 import static com.cinema.config.Config.getPreference;
 
+@Singleton
 public class PlayerPresenter implements PlayerPresentable {
 
     private static final Logger logger = LogManager.getLogger(PlayerPresenter.class);
@@ -21,7 +23,7 @@ public class PlayerPresenter implements PlayerPresentable {
     private final Playable playable;
     private final BtService btService = INJECTOR.getInstance(BtService.class);
 
-//    @Inject
+    @Inject
     public PlayerPresenter(Playable playable) {
         this.playable = playable;
     }

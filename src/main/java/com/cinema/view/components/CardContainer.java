@@ -8,6 +8,8 @@ import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.text.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
 
@@ -15,6 +17,7 @@ import static com.cinema.CinemaApplication.INJECTOR;
 
 public class CardContainer {
 
+    private static final Logger logger = LogManager.getLogger(CardContainer.class);
     StackPane stackPane;
     private Movie movie;
     private BorderPane hover;

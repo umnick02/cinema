@@ -1,9 +1,9 @@
 package com.cinema.view.components;
 
 import com.cinema.entity.Movie;
-import com.cinema.presenter.PlayerPresentable;
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonArray;
+import com.google.inject.Inject;
 import javafx.animation.FadeTransition;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -18,6 +18,8 @@ import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.InnerShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
@@ -26,6 +28,7 @@ import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.web.WebView;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.time.format.DateTimeFormatter;
@@ -42,13 +45,19 @@ public class MovieDetailsContainer {
     private static final String fontColor = "#ffffff";
 
     StackPane stackPane;
+    private PlayerContainer playerContainer;
     private ImageView poster;
     private ImageView background;
     private HBox backgroundBox;
     private VBox detailsBox;
+    private WebView webView;
 
+    private Stage stage = ((Stage) INJECTOR.getInstance(RootContainer.class).getAnchorPane().getScene().getWindow());
+
+    @Inject
     public MovieDetailsContainer(Movie movie) {
         this.movie = movie;
+        this.playerContainer = INJECTOR.getInstance(PlayerContainer.class);
         poster = buildPoster(movie.getPoster());
         HBox posterBox = buildImageBox(poster);
         JsonArray posters = Json.parse(movie.getPosters()).asArray();
@@ -63,6 +72,8 @@ public class MovieDetailsContainer {
                 setBackgroundDimensions(background);
                 setPosterDimensions(poster);
                 detailsBox.setPrefWidth(INJECTOR.getInstance(RootContainer.class).getStackPane().getWidth() - poster.getFitWidth());
+                detailsBox.setMaxHeight(INJECTOR.getInstance(RootContainer.class).getStackPane().getHeight());
+                detailsBox.setMaxHeight(INJECTOR.getInstance(RootContainer.class).getStackPane().getHeight());
             };
             INJECTOR.getInstance(RootContainer.class).getStackPane().widthProperty().addListener(stageSizeListener);
             INJECTOR.getInstance(RootContainer.class).getStackPane().heightProperty().addListener(stageSizeListener);
@@ -88,18 +99,51 @@ public class MovieDetailsContainer {
     private HBox buildPlayBox() {
         HBox playBox = new HBox();
         Button playButton = new Button("Play");
-        playButton.setOnMouseClicked(event -> INJECTOR.getInstance(PlayerPresentable.class).tryPlay(movie));
+        playButton.setOnMouseClicked(event -> {
+            stackPane.getChildren().add(playerContainer.anchorPane);
+            playerContainer.playerPresentable.tryPlay(movie);
+        });
         playBox.getChildren().add(playButton);
         return playBox;
+    }
+
+    private WebView getWebView() {
+        if (webView == null) {
+            webView = buildWebView();
+        }
+        return webView;
+    }
+
+    private WebView buildWebView() {
+        WebView webview = new WebView();
+        webview.requestFocus();
+        webview.setOnMouseClicked(webViewEvent -> {
+            if (webViewEvent.getButton().equals(MouseButton.PRIMARY)) {
+                if (webViewEvent.getClickCount() == 2) {
+                    stage.setFullScreen(!stage.isFullScreen());
+                }
+            }
+        });
+        webview.setOnKeyPressed(webViewEvent -> {
+            if (webViewEvent.getCode() == KeyCode.ESCAPE) {
+                stackPane.setOnKeyPressed(event -> {
+                    if (event.getCode() == KeyCode.ESCAPE) {
+                        INJECTOR.getInstance(RootContainer.class).getStackPane().getChildren().remove(stackPane);
+                    }
+                });
+                stackPane.getChildren().remove(webview);
+                webview.getEngine().load(null);
+            }
+        });
+        return webview;
     }
 
     private HBox buildTrailerBox(StackPane stackPane, String url) {
         HBox trailerBox = new HBox();
         Button trailerButton = new Button("Trailer");
         trailerButton.setOnMouseClicked(event -> {
-            WebView webview = new WebView();
-            webview.getEngine().load(url);
-            stackPane.getChildren().add(webview);
+            getWebView().getEngine().load(url);
+            stackPane.getChildren().add(webView);
         });
         trailerBox.getChildren().add(trailerButton);
         return trailerBox;
@@ -220,16 +264,22 @@ public class MovieDetailsContainer {
         vBox.setSpacing(20);
         vBox.setPrefWidth(INJECTOR.getInstance(RootContainer.class).getStackPane().getWidth() - margin);
         vBox.setMaxHeight(INJECTOR.getInstance(RootContainer.class).getStackPane().getHeight());
-        vBox.getChildren().add(buildTitleBox(movie.getTitle()));
-        vBox.getChildren().add(buildAboutBox(movie));
-        vBox.getChildren().add(buildTrailerBox(stackPane,
-                (getLang() == RU && movie.getTrailerRu() != null) ? movie.getTrailerRu() : movie.getTrailer())
+        vBox.setMinHeight(INJECTOR.getInstance(RootContainer.class).getStackPane().getHeight());
+        HBox title = buildTitleBox(movie.getTitle());
+        HBox about = buildAboutBox(movie);
+        HBox trailer = buildTrailerBox(stackPane,
+                (getLang() == RU && movie.getTrailerRu() != null) ? movie.getTrailerRu() : movie.getTrailer()
         );
-        vBox.getChildren().add(buildDescriptionBox(margin));
+        HBox description = buildDescriptionBox(margin);
+        vBox.getChildren().add(title);
+        vBox.getChildren().add(about);
+        vBox.getChildren().add(trailer);
+        vBox.getChildren().add(description);
         if (!movie.getSeries()) {
             vBox.getChildren().add(buildPlayBox());
         } else {
-            vBox.getChildren().add(new EpisodesContainer(movie.getEpisodes()).serialContainer);
+            VBox serialContainer = new EpisodesContainer(movie.getEpisodes()).serialContainer;
+            vBox.getChildren().add(serialContainer);
         }
         return vBox;
     }

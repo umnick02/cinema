@@ -1,6 +1,7 @@
 package com.cinema.view.components;
 
 import com.cinema.entity.Episode;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -17,7 +18,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-import static com.cinema.view.components.MovieDetailsContainer.intByGroup;
+import static com.cinema.view.components.MovieDetailsContainer.longByGroup;
 
 public class EpisodesContainer {
 
@@ -88,9 +89,12 @@ public class EpisodesContainer {
         hBox.setSpacing(10);
         hBox.setMinHeight(63);
         hBox.setMaxHeight(63);
-//        hBox.getChildren().add(buildImageView(episode.getPoster()));
+        hBox.getChildren().add(buildImageView(null));
+        Platform.runLater(() -> {
+            hBox.getChildren().add(0, buildImageView(episode.getPoster()));
+        });
         VBox titleBox = buildBox(224, buildTitle(episode.getEpisode(), episode.getTitle()),
-                buildRating(episode.getRating(), episode.getRatingVotes())
+            buildRating(episode.getRating(), episode.getRatingVotes())
         );
         VBox dateBox = buildBox(224, buildDate(episode.getReleaseDate()));
         VBox playBox = buildBox(66, buildPlay(episode.getMagnet(), episode.getFile()));
@@ -101,8 +105,13 @@ public class EpisodesContainer {
     }
 
     private ImageView buildImageView(String url) {
-        Image image = new Image(url);
-        ImageView imageView = new ImageView(image);
+        ImageView imageView;
+        if (url != null) {
+            Image image = new Image(url);
+            imageView = new ImageView(image);
+        } else {
+            imageView = new ImageView();
+        }
         imageView.setFitWidth(112);
         imageView.setFitHeight(63);
         return imageView;
@@ -125,7 +134,7 @@ public class EpisodesContainer {
     }
 
     private Text buildRating(float rating, int votes) {
-        Text t = new Text(String.format("%.01f (%s)", rating, intByGroup(votes)));
+        Text t = new Text(String.format("%.01f (%s)", rating, longByGroup(votes)));
         t.setFont(second);
         t.setFill(Paint.valueOf(fontColor));
         return t;

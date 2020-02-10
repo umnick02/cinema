@@ -6,6 +6,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelBuffer;
 import javafx.scene.image.PixelFormat;
 import javafx.scene.image.WritableImage;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import org.apache.logging.log4j.LogManager;
@@ -22,6 +23,8 @@ import uk.co.caprica.vlcj.player.embedded.videosurface.callback.format.RV32Buffe
 
 import java.nio.ByteBuffer;
 
+import static com.cinema.view.components.RootContainer.buildAnchorPane;
+
 @Singleton
 public class FxPlayer {
 
@@ -32,9 +35,10 @@ public class FxPlayer {
     private ImageView videoImageView;
     private PixelBuffer<ByteBuffer> videoPixelBuffer;
 
-    public FxPlayer() {
-        stackPane = new StackPane();
+    public FxPlayer(StackPane stackPane) {
+        this.stackPane = stackPane;
         BorderPane borderPane = new BorderPane();
+        AnchorPane anchorPane = buildAnchorPane(borderPane);
         MediaPlayerFactory mediaPlayerFactory = new MediaPlayerFactory();
         embeddedMediaPlayer = mediaPlayerFactory.mediaPlayers().newEmbeddedMediaPlayer();
         embeddedMediaPlayer.videoSurface().set(new FXCallbackVideoSurface());
@@ -43,9 +47,10 @@ public class FxPlayer {
         borderPane.setStyle("-fx-background-color: black;");
         videoImageView = new ImageView();
         videoImageView.setPreserveRatio(true);
-//        videoImageView.fitWidthProperty().bind(borderPane.widthProperty());
-//        videoImageView.fitHeightProperty().bind(borderPane.heightProperty());
-        stackPane.getChildren().add(videoImageView);
+        videoImageView.fitWidthProperty().bind(borderPane.widthProperty());
+        videoImageView.fitHeightProperty().bind(borderPane.heightProperty());
+        borderPane.setCenter(videoImageView);
+        stackPane.getChildren().add(anchorPane);
     }
 
     public EmbeddedMediaPlayer getEmbeddedMediaPlayer() {

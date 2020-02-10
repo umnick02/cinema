@@ -2,6 +2,7 @@ package com.cinema.view.components;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import javafx.scene.Node;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 
@@ -28,12 +29,12 @@ public class RootContainer {
         return stackPane;
     }
 
-    public static AnchorPane buildAnchorPane(StackPane stackPane) {
-        AnchorPane anchorPane = new AnchorPane(stackPane);
-        AnchorPane.setBottomAnchor(stackPane, 0d);
-        AnchorPane.setRightAnchor(stackPane, 0d);
-        AnchorPane.setLeftAnchor(stackPane, 0d);
-        AnchorPane.setTopAnchor(stackPane, 0d);
+    public static AnchorPane buildAnchorPane(Node pane) {
+        AnchorPane anchorPane = new AnchorPane(pane);
+        AnchorPane.setBottomAnchor(pane, 0d);
+        AnchorPane.setRightAnchor(pane, 0d);
+        AnchorPane.setLeftAnchor(pane, 0d);
+        AnchorPane.setTopAnchor(pane, 0d);
         return anchorPane;
     }
 }

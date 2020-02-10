@@ -2,10 +2,9 @@ package com.cinema.view.components;
 
 import com.cinema.config.Config;
 import com.cinema.presenter.PlayerPresentable;
+import com.cinema.presenter.PlayerPresenter;
 import com.cinema.view.Playable;
 import com.cinema.view.player.FxPlayer;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.ProgressIndicator;
@@ -14,22 +13,26 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
+import static com.cinema.CinemaApplication.INJECTOR;
 import static com.cinema.config.Config.getPreference;
 import static com.cinema.view.components.RootContainer.buildAnchorPane;
 
-@Singleton
 public class PlayerContainer implements Playable {
 
-    StackPane stackPane = buildStackPane();
-    AnchorPane anchorPane = buildAnchorPane(stackPane);
+    private StackPane parent;
+    private StackPane child;
+    AnchorPane anchorPane;
     private final VBox loadingView = buildLoadingView();
-    private FxPlayer fxPlayer = new FxPlayer();
+    private FxPlayer fxPlayer;
 
     PlayerPresentable playerPresentable;
 
-    @Inject
-    PlayerContainer(PlayerPresentable playerPresentable) {
-        this.playerPresentable = playerPresentable;
+    PlayerContainer(StackPane stackPane) {
+        parent = stackPane;
+        child = buildStackPane();
+        anchorPane = buildAnchorPane(child);
+        fxPlayer = new FxPlayer(child);
+        playerPresentable = new PlayerPresenter(this);
     }
 
     private StackPane buildStackPane() {
@@ -40,8 +43,8 @@ public class PlayerContainer implements Playable {
     @Override
     public void showLoadingView() {
         Platform.runLater(() -> {
-            if (!stackPane.getChildren().contains(loadingView)) {
-                stackPane.getChildren().add(loadingView);
+            if (!parent.getChildren().contains(loadingView)) {
+                parent.getChildren().add(loadingView);
             }
         });
     }
@@ -59,22 +62,22 @@ public class PlayerContainer implements Playable {
 
     @Override
     public void hideLoadingView() {
-        stackPane.getChildren().remove(loadingView);
+        parent.getChildren().remove(loadingView);
     }
 
     @Override
     public void showPlayer() {
         Platform.runLater(() -> {
             hideLoadingView();
-            if (!stackPane.getChildren().contains(fxPlayer.stackPane)) {
-                stackPane.getChildren().add(fxPlayer.stackPane);
+            if (!parent.getChildren().contains(fxPlayer.stackPane)) {
+                parent.getChildren().add(fxPlayer.stackPane);
             }
         });
     }
 
     @Override
     public void hidePlayer() {
-        stackPane.getChildren().remove(fxPlayer.stackPane);
+        parent.getChildren().remove(fxPlayer.stackPane);
     }
 
     @Override

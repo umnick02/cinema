@@ -2,15 +2,11 @@ package com.cinema.config;
 
 import bt.torrent.fileselector.TorrentFileSelector;
 import com.cinema.entity.*;
-import com.cinema.presenter.PlayerPresentable;
-import com.cinema.presenter.PlayerPresenter;
 import com.cinema.presenter.SearchPresentable;
 import com.cinema.presenter.SearchPresenter;
 import com.cinema.service.bt.selectors.DraftFilesSelector;
-import com.cinema.view.Playable;
 import com.cinema.view.Searchable;
 import com.cinema.view.components.ListContentContainer;
-import com.cinema.view.components.PlayerContainer;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
@@ -30,8 +26,6 @@ public class GuiceModule extends AbstractModule {
         bind(TorrentFileSelector.class).to(DraftFilesSelector.class);
         bind(SearchPresentable.class).to(SearchPresenter.class);
         bind(Searchable.class).to(ListContentContainer.class);
-        bind(Playable.class).to(PlayerContainer.class);
-        bind(PlayerPresentable.class).to(PlayerPresenter.class);
     }
 
     @Provides

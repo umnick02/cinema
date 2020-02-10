@@ -45,7 +45,7 @@ public class CardContainer {
         setBackground(card, movie);
         setDimensions(card);
         stackPane.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
-            INJECTOR.getInstance(RootContainer.class).getStackPane().getChildren().add(getMovieDetailsContainer().stackPane);
+            INJECTOR.getInstance(RootContainer.class).getStackPane().getChildren().add(getMovieDetailsContainer().anchorPane);
         });
         stackPane.addEventHandler(MouseEvent.MOUSE_ENTERED, event -> showOnHover());
         stackPane.addEventHandler(MouseEvent.MOUSE_EXITED, event -> hideOnHover());

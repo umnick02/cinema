@@ -19,14 +19,9 @@ public class Config {
 
     private static Language lang = Language.EN;
     public static final ExecutorService EXECUTORS = Executors.newFixedThreadPool(3);
-    public static final String TITLE = "Cinema";
 
     public static Language getLang() {
         return lang;
-    }
-
-    public static void setLang(Language lang) {
-        Config.lang = lang;
     }
 
     public static String getGenre() {

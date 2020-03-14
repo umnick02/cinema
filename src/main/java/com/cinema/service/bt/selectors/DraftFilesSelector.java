@@ -36,7 +36,7 @@ public class DraftFilesSelector extends TorrentFileSelector {
     @Override
     public List<SelectionResult> selectFiles(List<TorrentFile> files) {
         if (movie != null) {
-            if (!movie.getSeries()) {
+            if (movie.getType() != Movie.Type.SERIES) {
                 if (movie.getFile() == null) {
                     logger.info("File not set. Load all files for movie=[{}]", movie);
                     return files.stream().sorted(Comparator.comparingLong(TorrentFile::getSize)).map(this::select).collect(Collectors.toList());

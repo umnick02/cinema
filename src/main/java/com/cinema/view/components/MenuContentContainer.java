@@ -19,7 +19,7 @@ public class MenuContentContainer {
     private final ProgressIndicator progressIndicator = buildIndicator();
 
     private ImageView buildSearchIcon() {
-        ImageView searchIcon = new ImageView("/icons/icons8-search-32.png");
+        ImageView searchIcon = new ImageView("/icons/search.png");
         searchIcon.setFitWidth(width*0.9);
         searchIcon.setFitHeight(width*0.9);
         return searchIcon;
@@ -62,7 +62,7 @@ public class MenuContentContainer {
         button.setMinHeight(width);
         button.setMaxHeight(width);
         button.setDefaultButton(true);
-        ImageView imageView = new ImageView("/icons/icons8-search-32.png");
+        ImageView imageView = new ImageView("/icons/search.png");
         imageView.setFitWidth(width*0.9);
         imageView.setFitHeight(width*0.9);
         button.setGraphic(imageView);

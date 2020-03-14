@@ -30,7 +30,7 @@ public class EpisodeParser {
         try {
             String body = requestAndGetBody(movie.getUrl() + "episodes");
             Document html = Jsoup.parse(body);
-            movie.setEpisodes(new ArrayList<>());
+            movie.setEpisodes(new HashSet<>());
             Set<String> availableEpisodes = getAvailableEpisodes(torrent.getFiles());
             removeExistedEpisodes(movie.getEpisodes(), availableEpisodes);
             for (Element season : html.select("#bySeason option")) {
@@ -53,7 +53,7 @@ public class EpisodeParser {
         return episodes;
     }
 
-    private void removeExistedEpisodes(List<Episode> episodes, Set<String> availableEpisodes) {
+    private void removeExistedEpisodes(Set<Episode> episodes, Set<String> availableEpisodes) {
         Set<String> existedEpisodes = new HashSet<>();
         for (Episode episode : episodes) {
             existedEpisodes.add(String.format("S%02dE%02d", episode.getSeason(), episode.getEpisode()));

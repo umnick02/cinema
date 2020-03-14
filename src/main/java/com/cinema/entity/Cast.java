@@ -27,6 +27,10 @@ public class Cast {
     @ManyToOne(fetch = FetchType.LAZY)
     private Movie movie;
 
+    public enum Role {
+        COMPOSER, DIRECTOR, ACTOR, WRITER
+    }
+
     public Integer getId() {
         return id;
     }

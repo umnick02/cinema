@@ -1,25 +1,18 @@
 package com.cinema.model;
 
+import com.cinema.config.EntityManagerProvider;
 import com.cinema.dao.MovieDAO;
 import com.cinema.entity.Movie;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.*;
 import java.util.*;
 
-@Singleton
-public class MovieModel {
+public enum MovieModel {
+    INSTANCE;
 
-    EntityManager entityManager;
-    private MovieDAO movieDAO;
-
-    @Inject
-    public MovieModel(MovieDAO movieDAO, EntityManager entityManager) {
-        this.movieDAO = movieDAO;
-        this.entityManager = entityManager;
-    }
+    private EntityManager entityManager = EntityManagerProvider.provideEntityManager();
+    private MovieDAO movieDAO = MovieDAO.INSTANCE;
 
     public void updateMovie(Movie movie) {
         movieDAO.update(movie);
@@ -45,11 +38,12 @@ public class MovieModel {
     }
 
     private List<Object[]> findAllGenres() {
-        String query = "select genres.genre, cast(sum(genres.cnt) as int) as CNT from" +
+        String query = "select 'Any' as genre, cast(count(id) as int) as cnt from movie" +
+                " union (select genres.genre as genre, cast(sum(genres.cnt) as int) as cnt from" +
                 " (select GENRE_1 as genre, count(GENRE_1) as cnt from movie where GENRE_1 is not null group by GENRE_1" +
-                " union select GENRE_2, count(GENRE_2) from movie where GENRE_2 is not null group by GENRE_2" +
-                " union select GENRE_3, count(GENRE_3) from movie where GENRE_3 is not null group by GENRE_3) as genres" +
-                " group by genres.genre order by CNT desc, GENRE asc";
+                " union select GENRE_2 as genre, count(GENRE_2) as cnt from movie where GENRE_2 is not null group by GENRE_2" +
+                " union select GENRE_3 as genre, count(GENRE_3) as cnt from movie where GENRE_3 is not null group by GENRE_3) as genres" +
+                " group by genres.genre order by genre desc)";
         @SuppressWarnings("unchecked")
         List<Object[]> genres = entityManager.createNativeQuery(query).getResultList();
         return genres;

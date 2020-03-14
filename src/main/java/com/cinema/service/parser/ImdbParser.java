@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -51,17 +52,12 @@ public class ImdbParser {
             movie.setOriginalTitle(getOriginalTitle(json));
             movie.setTitle(getTitle(html));
 
-            movie.setPosterThumbnail(getPosterThumbnail(html));
-            movie.setCompany(getCompany(html));
             movie.setRatingImdb(getRating(json));
             movie.setRatingImdbVotes(getRatingVotes(json));
-            movie.setSeries(isSeries(json));
+//            movie.setSeries(isSeries(json));
             movie.setReleaseDate(getReleaseDate(json));
             fillGenres(json, movie);
             movie.setDuration(getDuration(html));
-            movie.setBudget(getBudget(html));
-            movie.setCurrency(getCurrency(html));
-            movie.setGross(getGross(html));
 
             movie.setUrl(getUrl(json));
             movie.setTrailer(getTrailer(movie.getTitle()));
@@ -75,20 +71,20 @@ public class ImdbParser {
             try {
                 String body = requestAndGetBody(movie.getUrl() + "fullcredits");
                 Document html = Jsoup.parse(body);
-                movie.setCasts(new ArrayList<>());
+                movie.setCasts(new HashSet<>());
                 for (int i = 0; i < html.select("h4").size(); i++) {
                     if (html.select("h4").get(i).text().contains("Directed")) {
                         Elements elements = html.select("table").get(i).select("tr");
-                        addCasts(elements, movie, Role.DIRECTOR, 3);
+                        addCasts(elements, movie, Cast.Role.DIRECTOR, 3);
                     } else if (html.select("h4").get(i).text().contains("Writing")) {
                         Elements elements = html.select("table").get(i).select("tr");
-                        addCasts(elements, movie, Role.WRITER, 3);
+                        addCasts(elements, movie, Cast.Role.WRITER, 3);
                     } else if (html.select("h4").get(i).text().contains("Music")) {
                         Elements elements = html.select("table").get(i).select("tr");
-                        addCasts(elements, movie, Role.COMPOSER, 3);
+                        addCasts(elements, movie, Cast.Role.COMPOSER, 3);
                     } else if (html.select("h4").get(i).text().contains("Cast")) {
                         Elements elements = html.select("table").get(i).select("tr");
-                        addCasts(elements, movie, Role.ACTOR, 7);
+                        addCasts(elements, movie, Cast.Role.ACTOR, 7);
                     }
                 }
             } catch (IOException | InterruptedException e) {
@@ -96,14 +92,14 @@ public class ImdbParser {
             }
         }
 
-        private static void addCasts(Elements elements, Movie movie, Role role, int limit) {
+        private static void addCasts(Elements elements, Movie movie, Cast.Role role, int limit) {
             String cls = "odd";
             for (int k = 0; k < Math.min(elements.size(), limit); k++) {
                 Cast cast = new Cast();
                 cast.setMovie(movie);
                 cast.setPriority((short) (k + 1));
                 cast.setRole(role);
-                if (role != Role.ACTOR) {
+                if (role != Cast.Role.ACTOR) {
                     cast.setName(elements.get(k).select("td.name a").text());
                 } else {
                     if (!elements.get(k).hasClass(cls)) {
@@ -139,10 +135,6 @@ public class ImdbParser {
         private static JsonObject fetchJsonFromHtml(Document html) {
             String json = html.selectFirst("script[type=\"application/ld+json\"]").html();
             return Json.parse(json).asObject();
-        }
-
-        private static String getPosterThumbnail(Document html) {
-            return html.select(".poster img").attr("src");
         }
 
         private static void fillPosters(Document html, Movie movie) {
@@ -212,15 +204,6 @@ public class ImdbParser {
             return String.format("[%s]", country);
         }
 
-        private static String getCompany(Document html) {
-            Elements companies = getElementsWithTagA(html, "Production Co");
-            if (companies == null) return null;
-            String company = companies.stream()
-                    .map(c -> String.format("\"%s\"", c.text().trim()))
-                    .collect(Collectors.joining(", "));
-            return String.format("[%s]", company);
-        }
-
         private static Float getRating(JsonObject json) {
             try {
                 String val = json.get("aggregateRating").asObject().getString("ratingValue", null);
@@ -279,33 +262,6 @@ public class ImdbParser {
                 System.out.println(e.getMessage());
                 return null;
             }
-        }
-
-        private static Long getBudget(Document html) {
-            String value = getFieldValue(html, "Budget");
-            if (value == null) return null;
-            return Long.parseLong(value.replaceAll("[^0-9]+", ""));
-        }
-
-        private static Long getGross(Document html) {
-            String value = getFieldValue(html, "Worldwide Gross");
-            if (value == null) return null;
-            return Long.parseLong(value.replaceAll("[^0-9]+", ""));
-        }
-
-        private static Currency getCurrency(Document html) {
-            String value = getFieldValue(html, "Budget");
-            if (value == null) return null;
-            return Currency.getCurrencyFromChar(value.charAt(0));
-        }
-
-        private static String getFieldValue(Document html, String fieldName) {
-            for (Element element : html.select("#titleDetails div.txt-block")) {
-                if (element.select("h4").text().contains(fieldName)) {
-                    return element.ownText().trim();
-                }
-            }
-            return null;
         }
 
         private static Elements getElementsWithTagA(Document html, String fieldName) {

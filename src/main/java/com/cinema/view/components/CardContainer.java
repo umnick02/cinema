@@ -1,126 +1,113 @@
 package com.cinema.view.components;
 
-import com.cinema.config.Config;
 import com.cinema.entity.Movie;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
+import com.cinema.view.builder.ComponentBuilder;
+import com.cinema.view.builder.DescriptionTabBuilder;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TabPane;
 import javafx.scene.image.Image;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
-import javafx.scene.text.*;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
-import java.util.Objects;
-
-import static com.cinema.CinemaApplication.INJECTOR;
+import java.io.IOException;
 
 public class CardContainer {
 
-    private static final Logger logger = LogManager.getLogger(CardContainer.class);
-    StackPane stackPane;
+    private HBox card;
+
     private Movie movie;
-    private BorderPane hover;
-    private MovieDetailsContainer movieDetailsContainer;
-    private static final Font first = Font.font("Helvetica", FontWeight.BOLD, FontPosture.ITALIC, 14);
-    private static final Font second = Font.font("Helvetica", FontWeight.NORMAL, FontPosture.REGULAR, 14);
-    private static final Font third = Font.font("Helvetica", FontWeight.BOLD, FontPosture.REGULAR, 13);
 
-    public CardContainer(Movie movie) {
+    public static final Double width = 1920/9-5d;
+    public static final Double ratio = 3d;
+
+    public CardContainer(Movie movie) throws IOException {
         this.movie = movie;
-        stackPane = buildStackPane(movie);
-    }
-
-    private StackPane buildStackPane(Movie movie) {
-        StackPane stackPane = new StackPane();
-        hover = buildHover(movie);
-        VBox card = buildCard(movie, stackPane);
-        stackPane.getChildren().add(card);
-        return stackPane;
-    }
-
-    private VBox buildCard(Movie movie, StackPane stackPane) {
-        VBox card = new VBox();
-        card.getStyleClass().add("card");
-        setBackground(card, movie);
-        setDimensions(card);
-        stackPane.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
-            INJECTOR.getInstance(RootContainer.class).getStackPane().getChildren().add(getMovieDetailsContainer().anchorPane);
-        });
-        stackPane.addEventHandler(MouseEvent.MOUSE_ENTERED, event -> showOnHover());
-        stackPane.addEventHandler(MouseEvent.MOUSE_EXITED, event -> hideOnHover());
-        return card;
-    }
-
-    public MovieDetailsContainer getMovieDetailsContainer() {
-        if (movieDetailsContainer == null) {
-            movieDetailsContainer = new MovieDetailsContainer(movie);
-        }
-        return movieDetailsContainer;
-    }
-
-    private BorderPane buildHover(Movie movie) {
-        BorderPane borderPane = new BorderPane();
-        borderPane.setStyle("-fx-background-color: rgba(255, 255, 255, 0.5); -fx-cursor: hand;");
-        VBox vBox = new VBox();
-        Text title = new Text(movie.getTitle());
-        title.setWrappingWidth(Double.parseDouble(Config.getPreference(Config.PrefKey.CARD_WIDTH)) * 0.8);
-        title.setTextAlignment(TextAlignment.CENTER);
-        title.setFont(first);
-        vBox.getChildren().add(title);
-        Text year = new Text(Integer.toString(movie.getReleaseDate().getYear()));
-        year.setFont(second);
-        vBox.getChildren().add(year);
-        vBox.setAlignment(Pos.TOP_CENTER);
-        vBox.setSpacing(10);
-        borderPane.setTop(vBox);
-        Text rating = new Text(String.format("%.1f (%d)", movie.getRatingImdb(), movie.getRatingImdbVotes()));
-        rating.setFont(third);
-        rating.setTextAlignment(TextAlignment.CENTER);
-        rating.setWrappingWidth(Double.parseDouble(Config.getPreference(Config.PrefKey.CARD_WIDTH)));
-        borderPane.setPadding(new Insets(10, 0, 10, 0));
-        borderPane.setBottom(rating);
-        return borderPane;
-    }
-
-    private void showOnHover() {
-        stackPane.getChildren().add(hover);
-    }
-
-    private void hideOnHover() {
-        stackPane.getChildren().remove(hover);
+        card = FXMLLoader.load(getClass().getResource("/card.fxml"));
+        init();
     }
 
     public Movie getMovie() {
         return movie;
     }
 
-    private void setBackground(VBox card, Movie movie) {
-        int width = Integer.parseInt(Config.getPreference(Config.PrefKey.CARD_WIDTH));
-        Image image = new Image(movie.getPosterThumbnail(), width, -1, true, false);
+    public HBox getCard() {
+        return card;
+    }
+
+    private void init() {
+        setDimension();
+        setPoster();
+        if (movie.getType() != Movie.Type.SERIES) {
+            ((TabPane)((AnchorPane) card.getChildren().get(1)).getChildren().get(0)).getTabs().get(2).setStyle("visibility: hidden;");
+        }
+        TabPane tabPane = (TabPane)((AnchorPane) card.getChildren().get(1)).getChildren().get(0);
+        tabPane.getSelectionModel().selectedIndexProperty()
+                .addListener((observableValue, oldValue, newValue) -> selectTab(Tabs.values()[newValue.intValue()]));
+        selectTab(Tabs.DETAILS);
+    }
+
+    private void selectTab(Tabs tab) {
+        TabPane tabPane = (TabPane) ((AnchorPane) card.getChildren().get(1)).getChildren().get(0);
+        tabPane.getSelectionModel().select(tab.position);
+        switch (tab) {
+            case DETAILS:
+                if (((VBox)((BorderPane) tabPane.getTabs().get(tab.position).getContent()).getCenter()).getChildren().size() == 0) {
+                    DescriptionTabBuilder.INSTANCE.renderDetails(tabPane.getTabs().get(tab.position), movie);
+                }
+                break;
+            case DESCRIPTION:
+                if (((VBox)((ScrollPane) tabPane.getTabs().get(tab.position).getContent()).getContent()).getChildren().size() == 0) {
+                    DescriptionTabBuilder.INSTANCE.renderDescription(tabPane.getTabs().get(tab.position), movie);
+                }
+                break;
+            case EPISODES:
+                DescriptionTabBuilder.changeEpisodeTabVisibility(tabPane.getTabs().get(tab.position), false);
+                if (((TilePane)((StackPane)((ScrollPane) tabPane.getTabs().get(tab.position).getContent()).getContent()).getChildren().get(0)).getChildren().size() == 0) {
+                    DescriptionTabBuilder.INSTANCE.renderSeasons(tabPane.getTabs().get(tab.position), movie);
+                } else {
+                    ((VBox)((BorderPane)((StackPane)((ScrollPane)tabPane.getTabs().get(tab.position).getContent()).getContent()).getChildren().get(1)).getCenter()).getChildren().clear();
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void setDimension() {
+        card.setMinSize(width * ratio, width * 1.4);
+        card.setMaxSize(width * ratio, width * 1.4);
+        StackPane posterPane = (StackPane) card.getChildren().get(0);
+        posterPane.setMinSize(width, card.getMinHeight());
+        posterPane.setMaxSize(width, card.getMaxHeight());
+        AnchorPane detailsPane = (AnchorPane) card.getChildren().get(1);
+        detailsPane.setMinSize(card.getMinWidth() - width, card.getMinHeight());
+        detailsPane.setMaxSize(card.getMaxWidth() - width, card.getMaxHeight());
+    }
+
+    private void setPoster() {
+        StackPane posterPane = (StackPane) card.getChildren().get(0);
+        Image image = new Image(movie.getPoster(), width, -1, true, false);
         BackgroundImage backgroundImage = new BackgroundImage(image, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, BackgroundSize.DEFAULT);
-        card.setBackground(new Background(backgroundImage));
+        posterPane.setBackground(new Background(backgroundImage));
     }
 
-    private void setDimensions(VBox card) {
-        int width = Integer.parseInt(Config.getPreference(Config.PrefKey.CARD_WIDTH));
-        int height = (int) (width * 1.4);
-        card.setMinHeight(height);
-        card.setMaxHeight(height);
-        card.setMaxWidth(width);
-        card.setMinWidth(width);
-    }
+    private enum Tabs {
+        DETAILS(0, "Детали"), DESCRIPTION(1, "Описание"), EPISODES(2, "Эпизоды");
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        CardContainer that = (CardContainer) o;
-        return movie.equals(that.movie);
-    }
+        private int position;
+        private String value;
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(movie);
+        Tabs(int position, String value) {
+            this.value = value;
+            this.position = position;
+        }
+
+        @Override
+        public String toString() {
+            return "Tab{" +
+                    "position=" + position +
+                    ", value='" + value + '\'' +
+                    '}';
+        }
     }
 }

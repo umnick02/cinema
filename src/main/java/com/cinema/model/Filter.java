@@ -18,7 +18,7 @@ public class Filter {
         return genresIncl;
     }
 
-    public void setGenresIncl(String[] genresIncl) {
+    public void setGenresIncl(String... genresIncl) {
         this.genresIncl = genresIncl;
     }
 
@@ -26,7 +26,7 @@ public class Filter {
         return genresExcl;
     }
 
-    public void setGenresExcl(String[] genresExcl) {
+    public void setGenresExcl(String... genresExcl) {
         this.genresExcl = genresExcl;
     }
 
@@ -34,7 +34,7 @@ public class Filter {
         return countriesIncl;
     }
 
-    public void setCountriesIncl(String[] countriesIncl) {
+    public void setCountriesIncl(String... countriesIncl) {
         this.countriesIncl = countriesIncl;
     }
 
@@ -42,7 +42,7 @@ public class Filter {
         return countriesExcl;
     }
 
-    public void setCountriesExcl(String[] countriesExcl) {
+    public void setCountriesExcl(String... countriesExcl) {
         this.countriesExcl = countriesExcl;
     }
 

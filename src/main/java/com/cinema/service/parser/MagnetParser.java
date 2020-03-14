@@ -38,7 +38,7 @@ public class MagnetParser {
         try {
             parseImdb(movie, torrent);
             parseKp(movie, torrent);
-            if (movie.getSeries()) {
+            if (movie.getType() == Movie.Type.SERIES) {
                 episodeParser.parse(movie, torrent);
             }
         } catch (Exception e) {

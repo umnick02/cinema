@@ -1,29 +1,19 @@
 package com.cinema.dao;
 
+import com.cinema.config.EntityManagerProvider;
 import com.cinema.entity.Movie;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 
 import javax.persistence.EntityManager;
 
-@Singleton
-public class MovieDAO {
+public enum MovieDAO {
+    INSTANCE;
 
     private static final Logger logger = LogManager.getLogger(MovieDAO.class);
 
-    private final EntityManager entityManager;
-
-    public EntityManager getEntityManager() {
-        return entityManager;
-    }
-
-    @Inject
-    public MovieDAO(EntityManager entityManager) {
-        this.entityManager = entityManager;
-    }
+    private final EntityManager entityManager = EntityManagerProvider.provideEntityManager();
 
     public void create(Movie movie) {
         try {

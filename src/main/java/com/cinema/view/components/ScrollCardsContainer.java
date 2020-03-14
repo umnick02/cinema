@@ -1,5 +1,6 @@
 package com.cinema.view.components;
 
+import com.cinema.controller.CardsController;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import javafx.scene.control.ScrollPane;
@@ -8,14 +9,14 @@ import javafx.scene.layout.AnchorPane;
 @Singleton
 public class ScrollCardsContainer {
     ScrollPane scrollPane;
-    final CardsContainer cardsContainer;
+    final CardsController cardsController;
 
     @Inject
-    public ScrollCardsContainer(CardsContainer cardsContainer) {
+    public ScrollCardsContainer(CardsController cardsController) {
         super();
-        this.cardsContainer = cardsContainer;
+        this.cardsController = cardsController;
         scrollPane = buildScrollPane();
-        scrollPane.setContent(cardsContainer.anchorPane);
+//        scrollPane.setContent(cardsContainer.anchorPane);
     }
 
     private ScrollPane buildScrollPane() {

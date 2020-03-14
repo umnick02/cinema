@@ -1,15 +1,6 @@
 package com.cinema.config;
 
-import bt.torrent.fileselector.TorrentFileSelector;
 import com.cinema.entity.*;
-import com.cinema.presenter.SearchPresentable;
-import com.cinema.presenter.SearchPresenter;
-import com.cinema.service.bt.selectors.DraftFilesSelector;
-import com.cinema.view.Searchable;
-import com.cinema.view.components.ListContentContainer;
-import com.google.inject.AbstractModule;
-import com.google.inject.Provides;
-import com.google.inject.Singleton;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
@@ -19,18 +10,11 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import java.util.Properties;
 
-public class GuiceModule extends AbstractModule {
+public class EntityManagerProvider {
 
-    @Override
-    protected void configure() {
-        bind(TorrentFileSelector.class).to(DraftFilesSelector.class);
-        bind(SearchPresentable.class).to(SearchPresenter.class);
-        bind(Searchable.class).to(ListContentContainer.class);
-    }
+    private static EntityManagerFactory entityManagerFactory = createEntityManagerFactory();
 
-    @Provides
-    @Singleton
-    public EntityManagerFactory provideEntityManagerFactory() {
+    private static EntityManagerFactory createEntityManagerFactory() {
         Configuration configuration = new Configuration();
         Properties settings = new Properties();
         settings.put(Environment.JPA_PERSISTENCE_PROVIDER, "org.hibernate.jpa.HibernatePersistenceProvider");
@@ -51,8 +35,7 @@ public class GuiceModule extends AbstractModule {
         return configuration.buildSessionFactory(serviceRegistry);
     }
 
-    @Provides
-    public EntityManager provideEntityManager(EntityManagerFactory entityManagerFactory) {
+    public static EntityManager provideEntityManager() {
         return entityManagerFactory.createEntityManager();
     }
 }

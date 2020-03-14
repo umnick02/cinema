@@ -8,7 +8,7 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "movie")
@@ -18,11 +18,15 @@ public class Movie implements Serializable {
     @GeneratedValue
     private Long id;
 
-    @Column(name = "is_series")
-    private Boolean isSeries;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type", nullable = false)
+    private Type type;
 
     @Column(name = "release_date")
     private LocalDate releaseDate;
+
+    @Column(name = "finish_date")
+    private LocalDate finishDate;
 
     @Column(name = "original_title", updatable = false, nullable = false)
     @NaturalId(mutable = true)
@@ -43,16 +47,6 @@ public class Movie implements Serializable {
     @Column(name = "duration")
     private Short duration;
 
-    @Column(name = "budget")
-    private Long budget;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "currency")
-    private Currency currency;
-
-    @Column(name = "gross")
-    private Long gross;
-
     @Column(name = "posters", columnDefinition = "text")
     private String posters;
 
@@ -62,17 +56,11 @@ public class Movie implements Serializable {
     @Column(name = "magnet", columnDefinition = "text")
     private String magnet;
 
-    @Column(name = "company")
-    private String company;
-
-    @Column(name = "poster_thumbnail", columnDefinition = "varchar(511)")
-    private String posterThumbnail;
-
     @Column(name = "poster", columnDefinition = "varchar(511)")
     private String poster;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "movie", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
-    private List<Cast> casts;
+    private Set<Cast> casts;
 
     @CreationTimestamp
     private LocalDateTime created;
@@ -81,7 +69,7 @@ public class Movie implements Serializable {
     private LocalDateTime updated;
 
     @OneToMany(mappedBy = "series", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
-    private List<Episode> episodes;
+    private Set<Episode> episodes;
 
     @Column(name = "title", updatable = false, nullable = false)
     private String title;
@@ -130,6 +118,21 @@ public class Movie implements Serializable {
         }
     }
 
+    public enum Type {
+        SERIES("Сериал"), MOVIE("Фильм"), CARTOON("Мультфильм");
+
+        private String value;
+
+        Type(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return value;
+        }
+    }
+
     public FileStatus getFileStatus() {
         return fileStatus;
     }
@@ -142,20 +145,28 @@ public class Movie implements Serializable {
         return id;
     }
 
-    public List<Cast> getCasts() {
+    public LocalDate getFinishDate() {
+        return finishDate;
+    }
+
+    public void setFinishDate(LocalDate finishDate) {
+        this.finishDate = finishDate;
+    }
+
+    public Set<Cast> getCasts() {
         return casts;
     }
 
-    public void setCasts(List<Cast> casts) {
+    public void setCasts(Set<Cast> casts) {
         this.casts = casts;
     }
 
-    public Boolean getSeries() {
-        return isSeries;
+    public Type getType() {
+        return type;
     }
 
-    public void setSeries(Boolean series) {
-        isSeries = series;
+    public void setType(Type type) {
+        this.type = type;
     }
 
     public LocalDate getReleaseDate() {
@@ -214,30 +225,6 @@ public class Movie implements Serializable {
         this.duration = duration;
     }
 
-    public Long getBudget() {
-        return budget;
-    }
-
-    public void setBudget(Long budget) {
-        this.budget = budget;
-    }
-
-    public Currency getCurrency() {
-        return currency;
-    }
-
-    public void setCurrency(Currency currency) {
-        this.currency = currency;
-    }
-
-    public Long getGross() {
-        return gross;
-    }
-
-    public void setGross(Long gross) {
-        this.gross = gross;
-    }
-
     public String getPosters() {
         return posters;
     }
@@ -260,22 +247,6 @@ public class Movie implements Serializable {
 
     public void setMagnet(String magnet) {
         this.magnet = magnet;
-    }
-
-    public String getCompany() {
-        return company;
-    }
-
-    public void setCompany(String company) {
-        this.company = company;
-    }
-
-    public String getPosterThumbnail() {
-        return posterThumbnail;
-    }
-
-    public void setPosterThumbnail(String posterThumbnail) {
-        this.posterThumbnail = posterThumbnail;
     }
 
     public String getPoster() {
@@ -302,11 +273,11 @@ public class Movie implements Serializable {
         this.updated = updated;
     }
 
-    public List<Episode> getEpisodes() {
+    public Set<Episode> getEpisodes() {
         return episodes;
     }
 
-    public void setEpisodes(List<Episode> episodes) {
+    public void setEpisodes(Set<Episode> episodes) {
         this.episodes = episodes;
     }
 

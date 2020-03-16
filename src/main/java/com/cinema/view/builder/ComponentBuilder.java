@@ -4,9 +4,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
 public enum ComponentBuilder {
@@ -37,16 +34,14 @@ public enum ComponentBuilder {
         return label;
     }
 
-    public Button button(String value) {
-        Button button = new Button(value);
-//        HBox.setHgrow(button, Priority.ALWAYS);
-//        VBox.setVgrow(button, Priority.ALWAYS);
-//        button.setMaxWidth(Double.MAX_VALUE);
-//        button.setMaxHeight(Double.MAX_VALUE);
+    public Button buildIcon(String iconClass) {
+        Button button = new Button();
+        button.getStyleClass().add("icon");
+        button.getStyleClass().add(iconClass);
         return button;
     }
 
-    public ImageView buildImageView(String url) {
+    public ImageView buildImage(String url) {
         ImageView imageView;
         if (url != null) {
             Image image = new Image(url);
@@ -54,6 +49,9 @@ public enum ComponentBuilder {
         } else {
             imageView = new ImageView();
         }
+        double width = 120;
+        imageView.setFitWidth(width);
+        imageView.setFitHeight(width * 9 / 16);
         return imageView;
     }
 }

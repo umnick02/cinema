@@ -1,7 +1,6 @@
 package com.cinema.view.components;
 
 import com.cinema.entity.Movie;
-import com.cinema.view.builder.ComponentBuilder;
 import com.cinema.view.builder.DescriptionTabBuilder;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.ScrollPane;
@@ -61,11 +60,12 @@ public class CardContainer {
                 }
                 break;
             case EPISODES:
-                DescriptionTabBuilder.changeEpisodeTabVisibility(tabPane.getTabs().get(tab.position), false);
-                if (((TilePane)((StackPane)((ScrollPane) tabPane.getTabs().get(tab.position).getContent()).getContent()).getChildren().get(0)).getChildren().size() == 0) {
+                StackPane stackPane = (StackPane) tabPane.getTabs().get(tab.position).getContent();
+                if (stackPane.getChildren().size() > 1) {
+                    stackPane.getChildren().remove(1);
+                }
+                if (((TilePane)((ScrollPane)((StackPane) tabPane.getTabs().get(tab.position).getContent()).getChildren().get(0)).getContent()).getChildren().size() == 0) {
                     DescriptionTabBuilder.INSTANCE.renderSeasons(tabPane.getTabs().get(tab.position), movie);
-                } else {
-                    ((VBox)((BorderPane)((StackPane)((ScrollPane)tabPane.getTabs().get(tab.position).getContent()).getContent()).getChildren().get(1)).getCenter()).getChildren().clear();
                 }
                 break;
             default:

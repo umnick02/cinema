@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<ScrollPane xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
+    <StackPane.margin>
+        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+    </StackPane.margin>
+    <BorderPane styleClass="background-second" stylesheets="@style.css" />
+</ScrollPane>

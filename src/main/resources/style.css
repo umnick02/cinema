@@ -38,6 +38,23 @@
 .icon-preferences {
     -fx-background-image: url("/icons/preferences.png");
 }
+.icon-left_arrow {
+    -fx-background-size: 16px 16px;
+    -fx-background-image: url("/icons/left-arrow.png");
+}
+.icon-right_arrow {
+    -fx-background-size: 16px 16px;
+    -fx-background-image: url("/icons/right-arrow.png");
+}
+.icon-upwards_arrow {
+    -fx-background-size: 16px 16px;
+    -fx-background-image: url("/icons/upwards-arrow.png");
+}
+.icon-play {
+    -fx-background-size: 32px 32px;
+    -fx-min-width: 32px;
+    -fx-background-image: url("/icons/play.png");
+}
 
 .tab-pane {
     -fx-tab-max-height: 1.2em;

@@ -21,10 +21,8 @@
                </center>
                <bottom>
                   <AnchorPane BorderPane.alignment="CENTER">
-                     <children>
-                        <Button mnemonicParsing="false" text="Трейлер" AnchorPane.leftAnchor="0.0" />
-                        <Button layoutX="66.5" mnemonicParsing="false" text="Смотреть" AnchorPane.rightAnchor="0.0" />
-                     </children>
+                     <Button mnemonicParsing="false" text="Трейлер" AnchorPane.leftAnchor="0.0" />
+                     <Button layoutX="66.5" mnemonicParsing="false" text="Смотреть" AnchorPane.rightAnchor="0.0" />
                   </AnchorPane>
                </bottom>
                <padding>
@@ -42,23 +40,15 @@
             </ScrollPane>
          </Tab>
          <Tab closable="false" text="Эпизоды">
-            <ScrollPane fitToWidth="true" style="-fx-background-color: #2b2b2b;">
-               <StackPane>
+            <StackPane>
+               <ScrollPane>
                   <TilePane hgap="4.0" prefColumns="3" prefRows="3" vgap="4.0">
                      <padding>
                         <Insets bottom="5.0" left="10.0" right="10.0" top="5.0" />
                      </padding>
                   </TilePane>
-                  <BorderPane visible="false">
-                     <StackPane.margin>
-                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                     </StackPane.margin>
-                     <center>
-                        <VBox prefHeight="200.0" prefWidth="100.0" spacing="10.0" styleClass="background-second" stylesheets="@style.css" />
-                     </center>
-                  </BorderPane>
-               </StackPane>
-            </ScrollPane>
+               </ScrollPane>
+            </StackPane>
          </Tab>
       </TabPane>
    </AnchorPane>

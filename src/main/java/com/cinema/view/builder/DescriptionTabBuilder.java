@@ -1,22 +1,22 @@
 package com.cinema.view.builder;
 
+import com.cinema.controller.SeasonsController;
 import com.cinema.entity.Cast;
 import com.cinema.entity.Episode;
 import com.cinema.entity.Movie;
 import javafx.geometry.Insets;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public enum  DescriptionTabBuilder {
+import static com.cinema.utils.StringUtils.longToString;
+
+public enum DescriptionTabBuilder {
     INSTANCE;
 
     public void renderDetails(Tab tab, Movie movie) {
@@ -40,25 +40,9 @@ public enum  DescriptionTabBuilder {
     }
 
     public void renderSeasons(Tab tab, Movie movie) {
-        TilePane tilePane = (TilePane)((StackPane)((ScrollPane) tab.getContent()).getContent()).getChildren().get(0);
-        changeEpisodeTabVisibility(tab, false);
-        tilePane.getChildren().addAll(buildEpisodes(tab, movie.getEpisodes()));
-    }
-
-    public void renderEpisodes(Tab tab, Set<Episode> episodes) {
-        VBox vBox = (VBox)((BorderPane)((StackPane)((ScrollPane) tab.getContent()).getContent()).getChildren().get(1)).getCenter();
-        vBox.getChildren().clear();
-        episodes.forEach(e -> {
-            HBox hBox = new HBox();
-            hBox.getChildren().add(ComponentBuilder.INSTANCE.buildImageView(e.getPoster()));
-            hBox.getChildren().add(ComponentBuilder.INSTANCE.regularText(e.getTitle()));
-            vBox.getChildren().add(hBox);
-        });
-        changeEpisodeTabVisibility(tab, true);
-    }
-
-    public static void changeEpisodeTabVisibility(Tab tab, boolean visibility) {
-        ((StackPane)((ScrollPane) tab.getContent()).getContent()).getChildren().get(1).setVisible(visibility);
+        TilePane tilePane = (TilePane)((ScrollPane)((StackPane) tab.getContent()).getChildren().get(0)).getContent();
+        SeasonsController seasonsController = new SeasonsController((StackPane) tab.getContent(), movie);
+        tilePane.getChildren().addAll(seasonsController.buildEpisodes());
     }
 
     private Text buildTitle(Movie movie) {
@@ -124,7 +108,7 @@ public enum  DescriptionTabBuilder {
 
     private Text buildRating(Movie movie) {
         return ComponentBuilder.INSTANCE.regularText(String.format("IMDB %.1f (%s) / KP %.1f (%s)",
-                movie.getRatingImdb(), longByGroup(movie.getRatingImdbVotes()), movie.getRatingKp(), longByGroup(movie.getRatingKpVotes())));
+                movie.getRatingImdb(), longToString(movie.getRatingImdbVotes()), movie.getRatingKp(), longToString(movie.getRatingKpVotes())));
     }
 
     private Label buildDescription(Movie movie) {
@@ -153,76 +137,5 @@ public enum  DescriptionTabBuilder {
                     vBox.getChildren().add(box);
                 });
         return vBox;
-    }
-
-    private List<Button> buildEpisodes(Tab tab, Set<Episode> episodes) {
-        List<Button> vBoxes = new ArrayList<>();
-        List<SeasonStat> stats = computeStats(episodes);
-        stats.forEach(stat -> {
-            Button button = buildSeasonCard(stat);
-            button.setOnMouseClicked(event -> renderEpisodes(tab, stat.episodes));
-            vBoxes.add(button);
-        });
-        return vBoxes;
-    }
-
-    private Button buildSeasonCard(SeasonStat stat) {
-        Button button = new Button();
-        button.setStyle("-fx-font-size: 0.8em;");
-        button.setText(String.format("Сезон %d (%d эп.)\n%s\n%.1f (%s)",
-                stat.season, stat.episodes.size(),
-                stat.release.format(DateTimeFormatter.ofPattern("dd MMMM yyyy")),
-                stat.getRating(), longByGroup(stat.getVotes())
-        ));
-        return button;
-    }
-
-    private List<SeasonStat> computeStats(Set<Episode> episodes) {
-        Map<Short, SeasonStat> stats = new HashMap<>();
-        episodes.forEach(e -> {
-            stats.putIfAbsent(e.getSeason(), new SeasonStat(e.getSeason(), e.getReleaseDate()));
-            stats.get(e.getSeason()).incr(e);
-        });
-        return new ArrayList<>(stats.values());
-    }
-
-    private static class SeasonStat {
-        private double rating;
-        private int votes;
-        private Set<Episode> episodes = new HashSet<>();
-        private short season;
-        private LocalDate release;
-
-        private SeasonStat(short season, LocalDate release) {
-            this.season = season;
-            this.release = release;
-        }
-
-        private double getRating() {
-            return rating / episodes.size();
-        }
-
-        private int getVotes() {
-            return votes / episodes.size();
-        }
-
-        private void incr(Episode episode) {
-            episodes.add(episode);
-            rating += episode.getRating();
-            votes += episode.getRatingVotes();
-            if (episode.getReleaseDate().isBefore(release)) {
-                release = episode.getReleaseDate();
-            }
-        }
-    }
-
-    public static String longByGroup(long value) {
-        if (value >= 1000000) {
-            return String.format("%d %03d %03d", value / 1000000, (value % 1000000) / 1000, value % 1000000 % 1000);
-        } else if (value >= 1000) {
-            return String.format("%d %03d", value / 1000, value % 1000);
-        } else {
-            return Long.toString(value);
-        }
     }
 }

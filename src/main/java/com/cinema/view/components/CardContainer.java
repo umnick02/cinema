@@ -1,11 +1,14 @@
 package com.cinema.view.components;
 
+import com.cinema.controller.CardsController;
 import com.cinema.entity.Movie;
 import com.cinema.view.builder.DescriptionTabBuilder;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TabPane;
 import javafx.scene.image.Image;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 
 import java.io.IOException;
@@ -18,9 +21,11 @@ public class CardContainer {
 
     public static final Double width = 1920/9-5d;
     public static final Double ratio = 3d;
+    private CardsController cardsController;
 
-    public CardContainer(Movie movie) throws IOException {
+    public CardContainer(CardsController cardsController, Movie movie) throws IOException {
         this.movie = movie;
+        this.cardsController = cardsController;
         card = FXMLLoader.load(getClass().getResource("/card.fxml"));
         init();
     }
@@ -39,6 +44,8 @@ public class CardContainer {
         if (movie.getType() != Movie.Type.SERIES) {
             ((TabPane)((AnchorPane) card.getChildren().get(1)).getChildren().get(0)).getTabs().get(2).setStyle("visibility: hidden;");
         }
+        Button trailer = (Button)((AnchorPane)((BorderPane)((TabPane)((AnchorPane) card.getChildren().get(1)).getChildren().get(0)).getTabs().get(0).getContent()).getBottom()).getChildren().get(0);
+        trailer.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> cardsController.getMainController().runTrailer(movie.getTrailer()));
         TabPane tabPane = (TabPane)((AnchorPane) card.getChildren().get(1)).getChildren().get(0);
         tabPane.getSelectionModel().selectedIndexProperty()
                 .addListener((observableValue, oldValue, newValue) -> selectTab(Tabs.values()[newValue.intValue()]));

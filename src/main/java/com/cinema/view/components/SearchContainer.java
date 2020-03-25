@@ -11,6 +11,5 @@ public class SearchContainer {
     public SearchContainer(SearchController controller, AnchorPane container) {
         this.controller = controller;
         this.container = container;
-
     }
 }

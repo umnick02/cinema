@@ -7,8 +7,8 @@
 
 <BorderPane xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
    <center>
-        <StackPane styleClass="disable" stylesheets="@style.css">
-            <AnchorPane prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: black;" styleClass="disable" stylesheets="@style.css">
+        <StackPane fx:id="content" stylesheets="@style.css">
+            <AnchorPane prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: black;" stylesheets="@style.css">
                 <ScrollPane fitToHeight="true" fitToWidth="true" styleClass="background-default" stylesheets="@style.css" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                     <TilePane fx:id="cardsContainer" styleClass="cards" stylesheets="@style.css" />
                 </ScrollPane>
@@ -47,7 +47,7 @@
             </AnchorPane>
          </center>
          <left>
-            <Button mnemonicParsing="false" stylesheets="@style.css" BorderPane.alignment="CENTER">
+            <Button fx:id="back" mnemonicParsing="false" stylesheets="@style.css" BorderPane.alignment="CENTER">
                <styleClass>
                   <String fx:value="icon" />
                   <String fx:value="icon-back" />

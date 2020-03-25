@@ -25,7 +25,7 @@ public class CardsContainer {
         for (Movie movie : movies) {
             if (!oldMovies.contains(movie)) {
                 try {
-                    CardContainer cardContainer = new CardContainer(movie);
+                    CardContainer cardContainer = new CardContainer(controller, movie);
                     cards.add(cardContainer);
                     container.getChildren().add(cardContainer.getCard());
                 } catch (IOException e) {

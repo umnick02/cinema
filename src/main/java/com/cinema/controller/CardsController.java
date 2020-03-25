@@ -11,9 +11,15 @@ public class CardsController {
 
     public CardsContainer cardsContainer;
     private final MovieModel movieModel = MovieModel.INSTANCE;
+    private MainController mainController;
 
-    public CardsController(TilePane container) {
+    public CardsController(MainController mainController, TilePane container) {
+        this.mainController = mainController;
         this.cardsContainer = new CardsContainer(this, container);
+    }
+
+    public MainController getMainController() {
+        return mainController;
     }
 
     public void resetMovies(Set<Movie> movies) {

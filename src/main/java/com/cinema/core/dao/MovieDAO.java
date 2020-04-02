@@ -52,7 +52,7 @@ public enum MovieDAO {
         return entityManager.find(Movie.class, id);
     }
 
-    public Movie getMovie(String title) {
-        return entityManager.unwrap(Session.class).bySimpleNaturalId(Movie.class).load(title);
+    public Movie getMovie(String originalTitle) {
+        return entityManager.unwrap(Session.class).bySimpleNaturalId(Movie.class).load(originalTitle);
     }
 }

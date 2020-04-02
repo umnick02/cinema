@@ -12,5 +12,4 @@ build/
 out/
 /gradle/wrapper/gradle-wrapper.jar
 /gradle/wrapper/gradle-wrapper.properties
-/src/test/resources/h2_db.mv.db
 /h2_db.trace.db

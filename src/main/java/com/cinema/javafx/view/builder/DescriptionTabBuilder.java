@@ -81,10 +81,19 @@ public enum DescriptionTabBuilder {
     }
 
     private Text buildCountry(Movie movie) {
-        String value = movie.getCountry().substring(1, movie.getCountry().length() - 1)
-                .replaceAll("\"", "")
-                .replaceAll(",", " /");
-        return ComponentBuilder.INSTANCE.regularText("Страна: " + value);
+        StringBuilder sb = new StringBuilder();
+        if (movie.getCountry1() != null) {
+            sb.append(movie.getCountry1());
+        }
+        if (movie.getCountry2() != null) {
+            sb.append(" / ");
+            sb.append(movie.getCountry2());
+        }
+        if (movie.getCountry3() != null) {
+            sb.append(" / ");
+            sb.append(movie.getCountry3());
+        }
+        return ComponentBuilder.INSTANCE.regularText("Страна: " + sb);
     }
 
     private Text buildDuration(Movie movie) {

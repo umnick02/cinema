@@ -2,7 +2,7 @@ package com.cinema.javafx.controller;
 
 import com.cinema.javafx.view.components.CardsContainer;
 import com.cinema.core.entity.Movie;
-import com.cinema.core.model.MovieModel;
+import com.cinema.core.model.impl.MovieModel;
 import javafx.scene.layout.TilePane;
 
 import java.util.*;

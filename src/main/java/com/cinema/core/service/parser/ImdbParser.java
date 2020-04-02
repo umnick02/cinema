@@ -63,7 +63,7 @@ public class ImdbParser {
             movie.setUrl(getUrl(json));
             movie.setTrailer(getTrailer(movie.getTitle()));
             movie.setDescription(getDescription(html));
-            movie.setCountry(getCountry(html));
+            fillCountries(html, movie);
             fillPosters(html, movie);
             fillCasts(movie);
         }
@@ -196,13 +196,25 @@ public class ImdbParser {
             return html.select("#titleStoryLine > div > p > span").text();
         }
 
-        private static String getCountry(Document html) {
+        private static void fillCountries(Document html, Movie movie) {
             Elements countries = getElementsWithTagA(html, "Country");
-            if (countries == null) return null;
-            String country = countries.stream()
-                    .map(c -> String.format("\"%s\"", c.text().trim()))
-                    .collect(Collectors.joining(", "));
-            return String.format("[%s]", country);
+            if (countries == null) return;
+            for (int i = 0; i < countries.size() && i < 3; i++) {
+                String country = countries.get(i).text().trim();
+                switch (i) {
+                    case 0:
+                        movie.setCountry1(country);
+                        break;
+                    case 1:
+                        movie.setCountry2(country);
+                        break;
+                    case 2:
+                        movie.setCountry3(country);
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
 
         private static Float getRating(JsonObject json) {
@@ -223,10 +235,6 @@ public class ImdbParser {
                 System.out.println(e.getMessage());
                 return null;
             }
-        }
-
-        private static boolean isSeries(JsonObject json) {
-            return json.getString("@type", "").equals("TVSeries");
         }
 
         private static short getDuration(Document html) {

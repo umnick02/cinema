@@ -1,6 +1,12 @@
 package com.cinema.core.model;
 
+import com.cinema.core.entity.Movie;
+
+import java.util.Arrays;
+
 public class Filter {
+
+    private String title;
     private String[] genresIncl;
     private String[] genresExcl;
     private String[] countriesIncl;
@@ -10,103 +16,132 @@ public class Filter {
     private Integer minVotes;
     private Short fromYear;
     private Short toYear;
-    private Boolean isSeriesIncl;
-    private int page = 0;
-    private int size = 24;
+    private Movie.Type[] types;
+
+    private Filter() {}
+
+    public String getTitle() {
+        return title;
+    }
 
     public String[] getGenresIncl() {
         return genresIncl;
-    }
-
-    public void setGenresIncl(String... genresIncl) {
-        this.genresIncl = genresIncl;
     }
 
     public String[] getGenresExcl() {
         return genresExcl;
     }
 
-    public void setGenresExcl(String... genresExcl) {
-        this.genresExcl = genresExcl;
-    }
-
     public String[] getCountriesIncl() {
         return countriesIncl;
-    }
-
-    public void setCountriesIncl(String... countriesIncl) {
-        this.countriesIncl = countriesIncl;
     }
 
     public String[] getCountriesExcl() {
         return countriesExcl;
     }
 
-    public void setCountriesExcl(String... countriesExcl) {
-        this.countriesExcl = countriesExcl;
-    }
-
     public Double getMinIMDB() {
         return minIMDB;
-    }
-
-    public void setMinIMDB(Double minIMDB) {
-        this.minIMDB = minIMDB;
     }
 
     public Double getMinKP() {
         return minKP;
     }
 
-    public void setMinKP(Double minKP) {
-        this.minKP = minKP;
-    }
-
     public Integer getMinVotes() {
         return minVotes;
-    }
-
-    public void setMinVotes(Integer minVotes) {
-        this.minVotes = minVotes;
     }
 
     public Short getFromYear() {
         return fromYear;
     }
 
-    public void setFromYear(Short fromYear) {
-        this.fromYear = fromYear;
-    }
-
     public Short getToYear() {
         return toYear;
     }
 
-    public void setToYear(Short toYear) {
-        this.toYear = toYear;
+    public Movie.Type[] getTypes() {
+        return types;
     }
 
-    public Boolean getSeriesIncl() {
-        return isSeriesIncl;
+    @Override
+    public String toString() {
+        return "Filter{" +
+                "title=" + title +
+                ", genresIncl=" + Arrays.toString(genresIncl) +
+                ", genresExcl=" + Arrays.toString(genresExcl) +
+                ", countriesIncl=" + Arrays.toString(countriesIncl) +
+                ", countriesExcl=" + Arrays.toString(countriesExcl) +
+                ", minIMDB=" + minIMDB +
+                ", minKP=" + minKP +
+                ", minVotes=" + minVotes +
+                ", fromYear=" + fromYear +
+                ", toYear=" + toYear +
+                ", types=" + Arrays.toString(types) +
+                '}';
     }
+    
+    public static class Builder {
+        
+        private Filter filter = new Filter();
 
-    public void setSeriesIncl(Boolean seriesIncl) {
-        isSeriesIncl = seriesIncl;
-    }
+        public Filter build() {
+            return filter;
+        }
 
-    public int getPage() {
-        return page;
-    }
+        public Builder fromYear(short year) {
+            filter.fromYear = year;
+            return this;
+        }
 
-    public void setPage(int page) {
-        this.page = page;
-    }
+        public Builder toYear(short year) {
+            filter.toYear = year;
+            return this;
+        }
 
-    public int getSize() {
-        return size;
-    }
+        public Builder minKP(double rating) {
+            filter.minKP = rating;
+            return this;
+        }
 
-    public void setSize(int size) {
-        this.size = size;
+        public Builder minIMDB(double rating) {
+            filter.minIMDB = rating;
+            return this;
+        }
+
+        public Builder minVotes(int votes) {
+            filter.minVotes = votes;
+            return this;
+        }
+
+        public Builder titleLike(String title) {
+            filter.title = title;
+            return this;
+        }
+
+        public Builder types(Movie.Type... types) {
+            filter.types = types;
+            return this;
+        }
+
+        public Builder genresIncl(String... genres) {
+            filter.genresIncl = genres;
+            return this;
+        }
+
+        public Builder genresExcl(String... genres) {
+            filter.genresExcl = genres;
+            return this;
+        }
+
+        public Builder countriesIncl(String... countries) {
+            filter.countriesIncl = countries;
+            return this;
+        }
+
+        public Builder countriesExcl(String... countries) {
+            filter.countriesExcl = countries;
+            return this;
+        }
     }
 }

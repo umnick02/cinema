@@ -15,7 +15,6 @@ public class FilterContainer {
     }
 
     public Filter getFilter() {
-        Filter filter = new Filter();
-        return filter;
+        return new Filter.Builder().build();
     }
 }

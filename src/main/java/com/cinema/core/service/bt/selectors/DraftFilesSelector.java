@@ -5,7 +5,7 @@ import bt.torrent.fileselector.SelectionResult;
 import bt.torrent.fileselector.TorrentFileSelector;
 import com.cinema.core.config.Config;
 import com.cinema.core.entity.Movie;
-import com.cinema.core.model.MovieModel;
+import com.cinema.core.model.impl.MovieModel;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.apache.logging.log4j.LogManager;

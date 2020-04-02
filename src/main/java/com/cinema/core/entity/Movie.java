@@ -86,8 +86,14 @@ public class Movie implements Serializable {
     @Column(name = "url")
     private String url;
 
-    @Column(name = "country")
-    private String country;
+    @Column(name = "country_1")
+    private String country1;
+
+    @Column(name = "country_2")
+    private String country2;
+
+    @Column(name = "country_3")
+    private String country3;
 
     @Column(name = "genre_1")
     private String genre1;
@@ -321,12 +327,28 @@ public class Movie implements Serializable {
         this.url = url;
     }
 
-    public String getCountry() {
-        return country;
+    public String getCountry1() {
+        return country1;
     }
 
-    public void setCountry(String country) {
-        this.country = country;
+    public void setCountry1(String country1) {
+        this.country1 = country1;
+    }
+
+    public String getCountry2() {
+        return country2;
+    }
+
+    public void setCountry2(String country2) {
+        this.country2 = country2;
+    }
+
+    public String getCountry3() {
+        return country3;
+    }
+
+    public void setCountry3(String country3) {
+        this.country3 = country3;
     }
 
     public String getGenre1() {

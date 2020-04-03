@@ -4,6 +4,7 @@ import com.cinema.core.entity.Episode;
 import com.cinema.core.utils.StringUtils;
 import com.cinema.javafx.view.builder.ComponentBuilder;
 import com.cinema.javafx.view.components.CardContainer;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -63,7 +64,8 @@ public class EpisodesController {
             BorderPane borderPane = new BorderPane();
             borderPane.setMinWidth(CardContainer.width*(CardContainer.ratio - 1) - 40);
             borderPane.setMaxWidth(CardContainer.width*(CardContainer.ratio - 1) - 40);
-            borderPane.setLeft(ComponentBuilder.INSTANCE.buildImage(e.getPoster()));
+            Platform.runLater(() -> borderPane.setLeft(ComponentBuilder.INSTANCE.buildImage(e.getPoster())));
+            borderPane.setLeft(ComponentBuilder.INSTANCE.buildImage(null));
             VBox box = new VBox();
             box.setPadding(new Insets(0, 5, 0, 5));
             box.getChildren().add(ComponentBuilder.INSTANCE.multilineText(e.getEpisode() + ". " + e.getTitle()));

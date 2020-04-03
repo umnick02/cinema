@@ -1,6 +1,8 @@
 package com.cinema.javafx.controller;
 
 import com.cinema.core.entity.Movie;
+import com.cinema.javafx.view.Stoppable;
+import com.cinema.javafx.view.player.FxPlayer;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -40,6 +42,8 @@ public class RootController {
                 Node node = content.getChildren().get(size - 1);
                 if (node instanceof WebView) {
                     stopTrailer((WebView) node);
+                } else if (node instanceof Stoppable) {
+                    ((Stoppable) node).stop();
                 }
                 content.getChildren().remove(size - 1);
             }
@@ -59,9 +63,8 @@ public class RootController {
     }
 
     public void runPlayer(Movie movie) {
-        WebView webView = new WebView();
-//        webView.getEngine().load(url);
-        content.getChildren().add(webView);
+        content.getChildren().add(FxPlayer.INSTANCE.getBorderPane());
+        FxPlayer.INSTANCE.getEmbeddedMediaPlayer().media().play(movie.getFile());
     }
 
     public void stopTrailer(WebView webView) {

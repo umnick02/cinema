@@ -1,6 +1,6 @@
 package com.cinema.core.service.parser;
 
-import com.cinema.core.config.Config;
+import com.cinema.core.config.Preferences;
 import com.cinema.core.entity.Cast;
 import com.cinema.core.entity.Movie;
 import com.cinema.core.helper.HttpHelper;
@@ -126,7 +126,7 @@ public class ImdbParser {
 
         private static String getTrailer(String name) {
             try {
-                return YoutubeHelper.getTrailer(name, Config.PrefKey.Language.EN);
+                return YoutubeHelper.getTrailer(name, Preferences.PrefKey.Language.EN);
             } catch (InterruptedException | IOException e) {
                 logger.error(e.getMessage(), e);
             }

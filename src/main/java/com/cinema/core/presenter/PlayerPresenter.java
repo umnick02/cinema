@@ -33,7 +33,7 @@ public class PlayerPresenter implements PlayerPresentable {
         playable.showPlayer();
         if (movie.getFile() == null
                 || !new File(getPreference(Config.PrefKey.STORAGE) + movie.getFile()).exists()
-                || !Movie.FileStatus.canPlay(movie.getFileStatus())) {
+                || !Movie.Status.canPlay(movie.getStatus())) {
             playable.showLoadingView();
             try {
                 EXECUTORS.submit(() -> btService.start(movie));

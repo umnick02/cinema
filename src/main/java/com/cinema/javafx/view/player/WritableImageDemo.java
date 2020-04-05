@@ -1,6 +1,6 @@
 package com.cinema.javafx.view.player;
 
-import com.cinema.core.config.Config;
+import com.cinema.core.config.Preferences;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
@@ -22,7 +22,7 @@ import uk.co.caprica.vlcj.player.embedded.videosurface.callback.format.RV32Buffe
 
 import java.nio.ByteBuffer;
 
-import static com.cinema.core.config.Config.getPreference;
+import static com.cinema.core.config.Preferences.getPreference;
 
 /**
  * This example was contributed by Michael Paus, incorporated here with some minor
@@ -104,7 +104,7 @@ public class WritableImageDemo extends Application {
 
 //        String mrl = getParameters().getRaw().get(0);
 
-        embeddedMediaPlayer.media().play(getPreference(Config.PrefKey.STORAGE) + "La Vita e bella (DVDrip, Rus)_int_.avi");
+        embeddedMediaPlayer.media().play(getPreference(Preferences.PrefKey.STORAGE) + "La Vita e bella (DVDrip, Rus)_int_.avi");
     }
 
     @Override

@@ -1,6 +1,6 @@
 package com.cinema.core.service.parser;
 
-import com.cinema.core.config.Config;
+import com.cinema.core.config.Preferences;
 import com.cinema.core.entity.Movie;
 import com.cinema.core.helper.HttpHelper;
 import com.cinema.core.helper.YoutubeHelper;
@@ -40,7 +40,7 @@ public class KpParser {
 
         private static String getTrailer(String name) {
             try {
-                return YoutubeHelper.getTrailer(name, Config.PrefKey.Language.RU);
+                return YoutubeHelper.getTrailer(name, Preferences.PrefKey.Language.RU);
             } catch (InterruptedException | IOException e) {
                 logger.error(e.getMessage(), e);
             }

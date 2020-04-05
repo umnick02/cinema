@@ -5,14 +5,13 @@ import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
 
 @Entity
 @Table(name = "movie")
-public class Movie implements Serializable {
+public class Movie implements Magnetize {
 
     @Id
     @GeneratedValue
@@ -52,9 +51,6 @@ public class Movie implements Serializable {
 
     @Column(name = "is_custom")
     private Boolean isCustom;
-
-    @Column(name = "magnet", columnDefinition = "text")
-    private String magnet;
 
     @Column(name = "poster", columnDefinition = "varchar(511)")
     private String poster;
@@ -110,19 +106,8 @@ public class Movie implements Serializable {
     @Column(name = "trailer_ru", columnDefinition = "varchar(511)")
     private String trailerRu;
 
-    @Column(name = "file", columnDefinition = "text")
-    private String file;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "file_status")
-    private FileStatus fileStatus;
-
-    public enum FileStatus {
-        UNPLAYABLE, PLAYABLE, DOWNLOADED;
-        public static boolean canPlay(FileStatus status) {
-            return status == PLAYABLE || status == DOWNLOADED;
-        }
-    }
+    @Embedded
+    private Magnet magnet;
 
     public enum Type {
         SERIES("Сериал"), MOVIE("Фильм"), CARTOON("Мультфильм");
@@ -139,12 +124,37 @@ public class Movie implements Serializable {
         }
     }
 
-    public FileStatus getFileStatus() {
-        return fileStatus;
+    public Magnet getMagnet() {
+        return magnet;
     }
 
-    public void setFileStatus(FileStatus fileStatus) {
-        this.fileStatus = fileStatus;
+    public void setMagnet(Magnet magnet) {
+        this.magnet = magnet;
+    }
+
+    @Override
+    public String getHash() {
+        return magnet.getHash();
+    }
+
+    @Override
+    public String getFile() {
+        return magnet.getFile();
+    }
+
+    @Override
+    public Magnet.Status getStatus() {
+        return magnet.getStatus();
+    }
+
+    @Override
+    public void setFile(String file) {
+        magnet.setFile(file);
+    }
+
+    @Override
+    public void setStatus(Magnet.Status status) {
+        magnet.setStatus(status);
     }
 
     public Long getId() {
@@ -245,14 +255,6 @@ public class Movie implements Serializable {
 
     public void setCustom(Boolean custom) {
         isCustom = custom;
-    }
-
-    public String getMagnet() {
-        return magnet;
-    }
-
-    public void setMagnet(String magnet) {
-        this.magnet = magnet;
     }
 
     public String getPoster() {
@@ -389,14 +391,6 @@ public class Movie implements Serializable {
 
     public void setTrailerRu(String trailerRu) {
         this.trailerRu = trailerRu;
-    }
-
-    public String getFile() {
-        return file;
-    }
-
-    public void setFile(String file) {
-        this.file = file;
     }
 
     @Override

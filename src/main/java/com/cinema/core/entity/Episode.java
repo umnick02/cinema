@@ -8,7 +8,8 @@ import java.util.Objects;
 @Table(indexes = {
         @Index(columnList = "series_id desc, season desc, episode desc")
 })
-public class Episode {
+public class Episode implements Magnetize {
+
     @Id
     @GeneratedValue
     private Integer id;
@@ -40,18 +41,40 @@ public class Episode {
     @Column(name = "release_date")
     private LocalDate releaseDate;
 
-    @Column(name = "magnet", nullable = false, columnDefinition = "text")
-    private String magnet;
+    @Embedded
+    private Magnet magnet;
 
-    @Column(name = "file", columnDefinition = "varchar(511)")
-    private String file;
-
-    public String getFile() {
-        return file;
+    @Override
+    public String getHash() {
+        return magnet.getHash();
     }
 
+    @Override
+    public String getFile() {
+        return magnet.getFile();
+    }
+
+    @Override
+    public Magnet.Status getStatus() {
+        return magnet.getStatus();
+    }
+
+    @Override
     public void setFile(String file) {
-        this.file = file;
+        magnet.setFile(file);
+    }
+
+    @Override
+    public void setStatus(Magnet.Status status) {
+        magnet.setStatus(status);
+    }
+
+    public Magnet getMagnet() {
+        return magnet;
+    }
+
+    public void setMagnet(Magnet magnet) {
+        this.magnet = magnet;
     }
 
     public String getPoster() {
@@ -76,14 +99,6 @@ public class Episode {
 
     public void setReleaseDate(LocalDate releaseDate) {
         this.releaseDate = releaseDate;
-    }
-
-    public String getMagnet() {
-        return magnet;
-    }
-
-    public void setMagnet(String magnet) {
-        this.magnet = magnet;
     }
 
     public String getTitle() {

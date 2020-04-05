@@ -2,11 +2,18 @@ package com.cinema.core.dao;
 
 import com.cinema.core.config.EntityManagerProvider;
 import com.cinema.core.entity.Movie;
+import com.cinema.core.model.Filter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 
 import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+import java.util.List;
+
+import static com.cinema.core.model.PredicateUtils.buildPredicates;
 
 public enum MovieDAO {
     INSTANCE;
@@ -24,6 +31,15 @@ public enum MovieDAO {
             entityManager.getTransaction().rollback();
             logger.error(e.getMessage(), e);
         }
+    }
+
+    public List<Movie> getMovies(Filter filter, int offset, int limit) {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Movie> query = builder.createQuery(Movie.class);
+        Root<Movie> root = query.from(Movie.class);
+        query.select(root).orderBy(builder.asc(root.get("ratingImdb")));
+        query.where(buildPredicates(builder, root, filter));
+        return entityManager.createQuery(query).setFirstResult(offset).setMaxResults(limit).getResultList();
     }
 
     public void update(Movie movie) {

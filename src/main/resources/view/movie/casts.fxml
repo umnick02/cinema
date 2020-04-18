@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.geometry.Insets?>
+
+<Tab xmlns="http://javafx.com/javafx"
+     xmlns:fx="http://javafx.com/fxml"
+     fx:controller="com.cinema.javafx.controller.movie.CastsController"
+     closable="false" text="Актёры">
+    <ScrollPane fitToWidth="true" styleClass="background-default">
+        <VBox fx:id="castsPane" styleClass="text-second" spacing="5.0">
+            <padding>
+                <Insets bottom="5.0" left="10.0" right="10.0" top="5.0" />
+            </padding>
+            <Label fx:id="castDirector" styleClass="text-second" wrapText="true" />
+            <Label fx:id="castWriter" styleClass="text-second" wrapText="true" />
+            <Label fx:id="castComposer" styleClass="text-second" wrapText="true" />
+        </VBox>
+    </ScrollPane>
+</Tab>

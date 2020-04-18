@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            xmlns="http://javafx.com/javafx"
+            fx:controller="com.cinema.javafx.controller.movie.season.SeasonNavigationController">
+    <left>
+        <Button fx:id="prev" styleClass="icon, icon-left_arrow"/>
+    </left>
+    <center>
+        <Button fx:id="up" styleClass="icon, icon-upwards_arrow"/>
+    </center>
+    <right>
+        <Button fx:id="next" styleClass="icon, icon-right_arrow"/>
+    </right>
+</BorderPane>

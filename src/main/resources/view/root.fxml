@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane fx:controller="com.cinema.javafx.controller.RootController" stylesheets="@../style/style.css" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
+   <center>
+        <StackPane fx:id="contentPane">
+            <fx:include source="movies.fxml"/>
+        </StackPane>
+   </center>
+   <top>
+      <BorderPane styleClass="menu" BorderPane.alignment="CENTER">
+         <center>
+            <AnchorPane fx:id="searchPane" maxWidth="600.0" minWidth="200.0" prefWidth="600.0">
+                <TextField styleClass="field-text" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                <HBox alignment="CENTER" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <Button minWidth="40.0" mnemonicParsing="false">
+                     <styleClass>
+                        <String fx:value="icon" />
+                        <String fx:value="icon-settings" />
+                     </styleClass>
+                     <HBox.margin>
+                        <Insets />
+                     </HBox.margin>
+                  </Button>
+                    <Button alignment="CENTER" minWidth="40.0" mnemonicParsing="false" textAlignment="CENTER">
+                        <styleClass>
+                            <String fx:value="icon" />
+                            <String fx:value="icon-search" />
+                        </styleClass>
+                     <HBox.margin>
+                        <Insets />
+                     </HBox.margin>
+                    </Button>
+                </HBox>
+               <BorderPane.margin>
+                  <Insets left="10.0" right="10.0" />
+               </BorderPane.margin>
+            </AnchorPane>
+         </center>
+         <left>
+            <Button fx:id="backButton" mnemonicParsing="false" BorderPane.alignment="CENTER">
+               <styleClass>
+                  <String fx:value="icon" />
+                  <String fx:value="icon-back" />
+               </styleClass>
+            </Button>
+         </left>
+         <right>
+             <HBox spacing="10.0">
+                 <ChoiceBox maxWidth="350.0" minWidth="150.0" styleClass="combo-box" />
+                 <Button mnemonicParsing="false">
+                    <styleClass>
+                        <String fx:value="icon" />
+                        <String fx:value="icon-preferences" />
+                    </styleClass>
+                 </Button>
+             </HBox>
+         </right>
+         <padding>
+            <Insets bottom="5.0" left="10.0" right="10.0" top="5.0" />
+         </padding>
+      </BorderPane>
+   </top>
+</BorderPane>

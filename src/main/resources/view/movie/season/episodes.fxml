@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.geometry.Insets?>
+<ScrollPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.cinema.javafx.controller.movie.season.SeasonController">
+    <BorderPane>
+        <top>
+            <fx:include source="season-navigation.fxml"/>
+        </top>
+        <center>
+            <VBox fx:id="episodesPane" spacing="5">
+                <padding>
+                    <Insets right="5" left="5" />
+                </padding>
+            </VBox>
+        </center>
+        <bottom>
+            <fx:include source="season-navigation.fxml"/>
+        </bottom>
+    </BorderPane>
+</ScrollPane>

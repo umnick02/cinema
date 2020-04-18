@@ -1,36 +1,24 @@
-//package com.cinema.view.components;
+//package com.cinema.javafx.view.components;
 //
-//import com.cinema.config.Config;
-////import com.cinema.presenter.PlayerPresentable;
+//import com.cinema.javafx.player.FxPlayer;
 //import com.cinema.presenter.PlayerPresenter;
-//import com.cinema.view.Playable;
-//import com.cinema.view.player.FxPlayer;
 //import javafx.application.Platform;
 //import javafx.geometry.Pos;
 //import javafx.scene.control.ProgressIndicator;
-//import javafx.scene.layout.AnchorPane;
 //import javafx.scene.layout.HBox;
 //import javafx.scene.layout.StackPane;
 //import javafx.scene.layout.VBox;
 //
-//import static com.cinema.CinemaApplication.INJECTOR;
-//import static com.cinema.config.Config.getPreference;
-//import static com.cinema.view.components.RootContainer.buildAnchorPane;
-//
 //public class PlayerContainer implements Playable {
 //
-//    private StackPane parent;
 //    private StackPane child;
-//    AnchorPane anchorPane;
-//    private final VBox loadingView = buildLoadingView();
+//    private final VBox loadingView;
 //    private FxPlayer fxPlayer;
 //
-//    PlayerPresentable playerPresentable;
 //
 //    PlayerContainer(StackPane stackPane) {
-//        parent = stackPane;
+//        loadingView = buildLoadingView();
 //        child = buildStackPane();
-//        anchorPane = buildAnchorPane(child);
 //        fxPlayer = new FxPlayer(child);
 //        playerPresentable = new PlayerPresenter(this);
 //    }
@@ -65,23 +53,8 @@
 //        parent.getChildren().remove(loadingView);
 //    }
 //
-//    @Override
-//    public void showPlayer() {
-//        Platform.runLater(() -> {
-//            hideLoadingView();
-//            if (!parent.getChildren().contains(fxPlayer.stackPane)) {
-//                parent.getChildren().add(fxPlayer.stackPane);
-//            }
-//        });
-//    }
-//
-//    @Override
-//    public void hidePlayer() {
-//        parent.getChildren().remove(fxPlayer.stackPane);
-//    }
-//
-//    @Override
-//    public void play(String file) {
-//        fxPlayer.getEmbeddedMediaPlayer().media().play(getPreference(Config.PrefKey.STORAGE) + file);
-//    }
+////    @Override
+////    public void play(String file) {
+////        fxPlayer.getEmbeddedMediaPlayer().media().play(getPreference(Config.PrefKey.STORAGE) + file);
+////    }
 //}

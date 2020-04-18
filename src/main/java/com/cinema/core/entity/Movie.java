@@ -7,7 +7,9 @@ import org.hibernate.annotations.UpdateTimestamp;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Set;
+import java.util.*;
+
+import static com.cinema.core.utils.StringUtils.longToString;
 
 @Entity
 @Table(name = "movie")
@@ -155,6 +157,84 @@ public class Movie implements Magnetize {
     @Override
     public void setStatus(Magnet.Status status) {
         magnet.setStatus(status);
+    }
+
+    public short getMaxSeason() {
+        return episodes.stream().map(Episode::getSeason).max(Short::compareTo).orElseGet(() -> (short) 0);
+    }
+
+    public String fetchAdditionalTitle() {
+        if (originalTitle != null && !titleRu.equals(originalTitle)) {
+            return originalTitle;
+        } else if (title != null && !titleRu.equals(title)) {
+            return title;
+        }
+        return null;
+    }
+
+    public String fetchTitle() {
+        if (type != Movie.Type.SERIES) {
+            return String.format("%s (%d)", titleRu, releaseDate.getYear());
+        } else if (finishDate == null) {
+            return String.format("%s (%d — %s)", titleRu, releaseDate.getYear(),  ". . .");
+        } else {
+            return String.format("%s (%d — %d)", titleRu, releaseDate.getYear(),  finishDate.getYear());
+        }
+    }
+
+    public String fetchType() {
+        if (type != Movie.Type.SERIES) {
+            return type.toString();
+        }
+        return episodes.stream()
+                .max(Comparator.comparing(Episode::getSeason))
+                .map(value -> String.format("Сериал (%d сезонов)", value.getSeason()))
+                .orElse(null);
+    }
+
+    public String fetchGenres() {
+        StringBuilder sb = new StringBuilder();
+        if (genre1 != null) {
+            sb.append(genre1);
+        }
+        if (genre2 != null) {
+            sb.append(" / ");
+            sb.append(genre2);
+        }
+        if (genre3 != null) {
+            sb.append(" / ");
+            sb.append(genre3);
+        }
+        return "Жанры: " + sb.toString();
+    }
+
+    public String fetchCountry() {
+        StringBuilder sb = new StringBuilder();
+        if (country1 != null) {
+            sb.append(country1);
+        }
+        if (country2 != null) {
+            sb.append(" / ");
+            sb.append(country2);
+        }
+        if (country3 != null) {
+            sb.append(" / ");
+            sb.append(country3);
+        }
+        return "Страна: " + sb;
+    }
+
+    public String fetchDuration() {
+        if (duration >= 60) {
+            return String.format("Длительность: %dч %dм", duration / 60, duration % 60);
+        } else {
+            return String.format("Длительность: %dм", duration);
+        }
+    }
+
+    public String fetchRating() {
+        return String.format("IMDB %.1f (%s) / KP %.1f (%s)",
+                ratingImdb, longToString(ratingImdbVotes), ratingKp, longToString(ratingKpVotes));
     }
 
     public Long getId() {

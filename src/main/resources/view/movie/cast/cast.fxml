@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<?import javafx.scene.control.Label?>
+<HBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.cinema.javafx.controller.movie.casts.CastController">
+    <padding>
+        <Insets left="20.0" />
+    </padding>
+    <Label fx:id="castName" styleClass="text-second"/>
+    <Label fx:id="castQua" styleClass="text-second, text-italic"/>
+</HBox>

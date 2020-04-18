@@ -105,6 +105,9 @@ public class PredicateUtils {
     }
 
     private static Predicate createPredicateTitle(CriteriaBuilder builder, Root<Movie> root, Filter filter) {
-        return builder.like(builder.lower(root.get("title")), "%" + filter.getTitle().toLowerCase() + "%");
+        Predicate predicate1 = builder.like(builder.lower(root.get("title")), "%" + filter.getTitle().toLowerCase() + "%");
+        Predicate predicate2 = builder.like(builder.lower(root.get("titleRu")), "%" + filter.getTitle().toLowerCase() + "%");
+        Predicate predicate3 = builder.like(builder.lower(root.get("originalTitle")), "%" + filter.getTitle().toLowerCase() + "%");
+        return builder.or(predicate1, predicate2, predicate3);
     }
 }

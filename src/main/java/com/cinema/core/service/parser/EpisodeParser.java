@@ -3,6 +3,7 @@ package com.cinema.core.service.parser;
 import bt.metainfo.Torrent;
 import bt.metainfo.TorrentFile;
 import com.cinema.core.entity.Episode;
+import com.cinema.core.entity.Magnet;
 import com.cinema.core.entity.Movie;
 import com.cinema.core.helper.HttpHelper;
 import com.google.inject.Singleton;
@@ -35,7 +36,7 @@ public class EpisodeParser {
             Set<String> availableEpisodes = getAvailableEpisodes(torrent.getFiles());
             removeExistedEpisodes(movie.getEpisodes(), availableEpisodes);
             for (Element season : html.select("#bySeason option")) {
-                fillEpisodesForSeason(movie, Short.parseShort(season.attr("value")), movie.getMagnet(), availableEpisodes);
+                fillEpisodesForSeason(movie, Short.parseShort(season.attr("value")), movie.getMagnet().getHash(), availableEpisodes);
             }
             movie.setMagnet(null);
         } catch (IOException | InterruptedException e) {
@@ -90,7 +91,7 @@ public class EpisodeParser {
                             e.selectFirst(".ipl-rating-star__total-votes").text().replaceAll("[^0-9]+", "")
                     ));
                     episode.setPoster(e.select(".image img").attr("src"));
-                    episode.setMagnet(magnet);
+                    episode.setMagnet(new Magnet(magnet));
                     episode.setSeason(season);
                     episode.setTitle(e.select("strong a").attr("title"));
                     episode.setSeries(movie);

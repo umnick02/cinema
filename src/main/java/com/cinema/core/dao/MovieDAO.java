@@ -33,7 +33,7 @@ public enum MovieDAO {
         }
     }
 
-    public List<Movie> getMovies(Filter filter, int offset, int limit) {
+    public List<Movie> getMovies(Filter filter, int limit, int offset) {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Movie> query = builder.createQuery(Movie.class);
         Root<Movie> root = query.from(Movie.class);

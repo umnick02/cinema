@@ -1,43 +1,45 @@
-package com.cinema.javafx.view.components;
-
-import com.cinema.javafx.controller.CardsController;
-import com.cinema.core.entity.Movie;
-import javafx.scene.layout.TilePane;
-
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-public class CardsContainer {
-
-    private CardsController controller;
-    private TilePane container;
-    private final Set<CardContainer> cards = new HashSet<>();
-
-    public CardsContainer(CardsController controller, TilePane container) {
-        this.controller = controller;
-        this.container = container;
-    }
-
-    public void addCards(Set<Movie> movies) {
-        Set<Movie> oldMovies = cards.stream().map(CardContainer::getMovie).collect(Collectors.toSet());
-        for (Movie movie : movies) {
-            if (!oldMovies.contains(movie)) {
-                try {
-                    CardContainer cardContainer = new CardContainer(controller, movie);
-                    cards.add(cardContainer);
-                    container.getChildren().add(cardContainer.getCard());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-
-    public void resetCards(Set<Movie> movies) {
-        container.getChildren().clear();
-        cards.clear();
-        addCards(movies);
-    }
-}
+//package com.cinema.javafx.view.components;
+//
+//import com.cinema.core.entity.Movie;
+//import com.cinema.javafx.controller.MoviesController;
+//import com.cinema.javafx.view.builder.MovieBuilder;
+//import javafx.scene.layout.StackPane;
+//import javafx.scene.layout.TilePane;
+//
+//import java.io.IOException;
+//import java.util.HashSet;
+//import java.util.Set;
+//import java.util.stream.Collectors;
+//
+//public class MoviesContainer {
+//
+//    private TilePane container;
+//    private StackPane contentPane;
+//    private final Set<MovieBuilder> movies = new HashSet<>();
+//
+//    public MoviesContainer(MoviesController moviesController, TilePane container, StackPane contentPane) {
+//        this.container = container;
+//        this.contentPane = contentPane;
+//    }
+//
+//    public void addMovies(Set<Movie> movies) {
+//        Set<Movie> oldMovies = movies.stream().map(MovieBuilder::getMovie).collect(Collectors.toSet());
+//        for (Movie movie : movies) {
+//            if (!oldMovies.contains(movie)) {
+//                try {
+//                    MovieBuilder movieBuilder = new MovieBuilder(contentPane, movie);
+//                    movies.add(movieBuilder);
+//                    container.getChildren().add(movieBuilder.getMovie());
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }
+//    }
+//
+//    public void resetMovies(Set<Movie> movies) {
+//        container.getChildren().clear();
+//        movies.clear();
+//        addMovies(movies);
+//    }
+//}

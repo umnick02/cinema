@@ -13,18 +13,21 @@ import bt.metainfo.Torrent;
 import bt.runtime.BtClient;
 import bt.runtime.Config;
 import bt.torrent.fileselector.TorrentFileSelector;
+import com.cinema.core.service.bt.selectors.piece.SequentialPositioningSelector;
+import com.cinema.core.service.Stoppable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.cinema.core.entity.Episode;
 import com.cinema.core.entity.Movie;
-import com.cinema.core.service.bt.selectors.impl.EpisodeFileSelector;
-import com.cinema.core.service.bt.selectors.impl.MovieFileSelector;
+import com.cinema.core.service.bt.selectors.file.impl.EpisodeFileSelector;
+import com.cinema.core.service.bt.selectors.file.impl.MovieFileSelector;
 import com.cinema.core.entity.Magnetize;
 import com.cinema.core.config.Preferences;
-import com.cinema.core.service.bt.selectors.SkipFileSelector;
+import com.cinema.core.service.bt.selectors.file.SkipFileSelector;
 
-public class BtClientService {
+public enum BtClientService implements Stoppable {
+    INSTANCE;
 
     private static final Logger logger = LogManager.getLogger(BtClientService.class);
 
@@ -41,6 +44,8 @@ public class BtClientService {
         }
     };
     private final Storage storage = new FileSystemStorage(Paths.get(Preferences.getPreference(Preferences.PrefKey.STORAGE)));
+
+    private BtClient btClient;
 
     public Torrent downloadTorrent(Magnetize magnetize) {
         Torrent[] torrent = new Torrent[1];
@@ -65,21 +70,26 @@ public class BtClientService {
     }
 
     public void downloadTorrentFiles(Magnetize magnetize) {
-        BtClient btClient = Bt.client()
+        btClient = Bt.client()
                 .config(config)
                 .module(dhtModule)
                 .storage(storage)
                 .magnet(magnetize.getHash())
                 .autoLoadModules()
                 .initEagerly()
-                .sequentialSelector()
+                .selector(new SequentialPositioningSelector())
                 .fileSelector(buildFileSelector(magnetize))
                 .stopWhenDownloaded()
                 .build();
         logger.info("Download file [{}]", magnetize.getFile());
-        btClient.startAsync(torrentSessionState -> {
+        btClient.startAsync();
+    }
 
-        }, 1000);
+    @Override
+    public void stop() {
+        if (btClient != null && btClient.isStarted()) {
+            btClient.stop();
+        }
     }
 
     private TorrentFileSelector buildFileSelector(Magnetize magnetize) {

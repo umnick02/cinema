@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.geometry.Insets?>
+<Tab xmlns="http://javafx.com/javafx"
+     xmlns:fx="http://javafx.com/fxml"
+     fx:controller="com.cinema.javafx.controller.movie.DetailsController"
+     closable="false" text="Детали">
+    <BorderPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+        <center>
+            <VBox spacing="5.0">
+                <opaqueInsets>
+                    <Insets />
+                </opaqueInsets>
+                <Label fx:id="title" styleClass="text-main"/>
+                <Label fx:id="originalTitle" styleClass="text-second, text-small, text-italic"/>
+                <Label fx:id="type" styleClass="text-second"/>
+                <Label fx:id="genres" styleClass="text-second"/>
+                <Label fx:id="country" styleClass="text-second"/>
+                <Label fx:id="duration" styleClass="text-second"/>
+                <Label fx:id="rating" styleClass="text-second"/>
+            </VBox>
+        </center>
+        <bottom>
+            <AnchorPane BorderPane.alignment="CENTER">
+                <Button fx:id="trailerButton" mnemonicParsing="false" text="Трейлер" AnchorPane.leftAnchor="0.0" />
+                <Button fx:id="playButton" layoutX="66.5" mnemonicParsing="false" text="Смотреть" AnchorPane.rightAnchor="0.0" />
+            </AnchorPane>
+        </bottom>
+        <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="5.0" />
+        </padding>
+    </BorderPane>
+</Tab>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Label?>
+
+<Tab xmlns="http://javafx.com/javafx"
+     xmlns:fx="http://javafx.com/fxml"
+     fx:controller="com.cinema.javafx.controller.movie.DescriptionController"
+     closable="false" text="Описание">
+    <ScrollPane fitToWidth="true" styleClass="background-default">
+        <VBox spacing="5.0">
+            <padding>
+                <Insets bottom="5.0" left="10.0" right="10.0" top="5.0" />
+            </padding>
+            <Label fx:id="description" styleClass="text-second" wrapText="true" />
+        </VBox>
+    </ScrollPane>
+</Tab>

@@ -1,10 +1,9 @@
 package com.cinema.core.service.parser;
 
 import bt.metainfo.Torrent;
+import com.cinema.core.entity.Magnet;
 import com.cinema.core.entity.Movie;
 import com.cinema.core.helper.HttpHelper;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jsoup.Jsoup;
@@ -13,9 +12,6 @@ import java.net.http.HttpResponse;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.cinema.core.helper.HttpHelper.requestAndGetBody;
-
-@Singleton
 public class MagnetParser {
 
     private static final Logger logger = LogManager.getLogger(MagnetParser.class);
@@ -24,7 +20,6 @@ public class MagnetParser {
     private final KpParser kpParser;
     private final EpisodeParser episodeParser;
 
-    @Inject
     public MagnetParser(ImdbParser imdbParser, KpParser kpParser, EpisodeParser episodeParser) {
         this.imdbParser = imdbParser;
         this.kpParser = kpParser;
@@ -34,7 +29,7 @@ public class MagnetParser {
     public Movie parse(String magnet, Torrent torrent) {
         Movie movie = new Movie();
         movie.setCustom(false);
-        movie.setMagnet(magnet);
+        movie.setMagnet(new Magnet(magnet));
         try {
             parseImdb(movie, torrent);
             parseKp(movie, torrent);

@@ -15,6 +15,12 @@ public class Magnet {
     @Column(name = "file_status")
     private Status status;
 
+    public Magnet() {}
+
+    public Magnet(String hash) {
+        this.hash = hash;
+    }
+
     public String getHash() {
         return hash;
     }

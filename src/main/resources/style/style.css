@@ -11,7 +11,7 @@
     -fx-background-color: #3C3F41;
 }
 
-.cards {
+.movies {
     -fx-vgap: 10;
     -fx-hgap: 10;
     -fx-padding: 10px;
@@ -178,4 +178,36 @@
     -fx-border-color: #5e6060;
     -fx-border-width: 2px;
     -fx-border-radius: 4px;
+}
+
+.text-second {
+    -fx-font-size: 0.9em;
+    -fx-text-fill: #bababa;
+}
+
+.text-small {
+    -fx-font-size: 0.8em;
+    -fx-text-fill: #bababa;
+}
+
+.text-italic {
+    -fx-font-style: italic;
+}
+
+.text-main {
+    -fx-font-size: 1.1em;
+    -fx-text-fill: #CB7936;
+}
+
+.poster-h {
+    -fx-fit-to-height: 68px;
+    -fx-fit-to-width: 120px;
+}
+
+.hide {
+    visibility: false;
+}
+
+.show {
+    visibility: true;
 }

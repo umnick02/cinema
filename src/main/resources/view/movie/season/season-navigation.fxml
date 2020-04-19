@@ -3,16 +3,21 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml"
-            xmlns="http://javafx.com/javafx"
-            fx:controller="com.cinema.javafx.controller.movie.season.SeasonNavigationController">
+<BorderPane xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.cinema.javafx.controller.movies.movie.season.SeasonNavigationController">
     <left>
-        <Button fx:id="prev" styleClass="icon, icon-left_arrow"/>
+        <HBox fx:id="prev" onMouseClicked="#prevSeason" alignment="CENTER" styleClass="hand">
+            <Button onMouseClicked="#prevSeason" styleClass="icon, icon-left_arrow" />
+            <Label fx:id="prevLabel" styleClass="text-second"/>
+        </HBox>
     </left>
     <center>
-        <Button fx:id="up" styleClass="icon, icon-upwards_arrow"/>
+        <Button onMouseClicked="#up" styleClass="icon, icon-upwards_arrow" />
     </center>
     <right>
-        <Button fx:id="next" styleClass="icon, icon-right_arrow"/>
+        <HBox fx:id="next" onMouseClicked="#nextSeason" alignment="CENTER" styleClass="hand">
+            <Label fx:id="nextLabel" styleClass="text-second"/>
+            <Button onMouseClicked="#nextSeason" styleClass="icon, icon-right_arrow" />
+        </HBox>
     </right>
 </BorderPane>

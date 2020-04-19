@@ -6,7 +6,7 @@
 <?import javafx.geometry.Insets?>
 <Tab xmlns="http://javafx.com/javafx"
      xmlns:fx="http://javafx.com/fxml"
-     fx:controller="com.cinema.javafx.controller.movie.DetailsController"
+     fx:controller="com.cinema.javafx.controller.movies.movie.DetailsController"
      closable="false" text="Детали">
     <BorderPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
         <center>
@@ -25,8 +25,8 @@
         </center>
         <bottom>
             <AnchorPane BorderPane.alignment="CENTER">
-                <Button fx:id="trailerButton" mnemonicParsing="false" text="Трейлер" AnchorPane.leftAnchor="0.0" />
-                <Button fx:id="playButton" layoutX="66.5" mnemonicParsing="false" text="Смотреть" AnchorPane.rightAnchor="0.0" />
+                <Button fx:id="trailerButton" mnemonicParsing="false" text="Трейлер" AnchorPane.leftAnchor="0.0" onMouseClicked="#playTrailer"/>
+                <Button fx:id="playButton" layoutX="66.5" mnemonicParsing="false" text="Смотреть" AnchorPane.rightAnchor="0.0" onMouseClicked="#playMovie" />
             </AnchorPane>
         </bottom>
         <padding>

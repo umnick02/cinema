@@ -1,4 +1,4 @@
-package com.cinema.javafx.controller.movie.casts;
+package com.cinema.javafx.controller.movies.movie.casts;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;

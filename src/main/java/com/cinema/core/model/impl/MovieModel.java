@@ -33,7 +33,7 @@ public class MovieModel extends ObservableModel {
         }
     }
 
-    public SeasonModel prevSeasonModel() {
+    public SeasonModel getPrevSeasonModel() {
         if (seasonModels == null) {
             return null;
         }
@@ -48,7 +48,7 @@ public class MovieModel extends ObservableModel {
         return prevSeasonModel;
     }
 
-    public SeasonModel nextSeasonModel() {
+    public SeasonModel getNextSeasonModel() {
         if (seasonModels == null) {
             return null;
         }
@@ -64,6 +64,20 @@ public class MovieModel extends ObservableModel {
             }
         }
         return null;
+    }
+
+    public void nextSeasonModel() {
+        SeasonModel seasonModel = getNextSeasonModel();
+        if (seasonModel != null) {
+            setActiveSeasonModel(seasonModel);
+        }
+    }
+
+    public void prevSeasonModel() {
+        SeasonModel seasonModel = getPrevSeasonModel();
+        if (seasonModel != null) {
+            setActiveSeasonModel(seasonModel);
+        }
     }
 
     public void setActiveSeasonModel(SeasonModel activeSeasonModel) {

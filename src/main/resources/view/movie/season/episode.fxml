@@ -9,7 +9,7 @@
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:id="episodePane"
-            fx:controller="com.cinema.javafx.controller.movie.season.EpisodeController">
+            fx:controller="com.cinema.javafx.controller.movies.movie.season.EpisodeController">
     <left>
         <ImageView fx:id="poster" styleClass="poster-h"/>
     </left>

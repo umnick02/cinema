@@ -1,4 +1,4 @@
-package com.cinema.javafx.controller.movie.season;
+package com.cinema.javafx.controller.movies.movie.season;
 
 import com.cinema.core.model.impl.SeasonModel;
 import javafx.fxml.FXML;

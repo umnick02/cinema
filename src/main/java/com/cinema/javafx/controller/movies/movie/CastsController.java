@@ -1,8 +1,8 @@
-package com.cinema.javafx.controller.movie;
+package com.cinema.javafx.controller.movies.movie;
 
 import com.cinema.core.entity.Cast;
 import com.cinema.core.entity.Movie;
-import com.cinema.javafx.controller.movie.casts.CastController;
+import com.cinema.javafx.controller.movies.movie.casts.CastController;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;

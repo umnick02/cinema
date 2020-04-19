@@ -6,7 +6,7 @@
 <?import javafx.geometry.Insets?>
 <ScrollPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.cinema.javafx.controller.movie.season.SeasonController">
+            fx:controller="com.cinema.javafx.controller.movies.movie.season.SeasonController">
     <BorderPane>
         <top>
             <fx:include source="season-navigation.fxml"/>

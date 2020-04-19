@@ -1,4 +1,4 @@
-package com.cinema.javafx.controller.movie;
+package com.cinema.javafx.controller.movies.movie;
 
 import com.cinema.core.entity.Movie;
 import javafx.fxml.FXML;

@@ -1,8 +1,10 @@
-package com.cinema.javafx.controller;
+package com.cinema.javafx.controller.movies;
 
+import com.cinema.core.model.ModelEventType;
 import com.cinema.core.model.impl.MovieModel;
 import javafx.fxml.FXML;
 import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 
@@ -21,6 +23,8 @@ public class MovieController {
     private StackPane posterPane;
     @FXML
     private AnchorPane tabsPane;
+    @FXML
+    private TabPane tabPane;
 
     public MovieController(MovieModel movieModel) {
         this.movieModel = movieModel;
@@ -30,6 +34,7 @@ public class MovieController {
     public void initialize() {
         if (movieModel.isSeries()) {
             seasonsTab.getStyleClass().remove("hide");
+            tabPane.addEventHandler(ModelEventType.SEASONS_SHOW.getEventType(), event -> tabPane.getSelectionModel().select(seasonsTab));
         }
         moviePane.setMinSize(width * ratio, width * 1.4);
         moviePane.setMaxSize(width * ratio, width * 1.4);

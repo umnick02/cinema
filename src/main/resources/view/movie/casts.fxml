@@ -6,7 +6,7 @@
 
 <Tab xmlns="http://javafx.com/javafx"
      xmlns:fx="http://javafx.com/fxml"
-     fx:controller="com.cinema.javafx.controller.movie.CastsController"
+     fx:controller="com.cinema.javafx.controller.movies.movie.CastsController"
      closable="false" text="Актёры">
     <ScrollPane fitToWidth="true" styleClass="background-default">
         <VBox fx:id="castsPane" styleClass="text-second" spacing="5.0">

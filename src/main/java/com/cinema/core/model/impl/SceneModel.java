@@ -14,6 +14,7 @@ public class SceneModel extends ObservableModel {
     public static final SceneModel INSTANCE = new SceneModel();
 
     private Set<MovieModel> movieModels = new HashSet<>();
+    private MovieModel activeMovieModel;
     private FilterModel filterModel;
     private int page = 1;
     private int limit = 9;
@@ -26,6 +27,14 @@ public class SceneModel extends ObservableModel {
 
     public Set<MovieModel> getMovieModels() {
         return movieModels;
+    }
+
+    public void setActiveMovieModel(MovieModel activeMovieModel) {
+        this.activeMovieModel = activeMovieModel;
+    }
+
+    public MovieModel getActiveMovieModel() {
+        return activeMovieModel;
     }
 
     public void setMovies(Set<Movie> movies) {

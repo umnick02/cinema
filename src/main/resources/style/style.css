@@ -211,3 +211,7 @@
 .show {
     visibility: true;
 }
+
+.hand {
+    -fx-cursor: hand;
+}

@@ -9,7 +9,7 @@
      xmlns:fx="http://javafx.com/fxml"
      closable="false" text="Эпизоды"
      styleClass="hide"
-     fx:controller="com.cinema.javafx.controller.movie.SeasonsController">
+     fx:controller="com.cinema.javafx.controller.movies.movie.SeasonsController">
     <StackPane fx:id="seriesPane">
         <ScrollPane>
             <TilePane fx:id="seasonsPane" hgap="4.0" prefColumns="3" prefRows="3" vgap="4.0">

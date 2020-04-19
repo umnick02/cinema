@@ -1,12 +1,12 @@
-package com.cinema.javafx.controller;
+package com.cinema.javafx.controller.movies;
 
 import com.cinema.core.model.ModelEventType;
 import com.cinema.core.model.impl.SceneModel;
 import com.cinema.core.model.impl.MovieModel;
-import com.cinema.javafx.controller.movie.CastsController;
-import com.cinema.javafx.controller.movie.DescriptionController;
-import com.cinema.javafx.controller.movie.DetailsController;
-import com.cinema.javafx.controller.movie.SeasonsController;
+import com.cinema.javafx.controller.movies.movie.CastsController;
+import com.cinema.javafx.controller.movies.movie.DescriptionController;
+import com.cinema.javafx.controller.movies.movie.DetailsController;
+import com.cinema.javafx.controller.movies.movie.SeasonsController;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.layout.TilePane;
@@ -36,7 +36,7 @@ public class MoviesController {
                     } else if (param.isAssignableFrom(CastsController.class)) {
                         return new CastsController(movieModel.getMovie());
                     } else if (param.isAssignableFrom(DetailsController.class)) {
-                        return new DetailsController(movieModel.getMovie());
+                        return new DetailsController(movieModel);
                     } else if (param.isAssignableFrom(SeasonsController.class) && movieModel.isSeries()) {
                         return new SeasonsController(movieModel);
                     }

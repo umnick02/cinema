@@ -6,6 +6,9 @@ import javafx.event.EventType;
 public enum ModelEventType {
     MOVIES_UPDATE(new EventType<>("MOVIES_UPDATE")),
     SEASON_CHANGE(new EventType<>("SEASON_CHANGE")),
+    TRAILER_PLAY(new EventType<>("TRAILER_PLAY")),
+    MOVIE_PLAY(new EventType<>("MOVIE_PLAY")),
+    SEASONS_SHOW(new EventType<>("SEASONS_SHOW")),
     SHUTDOWN(new EventType<>("SHUTDOWN"));
 
     private EventType<? extends Event> eventType;

@@ -8,7 +8,7 @@
 
 <Tab xmlns="http://javafx.com/javafx"
      xmlns:fx="http://javafx.com/fxml"
-     fx:controller="com.cinema.javafx.controller.movie.DescriptionController"
+     fx:controller="com.cinema.javafx.controller.movies.movie.DescriptionController"
      closable="false" text="Описание">
     <ScrollPane fitToWidth="true" styleClass="background-default">
         <VBox spacing="5.0">

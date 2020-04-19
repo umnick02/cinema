@@ -1,13 +1,17 @@
-package com.cinema.javafx.controller.movie;
+package com.cinema.javafx.controller.movies.movie;
 
 import com.cinema.core.entity.Movie;
+import com.cinema.core.model.ModelEventType;
+import com.cinema.core.model.impl.MovieModel;
+import com.cinema.core.model.impl.SceneModel;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 
 public class DetailsController {
 
-    private final Movie movie;
+    private final MovieModel movieModel;
 
     @FXML
     public Label title;
@@ -29,13 +33,13 @@ public class DetailsController {
     @FXML
     public Button playButton;
 
-
-    public DetailsController(Movie movie) {
-        this.movie = movie;
+    public DetailsController(MovieModel movieModel) {
+        this.movieModel = movieModel;
     }
 
     @FXML
     public void initialize() {
+        Movie movie = movieModel.getMovie();
         title.setText(movie.fetchTitle());
         if (movie.fetchAdditionalTitle() != null) {
             originalTitle.setText(movie.fetchAdditionalTitle());
@@ -45,5 +49,20 @@ public class DetailsController {
         country.setText(movie.fetchCountry());
         duration.setText(movie.fetchDuration());
         rating.setText(movie.fetchRating());
+    }
+
+    @FXML
+    public void playTrailer() {
+        SceneModel.INSTANCE.setActiveMovieModel(movieModel);
+        SceneModel.INSTANCE.fireEvent(new Event(ModelEventType.TRAILER_PLAY.getEventType()));
+    }
+
+    @FXML
+    public void playMovie() {
+        if (movieModel.isSeries()) {
+            movieModel.fireEvent(new Event(ModelEventType.SEASONS_SHOW.getEventType()));
+        } else {
+            movieModel.fireEvent(new Event(ModelEventType.MOVIE_PLAY.getEventType()));
+        }
     }
 }

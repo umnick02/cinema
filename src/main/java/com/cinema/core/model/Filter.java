@@ -6,7 +6,7 @@ import java.util.Arrays;
 
 public class Filter {
 
-    private String title = "Во все тяжкие";
+    private String title = "Жизнь прекрасна";
     private String[] genresIncl;
     private String[] genresExcl;
     private String[] countriesIncl;

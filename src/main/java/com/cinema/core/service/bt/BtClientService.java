@@ -13,6 +13,7 @@ import bt.metainfo.Torrent;
 import bt.runtime.BtClient;
 import bt.runtime.Config;
 import bt.torrent.fileselector.TorrentFileSelector;
+import com.cinema.core.model.impl.SceneModel;
 import com.cinema.core.service.bt.selectors.piece.SequentialPositioningSelector;
 import com.cinema.core.service.Stoppable;
 import org.apache.logging.log4j.LogManager;
@@ -82,7 +83,7 @@ public enum BtClientService implements Stoppable {
                 .stopWhenDownloaded()
                 .build();
         logger.info("Download file [{}]", magnetize.getFile());
-        btClient.startAsync();
+        btClient.startAsync(SceneModel.INSTANCE::setTorrentSessionState, 1000);
     }
 
     @Override

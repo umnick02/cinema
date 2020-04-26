@@ -37,7 +37,9 @@ public class EpisodeController {
     public void initialize() {
         episodePane.setMinWidth(MovieController.width*(MovieController.ratio - 1) - 40);
         episodePane.setMaxWidth(MovieController.width*(MovieController.ratio - 1) - 40);
-        executorService.submit(() -> poster.setImage(new Image(episodeModel.getEpisode().getPoster())));
+        Image image = new Image(episodeModel.getEpisode().getPoster(),
+                episodePane.getMaxWidth()/2.5, -1, true, true);
+        executorService.submit(() -> poster.setImage(image));
         title.setText(episodeModel.getEpisode().getEpisode() + ". " + episodeModel.getEpisode().getTitle());
         release.setText(episodeModel.getEpisode().getReleaseDate().format(DateTimeFormatter.ofPattern("dd MMMM yyyy")));
         rating.setText(String.format("%.1f (%s)", episodeModel.getEpisode().getRating(), StringUtils.longToString(episodeModel.getEpisode().getRatingVotes())));

@@ -132,6 +132,14 @@
     -fx-background-color: #2b2b2b;
 }
 
+.background-black {
+    -fx-background-color: #000000;
+}
+
+.dark {
+    -fx-background-color: rgba(0, 0, 0, 0.4);
+}
+
 .background-second {
     -fx-background-color: #3C3F41;
 }
@@ -197,11 +205,6 @@
 .text-main {
     -fx-font-size: 1.1em;
     -fx-text-fill: #CB7936;
-}
-
-.poster-h {
-    -fx-fit-to-height: 68px;
-    -fx-fit-to-width: 120px;
 }
 
 .hide {

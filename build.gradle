@@ -20,6 +20,10 @@ javafx {
     modules = [ 'javafx.controls', 'javafx.web', 'javafx.fxml' ]
 }
 
+configurations.all {
+    exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+}
+
 dependencies {
     compile 'uk.co.caprica:vlcj:+'
     compile 'uk.co.caprica:vlcj-natives:+'
@@ -37,7 +41,9 @@ dependencies {
     runtimeOnly 'com.h2database:h2:1.4.200'
     compile 'com.eclipsesource.minimal-json:minimal-json:0.9.5'
     compile 'javax.persistence:javax.persistence-api:2.2'
-    compile 'commons-logging:commons-logging:1.2'
-    compile 'org.apache.logging.log4j:log4j-core:2.13.0'
+    compile 'org.apache.logging.log4j:log4j-core:2.13.2'
+    compile 'org.apache.logging.log4j:log4j-api:2.13.2'
+    compile 'ch.qos.logback:logback-classic:1.3.0-alpha5'
+
     testCompile 'junit:junit:4.12'
 }

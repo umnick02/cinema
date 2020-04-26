@@ -62,7 +62,8 @@ public class DetailsController {
         if (movieModel.isSeries()) {
             movieModel.fireEvent(new Event(ModelEventType.SEASONS_SHOW.getEventType()));
         } else {
-            movieModel.fireEvent(new Event(ModelEventType.MOVIE_PLAY.getEventType()));
+            SceneModel.INSTANCE.setActiveMovieModel(movieModel);
+            SceneModel.INSTANCE.fireEvent(new Event(ModelEventType.MOVIE_PLAY.getEventType()));
         }
     }
 }

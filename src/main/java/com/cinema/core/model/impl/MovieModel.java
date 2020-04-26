@@ -2,12 +2,16 @@ package com.cinema.core.model.impl;
 
 import com.cinema.core.dao.MovieDAO;
 import com.cinema.core.entity.Episode;
+import com.cinema.core.entity.Magnet;
 import com.cinema.core.entity.Movie;
 import com.cinema.core.model.Filter;
 import com.cinema.core.model.ModelEventType;
 import com.cinema.core.model.ObservableModel;
 import javafx.event.Event;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 
 public class MovieModel extends ObservableModel {
@@ -112,6 +116,14 @@ public class MovieModel extends ObservableModel {
     public static Set<Movie> getMovies(Filter filter, int limit, int offset) {
         List<Movie> movies = MOVIE_DAO.getMovies(filter, limit, offset);
         return new HashSet<>(movies);
+    }
+
+    public boolean isPlayable() {
+        return movie.getFile() != null && Files.exists(Path.of(movie.getFile())) && movie.getStatus() == Magnet.Status.PLAYABLE;
+    }
+
+    public boolean isDownloaded() {
+        return movie.getFile() != null && Files.exists(Path.of(movie.getFile())) && movie.getStatus() == Magnet.Status.DOWNLOADED;
     }
 
     public Movie processMovieFromMagnet(Movie movie) {

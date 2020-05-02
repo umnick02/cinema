@@ -64,6 +64,7 @@ public class DetailsController {
         } else {
             SceneModel.INSTANCE.setActiveMovieModel(movieModel);
             SceneModel.INSTANCE.fireEvent(new Event(ModelEventType.MOVIE_PLAY.getEventType()));
+            SceneModel.INSTANCE.fireEvent(new Event(ModelEventType.TORRENT_START.getEventType()));
         }
     }
 }

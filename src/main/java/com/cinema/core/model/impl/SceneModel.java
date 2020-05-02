@@ -1,6 +1,5 @@
 package com.cinema.core.model.impl;
 
-import bt.torrent.TorrentSessionState;
 import com.cinema.core.entity.Movie;
 import com.cinema.core.model.ModelEventType;
 import com.cinema.core.model.ObservableModel;
@@ -20,7 +19,6 @@ public class SceneModel extends ObservableModel {
 
     private Set<MovieModel> movieModels = new HashSet<>();
     private MovieModel activeMovieModel;
-    private TorrentSessionState torrentSessionState;
     private FilterModel filterModel;
     private int page = 1;
     private int limit = 9;
@@ -50,14 +48,5 @@ public class SceneModel extends ObservableModel {
             movieModels.add(movieModel);
         });
         fireEvent(new Event(ModelEventType.MOVIES_UPDATE.getEventType()));
-    }
-
-    public void setTorrentSessionState(TorrentSessionState torrentSessionState) {
-        logger.info(torrentSessionState);
-        this.torrentSessionState = torrentSessionState;
-    }
-
-    public TorrentSessionState getTorrentSessionState() {
-        return torrentSessionState;
     }
 }

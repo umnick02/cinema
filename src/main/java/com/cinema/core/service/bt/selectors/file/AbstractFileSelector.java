@@ -29,8 +29,8 @@ public abstract class AbstractFileSelector extends TorrentFileSelector {
                 file.getPathElements().get(file.getPathElements().size() - 1).endsWith(".mkv");
     }
 
-    private boolean isNewVideoFile(Magnetize magnetize, TorrentFile file) {
-        return magnetize != null && magnetize.getFile() == null && isVideoFile(file);
+    private boolean isVideoFile(Magnetize magnetize, TorrentFile file) {
+        return magnetize != null && isVideoFile(file);
     }
 
     protected abstract void update(Magnetize magnetize);
@@ -56,7 +56,7 @@ public abstract class AbstractFileSelector extends TorrentFileSelector {
 
     @Override
     protected SelectionResult select(TorrentFile file) {
-        if (isNewVideoFile(magnetize, file)) {
+        if (isVideoFile(magnetize, file)) {
             magnetize.setFile(String.join("/", file.getPathElements()));
             magnetize.setStatus(Magnet.Status.UNPLAYABLE);
             logger.info("Set file [{}] for [{}]", magnetize.getFile(), magnetize);

@@ -2,6 +2,7 @@ package com.cinema.javafx.controller;
 
 import com.cinema.core.model.impl.MovieModel;
 import com.cinema.core.model.impl.SceneModel;
+import com.cinema.core.model.impl.TorrentModel;
 import com.cinema.core.service.bt.BtClientService;
 import com.cinema.javafx.controller.player.PosterController;
 import javafx.event.Event;
@@ -11,64 +12,85 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.layout.*;
 import javafx.scene.web.WebView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static com.cinema.core.model.ModelEventType.*;
 import static javafx.scene.input.MouseEvent.MOUSE_CLICKED;
 
 public class RootController {
 
+    private static final Logger logger = LoggerFactory.getLogger(RootController.class);
+
+    public static final ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(8);
+
     @FXML
     public StackPane contentPane;
+
+    @FXML
+    private BorderPane menuPane;
 
     @FXML
     public Button backButton;
 
     @FXML
     void initialize() {
-        contentPane.addEventHandler(TRAILER_PLAY.getEventType(), play -> {
-            WebView trailerView = new WebView();
-            trailerView.getEngine().load(SceneModel.INSTANCE.getActiveMovieModel().getMovie().getTrailerRu());
-            trailerView.addEventHandler(SHUTDOWN.getEventType(), shutdown -> {
-                SceneModel.INSTANCE.unRegisterEventTarget(trailerView);
-                trailerView.getEngine().load(null);
-            });
-            contentPane.getChildren().add(trailerView);
+        contentPane.addEventHandler(TRAILER_PLAY.getEventType(), event -> {
+            logger.info("Handle event {} from source {} on target {}", event.getEventType(), event.getSource(), event.getTarget());
+            try {
+                WebView trailerView = FXMLLoader.load(getClass().getResource("/view/movie/trailer.fxml"));
+                trailerView.getEngine().load(SceneModel.INSTANCE.getActiveMovieModel().getMovie().getTrailerRu());
+                trailerView.addEventHandler(SHUTDOWN.getEventType(), shutdown -> {
+                    SceneModel.INSTANCE.unRegisterEventTarget(trailerView);
+                    trailerView.getEngine().load(null);
+                });
+                contentPane.getChildren().add(trailerView);
+            } catch (IOException e) {
+                logger.error("", e);
+            }
         });
 
-        contentPane.addEventHandler(MOVIE_PLAY.getEventType(), play -> {
+        contentPane.addEventHandler(MOVIE_PLAY.getEventType(), event -> {
+            logger.info("Handle event {} from source {} on target {}", event.getEventType(), event.getSource(), event.getTarget());
             MovieModel movieModel = SceneModel.INSTANCE.getActiveMovieModel();
             try {
                 Node pane;
-                if (movieModel.isPlayable()) {
-                    pane = (Node) play.getSource();
-                } else {
+//                if (movieModel.isPlayable()) {
+//                    pane = (Node) play.getSource();
+//                } else {
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/player/player-loading.fxml"));
                     loader.setControllerFactory(param -> {
                         if (param.isAssignableFrom(PosterController.class)) {
-                            return new PosterController(contentPane.getScene());
+                            return new PosterController(menuPane);
                         }
                         return null;
                     });
                     pane = loader.load();
-                }
-                contentPane.getChildren().add(pane);
-
+//                }
+                pane.addEventHandler(TORRENT_START.getEventType(), start -> {
+                    logger.info("Handle event {} from source {} on target {}", start.getEventType(), start.getSource(), start.getTarget());
+                    if (!movieModel.isDownloaded()) {
+                        EXECUTOR_SERVICE.submit(() -> BtClientService.INSTANCE.downloadTorrentFiles(movieModel.getMovie()));
+                    }
+                });
                 pane.addEventHandler(SHUTDOWN.getEventType(), shutdown -> {
+                    logger.info("Handle event {} from source {} on target {}", shutdown.getEventType(), shutdown.getSource(), shutdown.getTarget());
                     SceneModel.INSTANCE.unRegisterEventTarget(pane);
-                    BtClientService.INSTANCE.stop();
+                    EXECUTOR_SERVICE.submit(BtClientService.INSTANCE::stop);
                 });
                 SceneModel.INSTANCE.registerEventTarget(pane);
+                contentPane.getChildren().add(pane);
             } catch (IOException e) {
                 e.printStackTrace();
-            }
-            if (!movieModel.isDownloaded()) {
-                BtClientService.INSTANCE.downloadTorrentFiles(movieModel.getMovie());
             }
         });
 
         backButton.addEventHandler(MOUSE_CLICKED, event -> {
+            logger.info("Handle event {} from source {} on target {}", event.getEventType(), event.getSource(), event.getTarget());
             int size = contentPane.getChildren().size();
             if (size > 1) {
                 Node node = contentPane.getChildren().get(size - 1);

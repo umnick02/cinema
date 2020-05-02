@@ -12,6 +12,7 @@ public class Preferences {
         SCREEN_WIDTH, CARD_WIDTH, LANGUAGE, STORAGE;
         public enum Language {EN, RU}
     }
+    public static final double PRELOAD_MIN = 50;
 
     private static Language lang = Language.EN;
     public static final ExecutorService EXECUTORS = Executors.newFixedThreadPool(3);

@@ -24,7 +24,7 @@
     </center>
     <right>
         <HBox alignment="CENTER">
-            <Button styleClass="icon, icon-play" />
+            <Button fx:id="playButton" styleClass="icon, icon-play" />
         </HBox>
     </right>
 </BorderPane>

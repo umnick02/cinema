@@ -24,7 +24,7 @@ public class EntityManagerProvider {
         settings.put(Environment.DRIVER, "org.h2.Driver");
         settings.put(Environment.URL, "jdbc:h2:file:~/IdeaProjects/cinema/h2_db");
         settings.put(Environment.DIALECT, "org.hibernate.dialect.H2Dialect");
-        settings.put(Environment.SHOW_SQL, "true");
+        settings.put(Environment.SHOW_SQL, "false");
         settings.put(Environment.FORMAT_SQL, "true");
         settings.put(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
 //        settings.put(Environment.HBM2DDL_AUTO, "update");

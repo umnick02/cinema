@@ -10,15 +10,22 @@ import com.cinema.javafx.controller.movies.movie.SeasonsController;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.layout.TilePane;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MoviesController {
+
+    private static final Logger logger = LoggerFactory.getLogger(MoviesController.class);
 
     @FXML
     public TilePane moviesContainer;
 
     @FXML
     public void initialize() {
-        moviesContainer.addEventHandler(ModelEventType.MOVIES_UPDATE.getEventType(), event -> updateMovies());
+        moviesContainer.addEventHandler(ModelEventType.MOVIES_UPDATE.getEventType(), event -> {
+            logger.info("Handle event {} from source {} on target {}", event.getEventType(), event.getSource(), event.getTarget());
+            updateMovies();
+        });
         SceneModel.INSTANCE.registerEventTarget(moviesContainer);
         SceneModel.INSTANCE.setMovies(MovieModel.getMovies());
     }

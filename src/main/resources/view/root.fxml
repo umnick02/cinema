@@ -12,7 +12,7 @@
         </StackPane>
    </center>
    <top>
-      <BorderPane styleClass="menu" BorderPane.alignment="CENTER">
+      <BorderPane fx:id="menuPane" styleClass="menu" BorderPane.alignment="CENTER">
          <center>
             <AnchorPane fx:id="searchPane" maxWidth="600.0" minWidth="200.0" prefWidth="600.0">
                 <TextField styleClass="field-text" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />

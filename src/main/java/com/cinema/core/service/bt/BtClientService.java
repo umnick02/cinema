@@ -13,7 +13,7 @@ import bt.metainfo.Torrent;
 import bt.runtime.BtClient;
 import bt.runtime.Config;
 import bt.torrent.fileselector.TorrentFileSelector;
-import com.cinema.core.model.impl.SceneModel;
+import com.cinema.core.model.impl.TorrentModel;
 import com.cinema.core.service.bt.selectors.piece.SequentialPositioningSelector;
 import com.cinema.core.service.Stoppable;
 import org.apache.logging.log4j.LogManager;
@@ -47,6 +47,7 @@ public enum BtClientService implements Stoppable {
     private final Storage storage = new FileSystemStorage(Paths.get(Preferences.getPreference(Preferences.PrefKey.STORAGE)));
 
     private BtClient btClient;
+    private Magnetize magnetize;
 
     public Torrent downloadTorrent(Magnetize magnetize) {
         Torrent[] torrent = new Torrent[1];
@@ -71,6 +72,13 @@ public enum BtClientService implements Stoppable {
     }
 
     public void downloadTorrentFiles(Magnetize magnetize) {
+        if (btClient != null) {
+            if (this.magnetize.equals(magnetize) && btClient.isStarted()) {
+                return;
+            }
+            stop();
+        }
+        this.magnetize = magnetize;
         btClient = Bt.client()
                 .config(config)
                 .module(dhtModule)
@@ -83,7 +91,7 @@ public enum BtClientService implements Stoppable {
                 .stopWhenDownloaded()
                 .build();
         logger.info("Download file [{}]", magnetize.getFile());
-        btClient.startAsync(SceneModel.INSTANCE::setTorrentSessionState, 1000);
+        btClient.startAsync(TorrentModel.INSTANCE::setTorrentSessionState, 1000);
     }
 
     @Override

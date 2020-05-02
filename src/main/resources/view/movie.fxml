@@ -3,19 +3,16 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<HBox xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.cinema.javafx.controller.movies.MovieController"
-      fx:id="moviePane">
+<HBox fx:id="moviePane" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cinema.javafx.controller.movies.MovieController">
    <StackPane fx:id="posterPane">
-      <BorderPane prefHeight="200.0" prefWidth="200.0" />
+      <BorderPane />
    </StackPane>
    <AnchorPane fx:id="tabsPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
-      <TabPane fx:id="tabPane" stylesheets="@../style/style.css" tabClosingPolicy="UNAVAILABLE"
-               AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-         <fx:include fx:id="detailsTab" source="movie/details.fxml"/>
-         <fx:include fx:id="descriptionTab" source="movie/description.fxml"/>
-         <fx:include fx:id="castsTab" source="movie/casts.fxml"/>
-         <fx:include fx:id="seasonsTab" source="movie/seasons.fxml"/>
+      <TabPane fx:id="tabPane" stylesheets="@../style/style.css" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <fx:include fx:id="detailsTab" source="movie/details.fxml" />
+         <fx:include fx:id="descriptionTab" source="movie/description.fxml" />
+         <fx:include fx:id="castsTab" source="movie/casts.fxml" />
+         <fx:include fx:id="seasonsTab" source="movie/seasons.fxml" />
       </TabPane>
    </AnchorPane>
 </HBox>

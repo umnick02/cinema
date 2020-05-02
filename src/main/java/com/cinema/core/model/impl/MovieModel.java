@@ -1,5 +1,6 @@
 package com.cinema.core.model.impl;
 
+import com.cinema.core.config.Preferences;
 import com.cinema.core.dao.MovieDAO;
 import com.cinema.core.entity.Episode;
 import com.cinema.core.entity.Magnet;
@@ -9,10 +10,11 @@ import com.cinema.core.model.ModelEventType;
 import com.cinema.core.model.ObservableModel;
 import javafx.event.Event;
 
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+
+import static com.cinema.core.config.Preferences.getPreference;
 
 public class MovieModel extends ObservableModel {
 
@@ -119,7 +121,7 @@ public class MovieModel extends ObservableModel {
     }
 
     public boolean isPlayable() {
-        return movie.getFile() != null && Files.exists(Path.of(movie.getFile())) && movie.getStatus() == Magnet.Status.PLAYABLE;
+        return movie.getFile() != null && Files.exists(Path.of(getPreference(Preferences.PrefKey.STORAGE) + movie.getFile())) && movie.getStatus() == Magnet.Status.PLAYABLE;
     }
 
     public boolean isDownloaded() {

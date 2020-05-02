@@ -3,6 +3,7 @@ package com.cinema.javafx.controller.movies.movie;
 import com.cinema.core.model.ModelEventType;
 import com.cinema.core.model.impl.MovieModel;
 import com.cinema.core.model.impl.SeasonModel;
+import com.cinema.javafx.controller.RootController;
 import com.cinema.javafx.controller.movies.movie.season.SeasonController;
 import com.cinema.javafx.controller.movies.movie.season.SeasonNavigationController;
 import javafx.fxml.FXML;
@@ -10,6 +11,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.TilePane;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
@@ -19,6 +22,8 @@ import java.util.stream.Collectors;
 import static com.cinema.core.utils.StringUtils.longToString;
 
 public class SeasonsController {
+
+    private static final Logger logger = LoggerFactory.getLogger(SeasonsController.class);
 
     @FXML
     public StackPane seriesPane;
@@ -55,8 +60,10 @@ public class SeasonsController {
                 e.printStackTrace();
             }
         }
-        seriesPane.addEventHandler(ModelEventType.SEASON_CHANGE.getEventType(),
-                event -> showSeason(movieModel.getActiveSeasonModel()));
+        seriesPane.addEventHandler(ModelEventType.SEASON_CHANGE.getEventType(), event -> {
+            logger.info("Handle event {} from source {} on target {}", event.getEventType(), event.getSource(), event.getTarget());
+            showSeason(movieModel.getActiveSeasonModel());
+        });
         movieModel.registerEventTarget(seriesPane);
     }
 

@@ -4,8 +4,8 @@ import com.cinema.core.entity.Movie;
 import com.cinema.core.model.ModelEventType;
 import com.cinema.core.model.ObservableModel;
 import javafx.event.Event;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 public class SceneModel extends ObservableModel {
 
-    private static final Logger logger = LogManager.getLogger(SceneModel.class);
+    private static final Logger logger = LoggerFactory.getLogger(SceneModel.class);
 
     public static final SceneModel INSTANCE = new SceneModel();
 

@@ -7,12 +7,12 @@ import com.cinema.core.entity.Magnet;
 import com.cinema.core.entity.Movie;
 import com.cinema.core.helper.HttpHelper;
 import com.google.inject.Singleton;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -21,12 +21,9 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.cinema.core.helper.HttpHelper.requestAndGetBody;
-
-@Singleton
 public class EpisodeParser {
 
-    private static final Logger logger = LogManager.getLogger(EpisodeParser.class);
+    private static final Logger logger = LoggerFactory.getLogger(EpisodeParser.class);
 
     public void parse(Movie movie, Torrent torrent) {
         try {

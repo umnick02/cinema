@@ -12,14 +12,17 @@ import java.util.Set;
 public class SeasonModel extends ObservableModel {
 
     private Set<EpisodeModel> episodeModels = new LinkedHashSet<>();
+    private EpisodeModel activeEpisodeModel;
     private short season;
     private double avgRating;
     private int avgVotes;
     private LocalDate release;
+    private MovieModel movieModel;
 
-    public SeasonModel(Set<Episode> episodes) {
+    public SeasonModel(MovieModel movieModel, Set<Episode> episodes) {
+        this.movieModel = movieModel;
         episodes.stream().sorted(Comparator.comparingInt(Episode::getEpisode)).forEach(episode -> {
-            episodeModels.add(new EpisodeModel(episode));
+            episodeModels.add(new EpisodeModel(this, episode));
             if (season == 0) {
                 season = episode.getSeason();
             }
@@ -33,6 +36,18 @@ public class SeasonModel extends ObservableModel {
             avgRating /= episodes.size();
             avgVotes /= episodes.size();
         }
+    }
+
+    public MovieModel getMovieModel() {
+        return movieModel;
+    }
+
+    public EpisodeModel getActiveEpisodeModel() {
+        return activeEpisodeModel;
+    }
+
+    public void setActiveEpisodeModel(EpisodeModel activeEpisodeModel) {
+        this.activeEpisodeModel = activeEpisodeModel;
     }
 
     public Set<EpisodeModel> getEpisodeModels() {

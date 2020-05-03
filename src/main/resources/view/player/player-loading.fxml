@@ -13,9 +13,9 @@
     <BorderPane>
         <bottom>
             <HBox alignment="CENTER" spacing="10.0">
-                <Label fx:id="status" styleClass="text-first" />
-                <Label fx:id="peers" styleClass="text-first" />
-                <Label fx:id="speed" styleClass="text-first" />
+                <Label fx:id="statusLabel" styleClass="text-first" />
+                <Label fx:id="peersLabel" styleClass="text-first" />
+                <Label fx:id="speedLabel" styleClass="text-first" />
                 <opaqueInsets>
                    <Insets />
                 </opaqueInsets>

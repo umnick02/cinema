@@ -32,11 +32,11 @@ public class PosterController {
     @FXML
     private ImageView posterView;
     @FXML
-    private Label status;
+    private Label statusLabel;
     @FXML
-    private Label speed;
+    private Label speedLabel;
     @FXML
-    private Label peers;
+    private Label peersLabel;
 
     private final BorderPane menuPane;
 
@@ -53,9 +53,16 @@ public class PosterController {
         torrentStatistic.addEventHandler(TORRENT_UPDATE.getEventType(), event ->
                 Platform.runLater(() -> {
                     logger.info("Handle event {} from source {} on target {}", event.getEventType(), event.getSource(), event.getTarget());
-                    status.setText(String.format("Загрузка: %d %%", TorrentModel.INSTANCE.getStatus()));
-                    peers.setText(String.format("Пиров: %d", TorrentModel.INSTANCE.getPeers()));
-                    speed.setText(String.format("Скорость: %d kb/s", TorrentModel.INSTANCE.getAvgSpeed()));
+
+                    String status = String.format("Загрузка: %d %%", TorrentModel.INSTANCE.getStatus());
+                    String peers = String.format("Пиров: %d", TorrentModel.INSTANCE.getPeers());
+                    String speed = String.format("Скорость: %d kb/s", TorrentModel.INSTANCE.getAvgSpeed());
+
+                    logger.info("{} {} {}", status, peers, speed);
+
+                    statusLabel.setText(status);
+                    peersLabel.setText(peers);
+                    speedLabel.setText(speed);
                 })
         );
 

@@ -35,7 +35,7 @@ public class MovieModel extends ObservableModel {
             });
             seasons.keySet().stream()
                     .sorted(Comparator.comparingInt(Short::shortValue))
-                    .forEach((season) -> seasonModels.add(new SeasonModel(seasons.get(season))));
+                    .forEach((season) -> seasonModels.add(new SeasonModel(this, seasons.get(season))));
         }
     }
 
@@ -87,8 +87,10 @@ public class MovieModel extends ObservableModel {
     }
 
     public void setActiveSeasonModel(SeasonModel activeSeasonModel) {
-        this.activeSeasonModel = activeSeasonModel;
-        fireEvent(new Event(ModelEventType.SEASON_CHANGE.getEventType()));
+        if (this.activeSeasonModel == null || !this.activeSeasonModel.equals(activeSeasonModel)) {
+            this.activeSeasonModel = activeSeasonModel;
+            fireEvent(new Event(ModelEventType.SEASON_CHANGE.getEventType()));
+        }
     }
 
     public SeasonModel getActiveSeasonModel() {
@@ -111,6 +113,10 @@ public class MovieModel extends ObservableModel {
         MOVIE_DAO.update(movie);
     }
 
+    public static void save(Movie movie) {
+        MOVIE_DAO.save(movie);
+    }
+
     public static Set<Movie> getMovies() {
         return getMovies(FilterModel.getFilter(), 12, 0);
     }
@@ -121,11 +127,21 @@ public class MovieModel extends ObservableModel {
     }
 
     public boolean isPlayable() {
-        return movie.getFile() != null && Files.exists(Path.of(getPreference(Preferences.PrefKey.STORAGE) + movie.getFile())) && movie.getStatus() == Magnet.Status.PLAYABLE;
+        if (isSeries()) {
+            Episode episode = activeSeasonModel.getActiveEpisodeModel().getEpisode();
+            return episode.getFile() != null && Files.exists(Path.of(getPreference(Preferences.PrefKey.STORAGE) + episode.getFile())) && episode.getStatus() == Magnet.Status.PLAYABLE;
+        } else {
+            return movie.getFile() != null && Files.exists(Path.of(getPreference(Preferences.PrefKey.STORAGE) + movie.getFile())) && movie.getStatus() == Magnet.Status.PLAYABLE;
+        }
     }
 
     public boolean isDownloaded() {
-        return movie.getFile() != null && Files.exists(Path.of(movie.getFile())) && movie.getStatus() == Magnet.Status.DOWNLOADED;
+        if (isSeries()) {
+            Episode episode = activeSeasonModel.getActiveEpisodeModel().getEpisode();
+            return episode.getFile() != null && Files.exists(Path.of(episode.getFile())) && episode.getStatus() == Magnet.Status.DOWNLOADED;
+        } else {
+            return movie.getFile() != null && Files.exists(Path.of(movie.getFile())) && movie.getStatus() == Magnet.Status.DOWNLOADED;
+        }
     }
 
     public Movie processMovieFromMagnet(Movie movie) {

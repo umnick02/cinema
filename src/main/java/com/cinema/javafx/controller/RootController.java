@@ -1,9 +1,11 @@
 package com.cinema.javafx.controller;
 
+import com.cinema.core.entity.Magnetize;
 import com.cinema.core.model.impl.MovieModel;
 import com.cinema.core.model.impl.SceneModel;
-import com.cinema.core.model.impl.TorrentModel;
 import com.cinema.core.service.bt.BtClientService;
+import com.cinema.javafx.controller.player.PlayerController;
+import com.cinema.javafx.controller.player.PlayerControlsController;
 import com.cinema.javafx.controller.player.PosterController;
 import javafx.event.Event;
 import javafx.fxml.FXML;
@@ -37,6 +39,8 @@ public class RootController {
     @FXML
     public Button backButton;
 
+    private Node pane;
+
     @FXML
     void initialize() {
         contentPane.addEventHandler(TRAILER_PLAY.getEventType(), event -> {
@@ -58,10 +62,21 @@ public class RootController {
             logger.info("Handle event {} from source {} on target {}", event.getEventType(), event.getSource(), event.getTarget());
             MovieModel movieModel = SceneModel.INSTANCE.getActiveMovieModel();
             try {
-                Node pane;
-//                if (movieModel.isPlayable()) {
-//                    pane = (Node) play.getSource();
-//                } else {
+                if (pane != null) {
+                    contentPane.getChildren().remove(pane);
+                }
+                if (movieModel.isPlayable()) {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/player/player.fxml"));
+                    loader.setControllerFactory(param -> {
+                        if (param.isAssignableFrom(PlayerController.class)) {
+                            return new PlayerController();
+                        } else if (param.isAssignableFrom(PlayerControlsController.class)) {
+                            return new PlayerControlsController();
+                        }
+                        return null;
+                    });
+                    pane = loader.load();
+                } else {
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/player/player-loading.fxml"));
                     loader.setControllerFactory(param -> {
                         if (param.isAssignableFrom(PosterController.class)) {
@@ -70,11 +85,12 @@ public class RootController {
                         return null;
                     });
                     pane = loader.load();
-//                }
+                }
                 pane.addEventHandler(TORRENT_START.getEventType(), start -> {
                     logger.info("Handle event {} from source {} on target {}", start.getEventType(), start.getSource(), start.getTarget());
                     if (!movieModel.isDownloaded()) {
-                        EXECUTOR_SERVICE.submit(() -> BtClientService.INSTANCE.downloadTorrentFiles(movieModel.getMovie()));
+                        Magnetize magnetize = movieModel.isSeries() ? movieModel.getActiveSeasonModel().getActiveEpisodeModel().getEpisode() : movieModel.getMovie();
+                        EXECUTOR_SERVICE.submit(() -> BtClientService.INSTANCE.downloadTorrentFiles(magnetize));
                     }
                 });
                 pane.addEventHandler(SHUTDOWN.getEventType(), shutdown -> {

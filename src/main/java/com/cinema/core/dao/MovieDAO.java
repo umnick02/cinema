@@ -42,6 +42,17 @@ public enum MovieDAO {
         return entityManager.createQuery(query).setFirstResult(offset).setMaxResults(limit).getResultList();
     }
 
+    public void save(Movie movie) {
+        try {
+            entityManager.getTransaction().begin();
+            entityManager.persist(movie);
+            entityManager.getTransaction().commit();
+        } catch (Exception e) {
+            entityManager.getTransaction().rollback();
+            logger.error(e.getMessage(), e);
+        }
+    }
+
     public void update(Movie movie) {
         try {
             entityManager.getTransaction().begin();

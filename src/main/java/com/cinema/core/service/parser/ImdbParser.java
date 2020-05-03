@@ -10,12 +10,12 @@ import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
 import com.google.inject.Singleton;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -27,10 +27,9 @@ import java.util.stream.Collectors;
 
 import static com.cinema.core.helper.HttpHelper.requestAndGetBody;
 
-@Singleton
 public class ImdbParser {
 
-    private static final Logger logger = LogManager.getLogger(ImdbParser.class);
+    private static final Logger logger = LoggerFactory.getLogger(ImdbParser.class);
 
     private static final String HOST = "https://www.imdb.com";
 
@@ -55,7 +54,7 @@ public class ImdbParser {
 
             movie.setRatingImdb(getRating(json));
             movie.setRatingImdbVotes(getRatingVotes(json));
-//            movie.setSeries(isSeries(json));
+            movie.setType(isSeries(json) ? Movie.Type.SERIES : Movie.Type.MOVIE);
             movie.setReleaseDate(getReleaseDate(json));
             fillGenres(json, movie);
             movie.setDuration(getDuration(html));
@@ -66,6 +65,10 @@ public class ImdbParser {
             fillCountries(html, movie);
             fillPosters(html, movie);
             fillCasts(movie);
+        }
+
+        private static boolean isSeries(JsonObject json) {
+            return json.getString("@type", "").equals("TVSeries");
         }
 
         private static void fillCasts(Movie movie) {

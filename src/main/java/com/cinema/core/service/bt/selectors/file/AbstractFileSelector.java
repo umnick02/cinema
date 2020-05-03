@@ -6,17 +6,16 @@ import bt.torrent.fileselector.TorrentFileSelector;
 import com.cinema.core.config.Preferences;
 import com.cinema.core.entity.Magnet;
 import com.cinema.core.entity.Magnetize;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public abstract class AbstractFileSelector extends TorrentFileSelector {
 
-    private static final Logger logger = LogManager.getLogger(AbstractFileSelector.class);
+    private static final Logger logger = LoggerFactory.getLogger(AbstractFileSelector.class);
 
     protected Magnetize magnetize;
 
@@ -41,21 +40,22 @@ public abstract class AbstractFileSelector extends TorrentFileSelector {
         if (magnetize.getFile() == null ||
                 !new File(Preferences.getPreference(Preferences.PrefKey.STORAGE) + magnetize.getFile()).exists() ||
                 magnetize.getStatus() != Magnet.Status.DOWNLOADED) {
-            logger.info("Download all files for [{}]", magnetize);
-            return files.stream()
-                    .filter(this::isValidFile)
-                    .sorted(Comparator.comparingLong(TorrentFile::getSize))
-                    .map(this::select)
-                    .collect(Collectors.toList());
+//            files.sort(Comparator.comparingLong(TorrentFile::getSize));
+            List<SelectionResult> selectionResults = new ArrayList<>();
+            for (TorrentFile file : files) {
+                selectionResults.add(select(file));
+            }
+            return selectionResults;
         }
         logger.info("Find downloaded file [{}] for [{}]. Skip all files", magnetize.getFile(), magnetize);
-        return files.stream()
-                .map(f -> SelectionResult.skip())
-                .collect(Collectors.toList());
+        return files.stream().map(f -> SelectionResult.skip()).collect(Collectors.toList());
     }
 
     @Override
     protected SelectionResult select(TorrentFile file) {
+        if (!isValidFile(file)) {
+            return SelectionResult.skip();
+        }
         if (isVideoFile(magnetize, file)) {
             magnetize.setFile(String.join("/", file.getPathElements()));
             magnetize.setStatus(Magnet.Status.UNPLAYABLE);

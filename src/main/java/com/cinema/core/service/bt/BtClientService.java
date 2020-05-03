@@ -16,8 +16,6 @@ import bt.torrent.fileselector.TorrentFileSelector;
 import com.cinema.core.model.impl.TorrentModel;
 import com.cinema.core.service.bt.selectors.piece.SequentialPositioningSelector;
 import com.cinema.core.service.Stoppable;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import com.cinema.core.entity.Episode;
 import com.cinema.core.entity.Movie;
@@ -26,11 +24,13 @@ import com.cinema.core.service.bt.selectors.file.impl.MovieFileSelector;
 import com.cinema.core.entity.Magnetize;
 import com.cinema.core.config.Preferences;
 import com.cinema.core.service.bt.selectors.file.SkipFileSelector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public enum BtClientService implements Stoppable {
     INSTANCE;
 
-    private static final Logger logger = LogManager.getLogger(BtClientService.class);
+    private static final Logger logger = LoggerFactory.getLogger(BtClientService.class);
 
     private final DHTModule dhtModule = new DHTModule(new DHTConfig() {
         @Override
@@ -49,13 +49,14 @@ public enum BtClientService implements Stoppable {
     private BtClient btClient;
     private Magnetize magnetize;
 
-    public Torrent downloadTorrent(Magnetize magnetize) {
+    public Torrent downloadTorrent(String hash) {
+        stop();
         Torrent[] torrent = new Torrent[1];
         BtClient btClient = Bt.client()
                 .config(config)
                 .module(dhtModule)
                 .storage(storage)
-                .magnet(magnetize.getHash())
+                .magnet(hash)
                 .autoLoadModules()
                 .afterTorrentFetched(t -> torrent[0] = t)
                 .initEagerly()
@@ -72,6 +73,7 @@ public enum BtClientService implements Stoppable {
     }
 
     public void downloadTorrentFiles(Magnetize magnetize) {
+        logger.info("Start download [{}]", magnetize.getFile());
         if (btClient != null) {
             if (this.magnetize.equals(magnetize) && btClient.isStarted()) {
                 return;

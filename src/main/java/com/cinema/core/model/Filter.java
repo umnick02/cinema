@@ -64,6 +64,10 @@ public class Filter {
         return types;
     }
 
+    public boolean isMagnet() {
+        return title != null && title.startsWith("magnet:");
+    }
+
     @Override
     public String toString() {
         return "Filter{" +
@@ -141,6 +145,11 @@ public class Filter {
 
         public Builder countriesExcl(String... countries) {
             filter.countriesExcl = countries;
+            return this;
+        }
+
+        public Builder title(String title) {
+            filter.title = title.trim();
             return this;
         }
     }

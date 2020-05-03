@@ -156,5 +156,5 @@ public class WritableImageDemo extends Application {
 }
 
 // Launch via this class to avoid module system headaches.
-//class WritableImageDemoLauncher {public static void main(String[] args) {WritableImageDemo.main(args);}}
+class WritableImageDemoLauncher {public static void main(String[] args) {WritableImageDemo.main(args);}}
 

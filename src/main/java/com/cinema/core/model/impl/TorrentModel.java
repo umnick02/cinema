@@ -12,6 +12,7 @@ import javafx.event.Event;
 import java.time.LocalDateTime;
 
 import static com.cinema.core.config.Preferences.PRELOAD_MIN;
+import static com.cinema.core.model.ModelEventType.MOVIE_PLAY;
 import static java.time.temporal.ChronoUnit.SECONDS;
 
 public class TorrentModel extends ObservableModel implements Stoppable {
@@ -54,7 +55,7 @@ public class TorrentModel extends ObservableModel implements Stoppable {
         if (downloadedPart >= 1) {
             movie.setStatus(Magnet.Status.PLAYABLE);
             MovieModel.update(movie);
-//            fireEvent(new Event(MOVIE_PLAY.getEventType()));
+            fireEvent(new Event(MOVIE_PLAY.getEventType()));
         }
         return (int) (downloadedPart * 100);
     }

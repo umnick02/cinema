@@ -5,17 +5,16 @@ import com.cinema.core.entity.Movie;
 import com.cinema.core.helper.HttpHelper;
 import com.cinema.core.helper.YoutubeHelper;
 import com.google.inject.Singleton;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-@Singleton
 public class KpParser {
 
-    private static final Logger logger = LogManager.getLogger(KpParser.class);
+    private static final Logger logger = LoggerFactory.getLogger(KpParser.class);
 
     public void parse(String url, Movie movie) throws Exception {
         logger.info("Trying to fetch KP data from url=[{}]", url);

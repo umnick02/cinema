@@ -4,9 +4,9 @@ import bt.metainfo.Torrent;
 import com.cinema.core.entity.Magnet;
 import com.cinema.core.entity.Movie;
 import com.cinema.core.helper.HttpHelper;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jsoup.Jsoup;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.http.HttpResponse;
 import java.util.regex.Matcher;
@@ -14,17 +14,11 @@ import java.util.regex.Pattern;
 
 public class MagnetParser {
 
-    private static final Logger logger = LogManager.getLogger(MagnetParser.class);
+    private static final Logger logger = LoggerFactory.getLogger(MagnetParser.class);
 
-    private final ImdbParser imdbParser;
-    private final KpParser kpParser;
-    private final EpisodeParser episodeParser;
-
-    public MagnetParser(ImdbParser imdbParser, KpParser kpParser, EpisodeParser episodeParser) {
-        this.imdbParser = imdbParser;
-        this.kpParser = kpParser;
-        this.episodeParser = episodeParser;
-    }
+    private final ImdbParser imdbParser = new ImdbParser();
+    private final KpParser kpParser = new KpParser();
+    private final EpisodeParser episodeParser = new EpisodeParser();
 
     public Movie parse(String magnet, Torrent torrent) {
         Movie movie = new Movie();
@@ -64,7 +58,7 @@ public class MagnetParser {
         logger.info("Trying to find KP url for movie=[{}]", movieName);
         String url = String.format("https://www.google.com/search?q=site:kinopoisk.ru+%s", movieName);
         String body = HttpHelper.requestAndGetBody(url);
-        String cachedUrl = Jsoup.parse(body).selectFirst(".action-menu-item.ab_dropdownitem a.fl").attr("href");
+        String cachedUrl = Jsoup.parse(body).selectFirst(".g>div").getAllElements().get(0).select("a").get(0).attr("href");
         kpParser.parse(cachedUrl, movie);
     }
 

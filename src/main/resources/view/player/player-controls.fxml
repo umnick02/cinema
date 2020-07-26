@@ -4,25 +4,28 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox styleClass="background-second" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cinema.javafx.controller.player.PlayerControlsController">
-    <HBox alignment="CENTER">
-        <Label fx:id="currentTimeLabel" HBox.hgrow="NEVER" />
-        <Slider fx:id="timelineSlider" HBox.hgrow="ALWAYS" onMousePressed="#beginTracking" onMouseReleased="#endTracking">
-            <padding>
-                <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
-            </padding>
-        </Slider>
-        <Label fx:id="durationLabel" HBox.hgrow="NEVER" />
-    </HBox>
-    <TilePane>
-        <Button onMouseClicked="#play" >play</Button>
-        <Button onMouseClicked="#pause" >pause</Button>
-        <Button onMouseClicked="#stop" >stop</Button>
-        <padding>
-            <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
-        </padding>
-    </TilePane>
-   <padding>
-      <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
-   </padding>
-</VBox>
+<BorderPane xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cinema.javafx.controller.player.PlayerControlsController">
+    <top>
+        <AnchorPane>
+
+        </AnchorPane>
+    </top>
+    <center>
+
+    </center>
+    <bottom>
+        <HBox styleClass="control-panel">
+            <StackPane>
+                <Button fx:id="play" alignment="CENTER" onMouseClicked="#play" styleClass="icon-player, icon-play"/>
+                <Button fx:id="pause" alignment="CENTER" onMouseClicked="#pause" styleClass="icon-player, icon-pause"/>
+            </StackPane>
+            <StackPane>
+                <Slider fx:id="timelineSlider" onMousePressed="#beginTracking" onMouseReleased="#endTracking" HBox.hgrow="ALWAYS"/>
+                <HBox>
+                    <Label fx:id="currentTimeLabel" HBox.hgrow="NEVER" />
+                    <Label fx:id="durationLabel" HBox.hgrow="NEVER" />
+                </HBox>
+            </StackPane>
+        </HBox>
+    </bottom>
+</BorderPane>

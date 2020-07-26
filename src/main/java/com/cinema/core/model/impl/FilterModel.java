@@ -1,14 +1,18 @@
 package com.cinema.core.model.impl;
 
 import bt.metainfo.Torrent;
+import com.cinema.core.entity.Magnet;
 import com.cinema.core.entity.Movie;
 import com.cinema.core.model.Filter;
 import com.cinema.core.service.bt.BtClientService;
 import com.cinema.core.service.parser.MagnetParser;
 import com.cinema.javafx.controller.RootController;
 
-public enum FilterModel {
-    INSTANCE;
+public class FilterModel {
+
+    public static final FilterModel INSTANCE = new FilterModel();
+
+    private FilterModel() {}
 
     private static Filter filter;
 
@@ -24,7 +28,8 @@ public enum FilterModel {
         if (filter.isMagnet()) {
             RootController.EXECUTOR_SERVICE.submit(() -> {
                 Torrent torrent = BtClientService.INSTANCE.downloadTorrent(filter.getTitle());
-                Movie movie = new MagnetParser().parse(filter.getTitle(), torrent);
+                Movie movie = MagnetParser.INSTANCE.parse(torrent);
+                movie.setMagnet(new Magnet(filter.getTitle()));
                 MovieModel.save(movie);
             });
         }

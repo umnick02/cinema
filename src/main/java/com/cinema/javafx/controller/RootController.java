@@ -31,6 +31,9 @@ public class RootController {
     public static final ExecutorService EXECUTOR_SERVICE = Executors.newFixedThreadPool(8);
 
     @FXML
+    public StackPane rootPane;
+
+    @FXML
     public StackPane contentPane;
 
     @FXML
@@ -47,8 +50,9 @@ public class RootController {
             logger.info("Handle event {} from source {} on target {}", event.getEventType(), event.getSource(), event.getTarget());
             try {
                 WebView trailerView = FXMLLoader.load(getClass().getResource("/view/movie/trailer.fxml"));
-                trailerView.getEngine().load(SceneModel.INSTANCE.getActiveMovieModel().getMovie().getTrailerRu());
+                trailerView.getEngine().load(SceneModel.INSTANCE.getActiveMovieModel().getMovie().getTrailer());
                 trailerView.addEventHandler(SHUTDOWN.getEventType(), shutdown -> {
+                    logger.info("Handle event {} from source {} on target {}", event.getEventType(), event.getSource(), event.getTarget());
                     SceneModel.INSTANCE.unRegisterEventTarget(trailerView);
                     trailerView.getEngine().load(null);
                 });
@@ -58,12 +62,12 @@ public class RootController {
             }
         });
 
-        contentPane.addEventHandler(MOVIE_PLAY.getEventType(), event -> {
+        rootPane.addEventHandler(MOVIE_PLAY.getEventType(), event -> {
             logger.info("Handle event {} from source {} on target {}", event.getEventType(), event.getSource(), event.getTarget());
             MovieModel movieModel = SceneModel.INSTANCE.getActiveMovieModel();
             try {
                 if (pane != null) {
-                    contentPane.getChildren().remove(pane);
+                    rootPane.getChildren().remove(pane);
                 }
                 if (movieModel.isPlayable()) {
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/player/player.fxml"));
@@ -99,7 +103,7 @@ public class RootController {
                     EXECUTOR_SERVICE.submit(BtClientService.INSTANCE::stop);
                 });
                 SceneModel.INSTANCE.registerEventTarget(pane);
-                contentPane.getChildren().add(pane);
+                rootPane.getChildren().add(pane);
             } catch (IOException e) {
                 e.printStackTrace();
             }

@@ -1,6 +1,6 @@
 package com.cinema.core.config;
 
-import com.cinema.core.entity.Cast;
+import com.cinema.core.dto.Cast;
 import com.cinema.core.entity.Episode;
 import com.cinema.core.entity.Movie;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
@@ -27,7 +27,7 @@ public class EntityManagerProvider {
         settings.put(Environment.SHOW_SQL, "false");
         settings.put(Environment.FORMAT_SQL, "true");
         settings.put(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
-//        settings.put(Environment.HBM2DDL_AUTO, "update");
+        settings.put(Environment.HBM2DDL_AUTO, "update");
         configuration.setProperties(settings);
         configuration.addAnnotatedClass(Movie.class);
         configuration.addAnnotatedClass(Cast.class);

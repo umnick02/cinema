@@ -17,6 +17,6 @@ public class DescriptionController {
 
     @FXML
     public void initialize() {
-        description.setText(movie.getDescriptionRu());
+        description.setText(movie.getDescription());
     }
 }

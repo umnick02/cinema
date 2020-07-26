@@ -129,9 +129,11 @@ public class MovieModel extends ObservableModel {
     public boolean isPlayable() {
         if (isSeries()) {
             Episode episode = activeSeasonModel.getActiveEpisodeModel().getEpisode();
-            return episode.getFile() != null && Files.exists(Path.of(getPreference(Preferences.PrefKey.STORAGE) + episode.getFile())) && episode.getStatus() == Magnet.Status.PLAYABLE;
+            return episode.getFile() != null && Files.exists(Path.of(getPreference(Preferences.PrefKey.STORAGE) + episode.getFile())) &&
+                    (episode.getStatus() == Magnet.Status.PLAYABLE || episode.getStatus() == Magnet.Status.DOWNLOADED);
         } else {
-            return movie.getFile() != null && Files.exists(Path.of(getPreference(Preferences.PrefKey.STORAGE) + movie.getFile())) && movie.getStatus() == Magnet.Status.PLAYABLE;
+            return movie.getFile() != null && Files.exists(Path.of(getPreference(Preferences.PrefKey.STORAGE) + movie.getFile())) &&
+                    (movie.getStatus() == Magnet.Status.PLAYABLE || movie.getStatus() == Magnet.Status.DOWNLOADED);
         }
     }
 

@@ -1,6 +1,6 @@
 package com.cinema.javafx.controller.movies.movie;
 
-import com.cinema.core.entity.Cast;
+import com.cinema.core.dto.Cast;
 import com.cinema.core.entity.Movie;
 import com.cinema.javafx.controller.movies.movie.casts.CastController;
 import javafx.fxml.FXML;
@@ -10,7 +10,7 @@ import javafx.scene.layout.VBox;
 
 import java.io.IOException;
 import java.util.Comparator;
-import java.util.Set;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class CastsController {
@@ -35,7 +35,7 @@ public class CastsController {
 
     @FXML
     public void initialize() {
-        Set<Cast> casts = movie.getCasts();
+        List<Cast> casts = movie.getCasts();
         castDirector.setText("Режиссёр: " +
                 casts.stream().filter(c -> c.getRole() == Cast.Role.DIRECTOR).map(Cast::getName).collect(Collectors.joining(", ")));
         castWriter.setText("Сценарист: " +
@@ -49,9 +49,7 @@ public class CastsController {
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/movie/cast/cast.fxml"));
                     loader.setControllerFactory(param -> {
                         if (param.isAssignableFrom(CastController.class)) {
-                            return c.getQua() != null ?
-                                    new CastController(c.getName(), c.getQua()) :
-                                    new CastController(c.getName());
+                            new CastController(c.getName());
                         }
                         return null;
                     });

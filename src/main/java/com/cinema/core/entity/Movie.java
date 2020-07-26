@@ -1,5 +1,9 @@
 package com.cinema.core.entity;
 
+import com.cinema.core.dto.Award;
+import com.cinema.core.dto.Cast;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.NaturalId;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -52,13 +56,16 @@ public class Movie implements Magnetize {
     private String posters;
 
     @Column(name = "is_custom")
-    private Boolean isCustom;
+    private boolean isCustom;
 
     @Column(name = "poster", columnDefinition = "varchar(511)")
     private String poster;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "movie", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
-    private Set<Cast> casts;
+    @Column(name = "casts", columnDefinition = "text")
+    private String casts;
+
+    @Column(name = "award", columnDefinition = "text")
+    private String award;
 
     @CreationTimestamp
     private LocalDateTime created;
@@ -72,14 +79,8 @@ public class Movie implements Magnetize {
     @Column(name = "title", updatable = false, nullable = false)
     private String title;
 
-    @Column(name = "title_ru", updatable = false, nullable = false)
-    private String titleRu;
-
     @Column(name = "description", columnDefinition = "text")
     private String description;
-
-    @Column(name = "description_ru", columnDefinition = "text")
-    private String descriptionRu;
 
     @Column(name = "url")
     private String url;
@@ -104,9 +105,6 @@ public class Movie implements Magnetize {
 
     @Column(name = "trailer", columnDefinition = "varchar(511)")
     private String trailer;
-
-    @Column(name = "trailer_ru", columnDefinition = "varchar(511)")
-    private String trailerRu;
 
     @Embedded
     private Magnet magnet;
@@ -159,26 +157,25 @@ public class Movie implements Magnetize {
         magnet.setStatus(status);
     }
 
+    public Award getAward() {
+        return new Gson().fromJson(this.award, Award.class);
+    }
+
+    public void setAward(Award award) {
+        this.award = new Gson().toJson(award);
+    }
+
     public short getMaxSeason() {
         return episodes.stream().map(Episode::getSeason).max(Short::compareTo).orElseGet(() -> (short) 0);
     }
 
-    public String fetchAdditionalTitle() {
-        if (originalTitle != null && !titleRu.equals(originalTitle)) {
-            return originalTitle;
-        } else if (title != null && !titleRu.equals(title)) {
-            return title;
-        }
-        return null;
-    }
-
     public String fetchTitle() {
         if (type != Movie.Type.SERIES) {
-            return String.format("%s (%d)", titleRu, releaseDate.getYear());
+            return String.format("%s (%d)", title, releaseDate.getYear());
         } else if (finishDate == null) {
-            return String.format("%s (%d — %s)", titleRu, releaseDate.getYear(),  ". . .");
+            return String.format("%s (%d — %s)", title, releaseDate.getYear(),  ". . .");
         } else {
-            return String.format("%s (%d — %d)", titleRu, releaseDate.getYear(),  finishDate.getYear());
+            return String.format("%s (%d — %d)", title, releaseDate.getYear(),  finishDate.getYear());
         }
     }
 
@@ -249,12 +246,20 @@ public class Movie implements Magnetize {
         this.finishDate = finishDate;
     }
 
-    public Set<Cast> getCasts() {
-        return casts;
+    public List<Cast> getCasts() {
+        return new Gson().fromJson(this.casts, new TypeToken<List<Cast>>() {}.getType());
     }
 
-    public void setCasts(Set<Cast> casts) {
-        this.casts = casts;
+    public void addCasts(Cast... casts) {
+        Gson gson = new Gson();
+        @SuppressWarnings("unchecked")
+        List<Cast> castList = this.casts != null ? (List<Cast>) gson.fromJson(this.casts, List.class) : new ArrayList<>();
+        castList.addAll(Arrays.asList(casts));
+        this.casts = gson.toJson(castList);
+    }
+
+    public void setCasts(List<Cast> casts) {
+        this.casts = new Gson().toJson(casts);
     }
 
     public Type getType() {
@@ -377,28 +382,12 @@ public class Movie implements Magnetize {
         this.title = title;
     }
 
-    public String getTitleRu() {
-        return titleRu;
-    }
-
-    public void setTitleRu(String titleRu) {
-        this.titleRu = titleRu;
-    }
-
     public String getDescription() {
         return description;
     }
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public String getDescriptionRu() {
-        return descriptionRu;
-    }
-
-    public void setDescriptionRu(String descriptionRu) {
-        this.descriptionRu = descriptionRu;
     }
 
     public String getUrl() {
@@ -463,14 +452,6 @@ public class Movie implements Magnetize {
 
     public void setTrailer(String trailer) {
         this.trailer = trailer;
-    }
-
-    public String getTrailerRu() {
-        return trailerRu;
-    }
-
-    public void setTrailerRu(String trailerRu) {
-        this.trailerRu = trailerRu;
     }
 
     @Override

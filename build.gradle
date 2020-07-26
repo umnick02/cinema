@@ -45,6 +45,8 @@ dependencies {
     compile 'org.apache.logging.log4j:log4j-core:2.13.2'
     compile 'org.apache.logging.log4j:log4j-api:2.13.2'
     compile 'ch.qos.logback:logback-classic:1.3.0-alpha5'
+    compile 'org.brotli:dec:0.1.2'
+    compile 'com.google.code.gson:gson:2.8.6'
 
     testCompile 'junit:junit:4.12'
 }

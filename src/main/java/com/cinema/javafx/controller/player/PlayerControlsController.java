@@ -4,6 +4,7 @@ import com.cinema.javafx.model.PlayerModel;
 import com.cinema.javafx.player.Time;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import uk.co.caprica.vlcj.player.base.MediaPlayer;
@@ -21,6 +22,10 @@ public class PlayerControlsController {
     private Slider timelineSlider;
     @FXML
     private Label durationLabel;
+    @FXML
+    private Button pause;
+    @FXML
+    private Button play;
 
     private final MediaPlayer mediaPlayer;
 
@@ -77,11 +82,15 @@ public class PlayerControlsController {
     @FXML
     public void play() {
         mediaPlayer.controls().play();
+        pause.setVisible(true);
+        play.setVisible(false);
     }
 
     @FXML
     public void pause() {
         mediaPlayer.controls().pause();
+        play.setVisible(true);
+        pause.setVisible(false);
     }
 
     @FXML

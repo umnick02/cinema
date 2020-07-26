@@ -1,6 +1,7 @@
 package com.cinema.javafx.model;
 
 import com.cinema.core.config.Preferences;
+import com.cinema.core.model.ObservableModel;
 import com.cinema.core.model.impl.SceneModel;
 import com.cinema.core.service.Stoppable;
 import javafx.application.Platform;
@@ -22,24 +23,30 @@ import java.nio.ByteBuffer;
 
 import static com.cinema.core.config.Preferences.getPreference;
 
-public enum PlayerModel implements Stoppable {
-    INSTANCE;
+public class PlayerModel extends ObservableModel implements Stoppable {
+
+    public static final PlayerModel INSTANCE = new PlayerModel();
 
     private MediaPlayerFactory mediaPlayerFactory = new MediaPlayerFactory();
-    private EmbeddedMediaPlayer embeddedMediaPlayer = mediaPlayerFactory.mediaPlayers().newEmbeddedMediaPlayer();
+    private EmbeddedMediaPlayer embeddedMediaPlayer;
     private PixelBuffer<ByteBuffer> videoPixelBuffer;
 
     private ImageView videoImageView;
-
-    PlayerModel() {
-        embeddedMediaPlayer.videoSurface().set(new FXCallbackVideoSurface());
-    }
 
     public void setVideoImageView(ImageView videoImageView) {
         this.videoImageView = videoImageView;
     }
 
     public EmbeddedMediaPlayer getEmbeddedMediaPlayer() {
+        if (embeddedMediaPlayer == null) {
+            embeddedMediaPlayer = buildMediaPlayer();
+        }
+        return embeddedMediaPlayer;
+    }
+
+    private EmbeddedMediaPlayer buildMediaPlayer() {
+        EmbeddedMediaPlayer embeddedMediaPlayer = mediaPlayerFactory.mediaPlayers().newEmbeddedMediaPlayer();
+        embeddedMediaPlayer.videoSurface().set(new FXCallbackVideoSurface());
         return embeddedMediaPlayer;
     }
 
@@ -49,9 +56,11 @@ public enum PlayerModel implements Stoppable {
 
     @Override
     public void stop() {
-        embeddedMediaPlayer.controls().stop();
-        embeddedMediaPlayer.release();
-        mediaPlayerFactory.release();
+        if (embeddedMediaPlayer != null) {
+            embeddedMediaPlayer.controls().stop();
+            embeddedMediaPlayer.release();
+            embeddedMediaPlayer = null;
+        }
     }
 
     private class FXCallbackVideoSurface extends CallbackVideoSurface {

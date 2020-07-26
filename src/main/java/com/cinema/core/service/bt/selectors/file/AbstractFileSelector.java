@@ -6,6 +6,8 @@ import bt.torrent.fileselector.TorrentFileSelector;
 import com.cinema.core.config.Preferences;
 import com.cinema.core.entity.Magnet;
 import com.cinema.core.entity.Magnetize;
+import com.cinema.core.model.impl.MovieModel;
+import com.cinema.core.model.impl.SceneModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +58,7 @@ public abstract class AbstractFileSelector extends TorrentFileSelector {
         if (!isValidFile(file)) {
             return SelectionResult.skip();
         }
-        if (isVideoFile(magnetize, file)) {
+        if (isVideoFile(magnetize, file) && !SceneModel.INSTANCE.getActiveMovieModel().isPlayable()) {
             magnetize.setFile(String.join("/", file.getPathElements()));
             magnetize.setStatus(Magnet.Status.UNPLAYABLE);
             logger.info("Set file [{}] for [{}]", magnetize.getFile(), magnetize);

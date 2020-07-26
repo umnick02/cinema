@@ -50,10 +50,20 @@
     -fx-background-size: 16px 16px;
     -fx-background-image: url("/icons/upwards-arrow.png");
 }
-.icon-play {
-    -fx-background-size: 32px 32px;
+.icon-player {
+    -fx-background-size: 24px 24px;
+    -fx-background-color: transparent;
     -fx-min-width: 32px;
-    -fx-background-image: url("/icons/play.png");
+    -fx-min-height: 32px;
+    -fx-max-height: 32px;
+    -fx-background-position: center;
+    -fx-background-repeat: no-repeat;
+}
+.icon-play {
+    -fx-graphic: url("/icons/play.png");
+}
+.icon-pause {
+    -fx-graphic: url("/icons/pause.png");
 }
 
 .tab-pane {
@@ -142,6 +152,17 @@
 
 .background-second {
     -fx-background-color: #3C3F41;
+}
+
+.control-panel {
+    -fx-background-color: rgba(0, 0, 0, .8);
+    -fx-max-height: 32px;
+    -fx-min-height: 32px;
+    -fx-text-fill: #bababa;
+}
+
+.slider {
+    -fx-background-color:null;
 }
 
 .scroll-pane > .viewport {

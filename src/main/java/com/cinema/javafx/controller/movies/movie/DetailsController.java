@@ -41,8 +41,8 @@ public class DetailsController {
     public void initialize() {
         Movie movie = movieModel.getMovie();
         title.setText(movie.fetchTitle());
-        if (movie.fetchAdditionalTitle() != null) {
-            originalTitle.setText(movie.fetchAdditionalTitle());
+        if (movie.getOriginalTitle() != null && !movie.getOriginalTitle().equals(movie.getTitle())) {
+            originalTitle.setText(movie.getOriginalTitle());
         }
         type.setText(movie.fetchType());
         genres.setText(movie.fetchGenres());

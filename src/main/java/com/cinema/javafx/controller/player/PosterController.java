@@ -66,10 +66,16 @@ public class PosterController {
                 })
         );
 
-        torrentStatistic.addEventHandler(SHUTDOWN.getEventType(), event -> TorrentModel.INSTANCE.unRegisterEventTarget(torrentStatistic));
+        torrentStatistic.addEventHandler(SHUTDOWN.getEventType(), event -> {
+            logger.info("Handle event {} from source {} on target {}", event.getEventType(), event.getSource(), event.getTarget());
+            TorrentModel.INSTANCE.unRegisterEventTarget(torrentStatistic);
+        });
     }
 
     private void initializePoster() {
+        if (SceneModel.INSTANCE.getActiveMovieModel().getMovie().getPosters() == null) {
+            return;
+        }
         JsonArray posters = Json.parse(SceneModel.INSTANCE.getActiveMovieModel().getMovie().getPosters()).asArray();
         if (posters.size() > 0) {
             posterView.setImage(new Image(posters.get(0).asString(),

@@ -5,7 +5,6 @@ import com.cinema.core.model.impl.MovieModel;
 import com.cinema.core.model.impl.SceneModel;
 import com.cinema.core.service.bt.BtClientService;
 import com.cinema.javafx.controller.player.PlayerController;
-import com.cinema.javafx.controller.player.PlayerControlsController;
 import com.cinema.javafx.controller.player.PosterController;
 import javafx.event.Event;
 import javafx.fxml.FXML;
@@ -74,8 +73,6 @@ public class RootController {
                     loader.setControllerFactory(param -> {
                         if (param.isAssignableFrom(PlayerController.class)) {
                             return new PlayerController();
-                        } else if (param.isAssignableFrom(PlayerControlsController.class)) {
-                            return new PlayerControlsController();
                         }
                         return null;
                     });

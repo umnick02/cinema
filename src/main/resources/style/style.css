@@ -52,7 +52,10 @@
 }
 .icon-player {
     -fx-background-size: 24px 24px;
-    -fx-background-color: transparent;
+    -fx-background-color: transparent !important;
+    -fx-border-color: transparent !important;
+    -fx-border-width: 0;
+    -fx-background-radius: 0;
     -fx-min-width: 32px;
     -fx-min-height: 32px;
     -fx-max-height: 32px;
@@ -65,7 +68,25 @@
 .icon-pause {
     -fx-graphic: url("/icons/pause.png");
 }
-
+.icon-fullscreen {
+    -fx-graphic: url("/icons/fullscreen.png");
+}
+.icon-settings-video {
+    -fx-graphic: url("/icons/settings-video.png");
+}
+.icon-mute {
+    -fx-graphic: url("/icons/mute.png");
+}
+.icon-volume {
+    -fx-graphic: url("/icons/volume.png");
+}
+.white {
+    -fx-text-fill: white;
+    -fx-fill: white;
+}
+.bold {
+    -fx-font-weight: bold;
+}
 .tab-pane {
     -fx-tab-max-height: 1.2em;
     -fx-tab-min-height: 1.2em;

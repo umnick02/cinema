@@ -1,9 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
 <StackPane fx:id="playerPane" styleClass="background-black" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cinema.javafx.controller.player.PlayerController">
     <ImageView fx:id="videoImageView" preserveRatio="true" />
-    <fx:include source="player-controls.fxml" />
+    <BorderPane fx:id="controlPane">
+        <top>
+            <AnchorPane>
+
+            </AnchorPane>
+        </top>
+        <center>
+
+        </center>
+        <bottom>
+         <BorderPane styleClass="control-panel">
+            <center>
+                   <StackPane>
+                       <Slider fx:id="timelineSlider" onMousePressed="#beginTracking" onMouseReleased="#endTracking" HBox.hgrow="ALWAYS" />
+                       <HBox alignment="CENTER_LEFT" styleClass="timeline-labels">
+                           <Label fx:id="currentTimeLabel" styleClass="white, bold" HBox.hgrow="NEVER" />
+                           <Text styleClass="white, bold"> / </Text>
+                           <Label fx:id="durationLabel" styleClass="white, bold" HBox.hgrow="NEVER" />
+                       </HBox>
+                   </StackPane>
+            </center>
+            <left>
+                   <StackPane BorderPane.alignment="CENTER">
+                       <Button fx:id="playButton" alignment="CENTER" onMouseClicked="#play" styleClass="icon-player, icon-play" />
+                       <Button fx:id="pauseButton" alignment="CENTER" onMouseClicked="#pause" styleClass="icon-player, icon-pause" StackPane.alignment="CENTER_LEFT" />
+                   </StackPane>
+            </left>
+            <right>
+                   <HBox alignment="CENTER_RIGHT" BorderPane.alignment="CENTER">
+                       <StackPane>
+                           <Button fx:id="muteButton" alignment="CENTER" onMouseClicked="#volume" styleClass="icon-player, icon-mute" />
+                           <Button fx:id="volumeButton" alignment="CENTER" onMouseClicked="#mute" styleClass="icon-player, icon-volume" />
+                       </StackPane>
+                       <Slider fx:id="volumeSlider" onMousePressed="#beginVolumeTracking" onMouseReleased="#endVolumeTracking" HBox.hgrow="ALWAYS" />
+                       <Button fx:id="settings" alignment="CENTER" onMouseClicked="#settings" styleClass="icon-player, icon-settings-video" />
+                       <Button alignment="CENTER" onMouseClicked="#fullscreen" styleClass="icon-player, icon-fullscreen" />
+                   </HBox>
+            </right>
+         </BorderPane>
+        </bottom>
+    </BorderPane>
 </StackPane>

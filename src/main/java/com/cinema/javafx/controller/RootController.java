@@ -98,6 +98,7 @@ public class RootController {
                     logger.info("Handle event {} from source {} on target {}", shutdown.getEventType(), shutdown.getSource(), shutdown.getTarget());
                     SceneModel.INSTANCE.unRegisterEventTarget(pane);
                     EXECUTOR_SERVICE.submit(BtClientService.INSTANCE::stop);
+                    rootPane.getChildren().remove(pane);
                 });
                 SceneModel.INSTANCE.registerEventTarget(pane);
                 rootPane.getChildren().add(pane);

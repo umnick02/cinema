@@ -68,9 +68,6 @@
 .icon-pause {
     -fx-graphic: url("/icons/pause.png");
 }
-.icon-fullscreen {
-    -fx-graphic: url("/icons/fullscreen.png");
-}
 .icon-settings-video {
     -fx-graphic: url("/icons/settings-video.png");
 }
@@ -79,6 +76,15 @@
 }
 .icon-volume {
     -fx-graphic: url("/icons/volume.png");
+}
+.icon-fullscreen-in {
+    -fx-graphic: url("/icons/fullscreen.png");
+}
+.icon-fullscreen-out {
+    -fx-graphic: url("/icons/fullscreen-out.png");
+}
+.icon-close {
+    -fx-graphic: url("/icons/arrow.png");
 }
 .white {
     -fx-text-fill: white;

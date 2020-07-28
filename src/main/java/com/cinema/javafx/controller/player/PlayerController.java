@@ -1,15 +1,17 @@
 package com.cinema.javafx.controller.player;
 
-import com.cinema.javafx.CinemaApplication;
 import com.cinema.javafx.model.PlayerModel;
 import com.cinema.javafx.player.Time;
 import javafx.application.Platform;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
@@ -32,7 +34,7 @@ public class PlayerController {
     @FXML
     private ImageView videoImageView;
     @FXML
-    private BorderPane controlPane;
+    private AnchorPane controlPane;
     @FXML
     private Label currentTimeLabel;
     @FXML
@@ -49,6 +51,10 @@ public class PlayerController {
     private Button muteButton;
     @FXML
     private Button volumeButton;
+    @FXML
+    private Button fullscreenIn;
+    @FXML
+    private Button fullscreenOut;
 
     private int lastVolume = 50;
 
@@ -110,11 +116,14 @@ public class PlayerController {
     public void initialize() {
         PlayerModel.INSTANCE.setVideoImageView(videoImageView);
         PlayerModel.INSTANCE.play();
-
-        videoImageView.fitWidthProperty().bind(playerPane.widthProperty());
-        videoImageView.fitHeightProperty().bind(playerPane.heightProperty());
+        Platform.runLater(() -> {
+            videoImageView.fitWidthProperty().bind(playerPane.getScene().widthProperty());
+            videoImageView.fitHeightProperty().bind(playerPane.getScene().heightProperty());
+        });
 
         controlPane.prefWidthProperty().bind(playerPane.widthProperty());
+
+        fullscreenOut.setVisible(false);
 
         PlayerModel.INSTANCE.registerEventTarget(playerPane);
         playerPane.addEventHandler(SHUTDOWN.getEventType(), event -> {
@@ -132,17 +141,32 @@ public class PlayerController {
     }
 
     @FXML
-    public void play() {
-        mediaPlayer.controls().play();
-        pauseButton.setVisible(true);
-        playButton.setVisible(false);
+    public void closePlayer() {
+        playerPane.fireEvent(new Event(SHUTDOWN.getEventType()));
     }
 
     @FXML
-    public void pause() {
-        mediaPlayer.controls().pause();
-        playButton.setVisible(true);
-        pauseButton.setVisible(false);
+    public void changePlayingShortcut(MouseEvent event) {
+        if (event.getButton().equals(MouseButton.PRIMARY)) {
+            if (event.getClickCount() == 2) {
+                fullscreen();
+            } else {
+                changePlaying();
+            }
+        }
+    }
+
+    @FXML
+    public void changePlaying() {
+        if (mediaPlayer.status().isPlaying()) {
+            mediaPlayer.controls().pause();
+            playButton.setVisible(true);
+            pauseButton.setVisible(false);
+        } else {
+            mediaPlayer.controls().play();
+            pauseButton.setVisible(true);
+            playButton.setVisible(false);
+        }
     }
 
     @FXML
@@ -153,7 +177,15 @@ public class PlayerController {
     @FXML
     public void fullscreen() {
         Stage stage = ((Stage) videoImageView.getScene().getWindow());
-        stage.setFullScreen(!stage.isFullScreen());
+        if (stage.isFullScreen()) {
+            stage.setFullScreen(false);
+            fullscreenIn.setVisible(true);
+            fullscreenOut.setVisible(false);
+        } else {
+            stage.setFullScreen(true);
+            fullscreenIn.setVisible(false);
+            fullscreenOut.setVisible(true);
+        }
     }
 
     @FXML
@@ -175,11 +207,6 @@ public class PlayerController {
         }
         volumeButton.setVisible(true);
         muteButton.setVisible(false);
-    }
-
-    @FXML
-    public void stop() {
-        mediaPlayer.controls().stop();
     }
 
     private void startTimer() {

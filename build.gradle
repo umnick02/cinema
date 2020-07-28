@@ -27,8 +27,6 @@ configurations.all {
 
 dependencies {
     compile 'uk.co.caprica:vlcj:+'
-    compile 'uk.co.caprica:vlcj-natives:+'
-    compile 'uk.co.caprica:vlcj-osx-stubs:+'
     compile 'net.java.dev.jna:jna:5.5.0'
     compile 'net.java.dev.jna:jna-platform:5.5.0'
     compile 'org.jsoup:jsoup:1.12.1'

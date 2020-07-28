@@ -6,32 +6,25 @@
 <?import javafx.scene.text.*?>
 
 <StackPane fx:id="playerPane" styleClass="background-black" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cinema.javafx.controller.player.PlayerController">
-    <ImageView fx:id="videoImageView" preserveRatio="true" />
-    <BorderPane fx:id="controlPane">
-        <top>
-            <AnchorPane>
-
-            </AnchorPane>
-        </top>
-        <center>
-
-        </center>
-        <bottom>
-         <BorderPane styleClass="control-panel">
+    <ImageView fx:id="videoImageView" onMouseClicked="#changePlayingShortcut" preserveRatio="true" />
+    <Button alignment="CENTER" onMouseClicked="#closePlayer" styleClass="icon-player, icon-close" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" StackPane.alignment="TOP_LEFT" />
+   <AnchorPane fx:id="controlPane" styleClass="control-panel" StackPane.alignment="BOTTOM_CENTER">
+      <children>
+         <BorderPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <center>
                    <StackPane>
                        <Slider fx:id="timelineSlider" onMousePressed="#beginTracking" onMouseReleased="#endTracking" HBox.hgrow="ALWAYS" />
-                       <HBox alignment="CENTER_LEFT" styleClass="timeline-labels">
-                           <Label fx:id="currentTimeLabel" styleClass="white, bold" HBox.hgrow="NEVER" />
-                           <Text styleClass="white, bold"> / </Text>
-                           <Label fx:id="durationLabel" styleClass="white, bold" HBox.hgrow="NEVER" />
-                       </HBox>
+<!--                       <HBox alignment="CENTER_LEFT" styleClass="timeline-labels">-->
+<!--                           <Label fx:id="currentTimeLabel" styleClass="white, bold" HBox.hgrow="NEVER" />-->
+<!--                           <Text styleClass="white, bold"> / </Text>-->
+<!--                           <Label fx:id="durationLabel" styleClass="white, bold" HBox.hgrow="NEVER" />-->
+<!--                       </HBox>-->
                    </StackPane>
             </center>
             <left>
                    <StackPane BorderPane.alignment="CENTER">
-                       <Button fx:id="playButton" alignment="CENTER" onMouseClicked="#play" styleClass="icon-player, icon-play" />
-                       <Button fx:id="pauseButton" alignment="CENTER" onMouseClicked="#pause" styleClass="icon-player, icon-pause" StackPane.alignment="CENTER_LEFT" />
+                       <Button fx:id="playButton" alignment="CENTER" onMouseClicked="#changePlaying" styleClass="icon-player, icon-play" />
+                       <Button fx:id="pauseButton" alignment="CENTER" onMouseClicked="#changePlaying" styleClass="icon-player, icon-pause" StackPane.alignment="CENTER_LEFT" />
                    </StackPane>
             </left>
             <right>
@@ -42,10 +35,13 @@
                        </StackPane>
                        <Slider fx:id="volumeSlider" onMousePressed="#beginVolumeTracking" onMouseReleased="#endVolumeTracking" HBox.hgrow="ALWAYS" />
                        <Button fx:id="settings" alignment="CENTER" onMouseClicked="#settings" styleClass="icon-player, icon-settings-video" />
-                       <Button alignment="CENTER" onMouseClicked="#fullscreen" styleClass="icon-player, icon-fullscreen" />
+                       <StackPane BorderPane.alignment="CENTER">
+                            <Button fx:id="fullscreenIn" alignment="CENTER" onMouseClicked="#fullscreen" styleClass="icon-player, icon-fullscreen-in" />
+                            <Button fx:id="fullscreenOut" alignment="CENTER" onMouseClicked="#fullscreen" styleClass="icon-player, icon-fullscreen-out" />
+                       </StackPane>
                    </HBox>
             </right>
          </BorderPane>
-        </bottom>
-    </BorderPane>
+      </children>
+   </AnchorPane>
 </StackPane>

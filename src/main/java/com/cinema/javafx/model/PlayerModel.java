@@ -13,7 +13,6 @@ import uk.co.caprica.vlcj.factory.MediaPlayerFactory;
 import uk.co.caprica.vlcj.player.base.MediaPlayer;
 import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer;
 import uk.co.caprica.vlcj.player.embedded.videosurface.CallbackVideoSurface;
-import uk.co.caprica.vlcj.player.embedded.videosurface.VideoSurfaceAdapters;
 import uk.co.caprica.vlcj.player.embedded.videosurface.callback.BufferFormat;
 import uk.co.caprica.vlcj.player.embedded.videosurface.callback.BufferFormatCallback;
 import uk.co.caprica.vlcj.player.embedded.videosurface.callback.RenderCallback;
@@ -22,6 +21,7 @@ import uk.co.caprica.vlcj.player.embedded.videosurface.callback.format.RV32Buffe
 import java.nio.ByteBuffer;
 
 import static com.cinema.core.config.Preferences.getPreference;
+import static uk.co.caprica.vlcj.player.embedded.videosurface.VideoSurfaceAdapters.getVideoSurfaceAdapter;
 
 public class PlayerModel extends ObservableModel implements Stoppable {
 
@@ -51,7 +51,7 @@ public class PlayerModel extends ObservableModel implements Stoppable {
     }
 
     public void play() {
-        embeddedMediaPlayer.media().play(getPreference(Preferences.PrefKey.STORAGE) + SceneModel.INSTANCE.getActiveMovieModel().getMovie().getFile());
+        embeddedMediaPlayer.submit(() -> embeddedMediaPlayer.media().play(getPreference(Preferences.PrefKey.STORAGE) + SceneModel.INSTANCE.getActiveMovieModel().getMovie().getFile()));
     }
 
     @Override
@@ -65,7 +65,7 @@ public class PlayerModel extends ObservableModel implements Stoppable {
 
     private class FXCallbackVideoSurface extends CallbackVideoSurface {
         FXCallbackVideoSurface() {
-            super(new FXBufferFormatCallback(), new FXRenderCallback(), true, VideoSurfaceAdapters.getVideoSurfaceAdapter());
+            super(new FXBufferFormatCallback(), new FXRenderCallback(), true, getVideoSurfaceAdapter());
         }
     }
 
@@ -82,11 +82,8 @@ public class PlayerModel extends ObservableModel implements Stoppable {
 
         @Override
         public void allocatedBuffers(ByteBuffer[] buffers) {
-            assert buffers[0].capacity() == sourceWidth * sourceHeight * 4;
-            PixelFormat<ByteBuffer> pixelFormat = PixelFormat.getByteBgraPreInstance();
-            videoPixelBuffer = new PixelBuffer<>(sourceWidth, sourceHeight, buffers[0], pixelFormat);
-            WritableImage videoImage = new WritableImage(videoPixelBuffer);
-            videoImageView.setImage(videoImage);
+            videoPixelBuffer = new PixelBuffer<>(sourceWidth, sourceHeight, buffers[0], PixelFormat.getByteBgraPreInstance());
+            videoImageView.setImage(new WritableImage(videoPixelBuffer));
         }
     }
 

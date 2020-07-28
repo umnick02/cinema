@@ -14,7 +14,7 @@ public enum MagnetParser {
     private static final Logger logger = LoggerFactory.getLogger(MagnetParser.class);
 
     public static void main(String[] args) {
-        MagnetParser.INSTANCE.parse("Отель «Гранд Будапешт»");
+        MagnetParser.INSTANCE.parse("Пушки акимбо");
     }
 
     public Movie parse(Torrent torrent) {

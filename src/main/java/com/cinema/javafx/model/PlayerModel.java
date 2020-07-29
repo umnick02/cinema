@@ -4,6 +4,7 @@ import com.cinema.core.config.Preferences;
 import com.cinema.core.model.ObservableModel;
 import com.cinema.core.model.impl.SceneModel;
 import com.cinema.core.service.Stoppable;
+import com.cinema.javafx.controller.player.PlayerController;
 import javafx.application.Platform;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelBuffer;
@@ -57,6 +58,7 @@ public class PlayerModel extends ObservableModel implements Stoppable {
     @Override
     public void stop() {
         if (embeddedMediaPlayer != null) {
+            PlayerController.future.cancel(true);
             embeddedMediaPlayer.controls().stop();
             embeddedMediaPlayer.release();
             embeddedMediaPlayer = null;

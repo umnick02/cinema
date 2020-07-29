@@ -7,7 +7,7 @@
 
 <StackPane fx:id="playerPane" styleClass="background-black" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cinema.javafx.controller.player.PlayerController">
     <ImageView fx:id="videoImageView" onMouseClicked="#changePlayingShortcut" preserveRatio="true" />
-    <Button alignment="CENTER" onMouseClicked="#closePlayer" styleClass="icon-player, icon-close" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" StackPane.alignment="TOP_LEFT" />
+    <Button fx:id="closeButton" alignment="CENTER" onMouseClicked="#closePlayer" styleClass="icon-player, icon-close" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" StackPane.alignment="TOP_LEFT" />
    <AnchorPane fx:id="controlPane" styleClass="control-panel" StackPane.alignment="BOTTOM_CENTER">
       <children>
          <BorderPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">

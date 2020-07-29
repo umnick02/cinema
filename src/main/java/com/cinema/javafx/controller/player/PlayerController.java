@@ -4,7 +4,9 @@ import com.cinema.javafx.model.PlayerModel;
 import com.cinema.javafx.player.Time;
 import javafx.application.Platform;
 import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.scene.Cursor;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
@@ -19,11 +21,18 @@ import org.slf4j.LoggerFactory;
 import uk.co.caprica.vlcj.player.base.MediaPlayer;
 import uk.co.caprica.vlcj.player.base.MediaPlayerEventAdapter;
 
+import java.time.LocalDateTime;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.cinema.core.model.ModelEventType.SHUTDOWN;
+import static java.time.temporal.ChronoUnit.SECONDS;
+import static javafx.scene.input.MouseEvent.ANY;
 
 public class PlayerController {
 
@@ -55,18 +64,28 @@ public class PlayerController {
     private Button fullscreenIn;
     @FXML
     private Button fullscreenOut;
+    @FXML
+    private Button closeButton;
 
     private int lastVolume = 50;
 
-    private final MediaPlayer mediaPlayer;
+    private static MediaPlayer mediaPlayer;
 
     private final AtomicBoolean tracking = new AtomicBoolean();
     private final AtomicBoolean volumeTracking = new AtomicBoolean();
 
     private Timer clockTimer = new Timer();
+    private LocalDateTime lastMouseMove;
+
+    private EventHandler<MouseEvent> mouseMovedEventHandler = event -> {
+        lastMouseMove = LocalDateTime.now();
+        controls(true);
+    };
+    public final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    public static Future<?> future;
 
     public PlayerController() {
-        this.mediaPlayer = PlayerModel.INSTANCE.getEmbeddedMediaPlayer();
+        mediaPlayer = PlayerModel.INSTANCE.getEmbeddedMediaPlayer();
 
         mediaPlayer.events().addMediaPlayerEventListener(new MediaPlayerEventAdapter() {
             @Override
@@ -142,6 +161,10 @@ public class PlayerController {
 
     @FXML
     public void closePlayer() {
+        Stage stage = ((Stage) videoImageView.getScene().getWindow());
+        if (stage.isFullScreen()) {
+            fullscreen();
+        }
         playerPane.fireEvent(new Event(SHUTDOWN.getEventType()));
     }
 
@@ -150,9 +173,8 @@ public class PlayerController {
         if (event.getButton().equals(MouseButton.PRIMARY)) {
             if (event.getClickCount() == 2) {
                 fullscreen();
-            } else {
-                changePlaying();
             }
+            changePlaying();
         }
     }
 
@@ -181,11 +203,27 @@ public class PlayerController {
             stage.setFullScreen(false);
             fullscreenIn.setVisible(true);
             fullscreenOut.setVisible(false);
+            closeButton.setVisible(true);
+            stage.getScene().removeEventHandler(ANY, mouseMovedEventHandler);
+            future.cancel(true);
         } else {
             stage.setFullScreen(true);
             fullscreenIn.setVisible(false);
             fullscreenOut.setVisible(true);
+            closeButton.setVisible(false);
+            stage.getScene().setOnMouseMoved(mouseMovedEventHandler);
+            future = scheduler.scheduleAtFixedRate(() -> {
+                System.out.println("fsafasfas");
+                if (SECONDS.between(lastMouseMove, LocalDateTime.now()) > 5) {
+                    controls(false);
+                }
+            }, 3, 3, TimeUnit.SECONDS);
         }
+    }
+
+    private void controls(boolean visible) {
+        controlPane.setVisible(visible);
+        videoImageView.getScene().setCursor(visible ? Cursor.DEFAULT : Cursor.NONE);
     }
 
     @FXML

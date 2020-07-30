@@ -7,14 +7,15 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Cursor;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.input.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.robot.Robot;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,14 +25,11 @@ import uk.co.caprica.vlcj.player.base.MediaPlayerEventAdapter;
 import java.time.LocalDateTime;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.cinema.core.model.ModelEventType.SHUTDOWN;
 import static java.time.temporal.ChronoUnit.SECONDS;
+import static javafx.scene.input.KeyCode.SPACE;
 import static javafx.scene.input.MouseEvent.ANY;
 
 public class PlayerController {
@@ -53,8 +51,6 @@ public class PlayerController {
     @FXML
     private Label durationLabel;
     @FXML
-    private Button pauseButton;
-    @FXML
     private Button playButton;
     @FXML
     private Button muteButton;
@@ -75,14 +71,14 @@ public class PlayerController {
     private final AtomicBoolean volumeTracking = new AtomicBoolean();
 
     private Timer clockTimer = new Timer();
+    private Timer mouseTimer = new Timer();
+    private Timer preventSleepTimer = new Timer();
     private LocalDateTime lastMouseMove;
 
     private EventHandler<MouseEvent> mouseMovedEventHandler = event -> {
         lastMouseMove = LocalDateTime.now();
         controls(true);
     };
-    public final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-    public static Future<?> future;
 
     public PlayerController() {
         mediaPlayer = PlayerModel.INSTANCE.getEmbeddedMediaPlayer();
@@ -101,16 +97,19 @@ public class PlayerController {
             @Override
             public void stopped(MediaPlayer mediaPlayer) {
                 stopTimer();
+                clockTimer.cancel();
             }
 
             @Override
             public void finished(MediaPlayer mediaPlayer) {
                 stopTimer();
+                clockTimer.cancel();
             }
 
             @Override
             public void error(MediaPlayer mediaPlayer) {
                 stopTimer();
+                clockTimer.cancel();
             }
 
 
@@ -138,6 +137,7 @@ public class PlayerController {
         Platform.runLater(() -> {
             videoImageView.fitWidthProperty().bind(playerPane.getScene().widthProperty());
             videoImageView.fitHeightProperty().bind(playerPane.getScene().heightProperty());
+            hotKeys();
         });
 
         controlPane.prefWidthProperty().bind(playerPane.widthProperty());
@@ -152,8 +152,6 @@ public class PlayerController {
         });
         timelineSlider.valueProperty().addListener((obs, oldValue, newValue) -> updateMediaPlayerPosition(newValue.floatValue() / 100));
         volumeSlider.valueProperty().addListener((obs, oldValue, newValue) -> updateMediaPlayerVolumePosition(newValue.intValue()));
-        playButton.setVisible(false);
-        pauseButton.setVisible(true);
 
         muteButton.setVisible(false);
         volumeButton.setVisible(true);
@@ -182,12 +180,12 @@ public class PlayerController {
     public void changePlaying() {
         if (mediaPlayer.status().isPlaying()) {
             mediaPlayer.controls().pause();
-            playButton.setVisible(true);
-            pauseButton.setVisible(false);
+            playButton.getStyleClass().remove("icon-pause");
+            playButton.getStyleClass().add("icon-play");
         } else {
             mediaPlayer.controls().play();
-            pauseButton.setVisible(true);
-            playButton.setVisible(false);
+            playButton.getStyleClass().remove("icon-play");
+            playButton.getStyleClass().add("icon-pause");
         }
     }
 
@@ -205,19 +203,38 @@ public class PlayerController {
             fullscreenOut.setVisible(false);
             closeButton.setVisible(true);
             stage.getScene().removeEventHandler(ANY, mouseMovedEventHandler);
-            future.cancel(true);
+            mouseTimer.cancel();
+            preventSleepTimer.cancel();
         } else {
             stage.setFullScreen(true);
             fullscreenIn.setVisible(false);
             fullscreenOut.setVisible(true);
             closeButton.setVisible(false);
             stage.getScene().setOnMouseMoved(mouseMovedEventHandler);
-            future = scheduler.scheduleAtFixedRate(() -> {
-                System.out.println("fsafasfas");
-                if (SECONDS.between(lastMouseMove, LocalDateTime.now()) > 5) {
-                    controls(false);
+            mouseTimer = new Timer();
+            mouseTimer.scheduleAtFixedRate(new TimerTask() {
+                @Override
+                public void run() {
+                    Platform.runLater(() -> {
+                        if (SECONDS.between(lastMouseMove, LocalDateTime.now()) > 3) {
+                            controls(false);
+                        }
+                    });
                 }
-            }, 3, 3, TimeUnit.SECONDS);
+            }, 0, 3000);
+            preventSleepTimer = new Timer();
+            preventSleepTimer.scheduleAtFixedRate(new TimerTask() {
+                @Override
+                public void run() {
+                    try {
+                        Robot robot = new Robot();
+                        robot.mouseMove(0, 0);
+                        robot.mouseMove(1, 1);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }, 0, 600000);
         }
     }
 
@@ -252,7 +269,7 @@ public class PlayerController {
         clockTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                Platform.runLater(() -> currentTimeLabel.setText(Time.formatTime(mediaPlayer.status().time())));
+//                Platform.runLater(() -> currentTimeLabel.setText(Time.formatTime(mediaPlayer.status().time())));
             }
         }, 0, 1000);
     }
@@ -319,5 +336,11 @@ public class PlayerController {
                 volume();
             }
         }
+    }
+
+    private void hotKeys() {
+        Scene scene = playerPane.getScene();
+        KeyCombination kc = new KeyCodeCombination(SPACE);
+        scene.getAccelerators().put(kc, this::changePlaying);
     }
 }

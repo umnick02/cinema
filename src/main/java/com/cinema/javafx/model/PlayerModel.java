@@ -58,7 +58,6 @@ public class PlayerModel extends ObservableModel implements Stoppable {
     @Override
     public void stop() {
         if (embeddedMediaPlayer != null) {
-            PlayerController.future.cancel(true);
             embeddedMediaPlayer.controls().stop();
             embeddedMediaPlayer.release();
             embeddedMediaPlayer = null;

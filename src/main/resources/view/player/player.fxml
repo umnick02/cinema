@@ -22,10 +22,7 @@
                    </StackPane>
             </center>
             <left>
-                   <StackPane BorderPane.alignment="CENTER">
-                       <Button fx:id="playButton" alignment="CENTER" onMouseClicked="#changePlaying" styleClass="icon-player, icon-play" />
-                       <Button fx:id="pauseButton" alignment="CENTER" onMouseClicked="#changePlaying" styleClass="icon-player, icon-pause" StackPane.alignment="CENTER_LEFT" />
-                   </StackPane>
+               <Button fx:id="playButton" alignment="CENTER" onMouseClicked="#changePlaying" styleClass="icon-player, icon-pause" />
             </left>
             <right>
                    <HBox alignment="CENTER_RIGHT" BorderPane.alignment="CENTER">

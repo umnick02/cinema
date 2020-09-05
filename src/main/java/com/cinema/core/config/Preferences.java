@@ -2,6 +2,8 @@ package com.cinema.core.config;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static com.cinema.core.config.Preferences.PrefKey.*;
 
@@ -11,6 +13,7 @@ public class Preferences {
     }
     public static final double PRELOAD_MIN = 0.5;
 
+    public static final ExecutorService EXECUTORS = Executors.newFixedThreadPool(8);
     private static final java.util.prefs.Preferences preferences = java.util.prefs.Preferences.userNodeForPackage(Preferences.class);
     private static final Map<PrefKey, String> defaultPreferences = new HashMap<>();
     static {

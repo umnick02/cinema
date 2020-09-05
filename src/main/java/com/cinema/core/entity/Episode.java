@@ -2,13 +2,14 @@ package com.cinema.core.entity;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
 @Table(indexes = {
         @Index(columnList = "series_id desc, season desc, episode desc")
 })
-public class Episode implements Magnetize {
+public class Episode implements Source {
 
     @Id
     @GeneratedValue
@@ -41,6 +42,9 @@ public class Episode implements Magnetize {
     @Column(name = "release_date")
     private LocalDate releaseDate;
 
+    @Column
+    private Long fileSize;
+
     @Embedded
     private Magnet magnet;
 
@@ -54,19 +58,23 @@ public class Episode implements Magnetize {
         return magnet.getFile();
     }
 
+    public Long getFileSize() {
+        return fileSize;
+    }
+
     @Override
-    public Magnet.Status getStatus() {
-        return magnet.getStatus();
+    public List<Magnet.Subtitle> getSubtitles() {
+        return magnet.getSubtitles();
+    }
+
+    @Override
+    public void setFileSize(Long fileSize) {
+        this.fileSize = fileSize;
     }
 
     @Override
     public void setFile(String file) {
         magnet.setFile(file);
-    }
-
-    @Override
-    public void setStatus(Magnet.Status status) {
-        magnet.setStatus(status);
     }
 
     public Magnet getMagnet() {

@@ -9,8 +9,12 @@
            xmlns="http://javafx.com/javafx/10.0.2-internal"
            xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="com.cinema.javafx.controller.player.PosterController">
+    <Pane styleClass="dark" />
     <ImageView fx:id="posterView" preserveRatio="true" />
     <BorderPane>
+        <top>
+            <Button alignment="CENTER" onMouseClicked="#closePlayer" styleClass="icon-player, icon-close" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" StackPane.alignment="TOP_LEFT" />
+        </top>
         <bottom>
             <HBox alignment="CENTER" spacing="10.0">
                 <Label fx:id="statusLabel" styleClass="text-first" />
@@ -25,5 +29,4 @@
             </HBox>
         </bottom>
     </BorderPane>
-    <Pane styleClass="dark" />
 </StackPane>

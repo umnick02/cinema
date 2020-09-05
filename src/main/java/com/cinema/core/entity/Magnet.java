@@ -1,6 +1,10 @@
 package com.cinema.core.entity;
 
+import com.cinema.core.config.Lang;
+import com.cinema.core.converter.SubtitleConverter;
+
 import javax.persistence.*;
+import java.util.List;
 
 @Embeddable
 public class Magnet {
@@ -11,9 +15,12 @@ public class Magnet {
     @Column(name = "file", columnDefinition = "text")
     private String file;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "file_status")
-    private Status status;
+    @Convert(converter = SubtitleConverter.class)
+    @Column(name = "subtitle", columnDefinition = "text")
+    private List<Subtitle> subtitles;
+
+    @Column(name = "file_size")
+    private Long fileSize;
 
     public Magnet() {}
 
@@ -37,18 +44,40 @@ public class Magnet {
         this.file = file;
     }
 
-    public Status getStatus() {
-        return status;
+    public Long getFileSize() {
+        return fileSize;
     }
 
-    public void setStatus(Status status) {
-        this.status = status;
+    public void setFileSize(Long fileSize) {
+        this.fileSize = fileSize;
     }
 
-    public enum Status {
-        UNPLAYABLE, PLAYABLE, DOWNLOADED;
-        public static boolean canPlay(Status status) {
-            return status == PLAYABLE || status == DOWNLOADED;
+    public List<Subtitle> getSubtitles() {
+        return subtitles;
+    }
+
+    public void setSubtitles(List<Subtitle> subtitles) {
+        this.subtitles = subtitles;
+    }
+
+    public static class Subtitle {
+        private Lang lang;
+        private String file;
+
+        public Lang getLang() {
+            return lang;
+        }
+
+        public void setLang(Lang lang) {
+            this.lang = lang;
+        }
+
+        public String getFile() {
+            return file;
+        }
+
+        public void setFile(String file) {
+            this.file = file;
         }
     }
 }

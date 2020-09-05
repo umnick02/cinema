@@ -3,7 +3,6 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
 
 <StackPane fx:id="playerPane" styleClass="background-black" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cinema.javafx.controller.player.PlayerController">
     <ImageView fx:id="videoImageView" onMouseClicked="#changePlayingShortcut" preserveRatio="true" />
@@ -13,7 +12,7 @@
          <BorderPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <center>
                    <StackPane>
-                       <Slider fx:id="timelineSlider" onMousePressed="#beginTracking" onMouseReleased="#endTracking" HBox.hgrow="ALWAYS" />
+                       <Slider fx:id="timelineSlider" onMousePressed="#beginMovieTracking" onMouseReleased="#endMovieTracking" HBox.hgrow="ALWAYS" />
 <!--                       <HBox alignment="CENTER_LEFT" styleClass="timeline-labels">-->
 <!--                           <Label fx:id="currentTimeLabel" styleClass="white, bold" HBox.hgrow="NEVER" />-->
 <!--                           <Text styleClass="white, bold"> / </Text>-->
@@ -26,16 +25,10 @@
             </left>
             <right>
                    <HBox alignment="CENTER_RIGHT" BorderPane.alignment="CENTER">
-                       <StackPane>
-                           <Button fx:id="muteButton" alignment="CENTER" onMouseClicked="#volume" styleClass="icon-player, icon-mute" />
-                           <Button fx:id="volumeButton" alignment="CENTER" onMouseClicked="#mute" styleClass="icon-player, icon-volume" />
-                       </StackPane>
+                       <Button fx:id="volumeButton" alignment="CENTER" onMouseClicked="#volume" styleClass="icon-player, icon-volume" />
                        <Slider fx:id="volumeSlider" onMousePressed="#beginVolumeTracking" onMouseReleased="#endVolumeTracking" HBox.hgrow="ALWAYS" />
                        <Button fx:id="settings" alignment="CENTER" onMouseClicked="#settings" styleClass="icon-player, icon-settings-video" />
-                       <StackPane BorderPane.alignment="CENTER">
-                            <Button fx:id="fullscreenIn" alignment="CENTER" onMouseClicked="#fullscreen" styleClass="icon-player, icon-fullscreen-in" />
-                            <Button fx:id="fullscreenOut" alignment="CENTER" onMouseClicked="#fullscreen" styleClass="icon-player, icon-fullscreen-out" />
-                       </StackPane>
+                       <Button fx:id="fullscreenButton" alignment="CENTER" onMouseClicked="#changeFullscreenStatus" styleClass="icon-player, icon-fullscreen-in" />
                    </HBox>
             </right>
          </BorderPane>

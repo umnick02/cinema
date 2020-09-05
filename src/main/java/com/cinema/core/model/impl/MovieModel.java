@@ -3,18 +3,14 @@ package com.cinema.core.model.impl;
 import com.cinema.core.config.Preferences;
 import com.cinema.core.dao.MovieDAO;
 import com.cinema.core.entity.Episode;
-import com.cinema.core.entity.Magnet;
 import com.cinema.core.entity.Movie;
 import com.cinema.core.model.Filter;
 import com.cinema.core.model.ModelEventType;
 import com.cinema.core.model.ObservableModel;
 import javafx.event.Event;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.io.File;
 import java.util.*;
-
-import static com.cinema.core.config.Preferences.getPreference;
 
 public class MovieModel extends ObservableModel {
 
@@ -129,20 +125,22 @@ public class MovieModel extends ObservableModel {
     public boolean isPlayable() {
         if (isSeries()) {
             Episode episode = activeSeasonModel.getActiveEpisodeModel().getEpisode();
-            return episode.getFile() != null && Files.exists(Path.of(getPreference(Preferences.PrefKey.STORAGE) + episode.getFile())) &&
-                    (episode.getStatus() == Magnet.Status.PLAYABLE || episode.getStatus() == Magnet.Status.DOWNLOADED);
+            File onDiskFile = new File(Preferences.getPreference(Preferences.PrefKey.STORAGE) + episode.getFile());
+            return episode.getFile() != null && onDiskFile.exists() && onDiskFile.length() > episode.getFileSize() * 0.01;
         } else {
-            return movie.getFile() != null && Files.exists(Path.of(getPreference(Preferences.PrefKey.STORAGE) + movie.getFile())) &&
-                    (movie.getStatus() == Magnet.Status.PLAYABLE || movie.getStatus() == Magnet.Status.DOWNLOADED);
+            File onDiskFile = new File(Preferences.getPreference(Preferences.PrefKey.STORAGE) + movie.getFile());
+            return movie.getFile() != null && onDiskFile.exists() && onDiskFile.length() > movie.getFileSize() * 0.01;
         }
     }
 
     public boolean isDownloaded() {
         if (isSeries()) {
             Episode episode = activeSeasonModel.getActiveEpisodeModel().getEpisode();
-            return episode.getFile() != null && Files.exists(Path.of(episode.getFile())) && episode.getStatus() == Magnet.Status.DOWNLOADED;
+            File onDiskFile = new File(Preferences.getPreference(Preferences.PrefKey.STORAGE) + episode.getFile());
+            return episode.getFile() != null && onDiskFile.exists() && onDiskFile.length() == episode.getFileSize();
         } else {
-            return movie.getFile() != null && Files.exists(Path.of(movie.getFile())) && movie.getStatus() == Magnet.Status.DOWNLOADED;
+            File onDiskFile = new File(Preferences.getPreference(Preferences.PrefKey.STORAGE) + movie.getFile());
+            return movie.getFile() != null && onDiskFile.exists() && onDiskFile.length() == movie.getFileSize();
         }
     }
 

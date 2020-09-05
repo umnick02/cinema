@@ -1,6 +1,6 @@
 package com.cinema.javafx.controller;
 
-import com.cinema.core.entity.Magnetize;
+import com.cinema.core.entity.Source;
 import com.cinema.core.model.impl.MovieModel;
 import com.cinema.core.model.impl.SceneModel;
 import com.cinema.core.service.bt.BtClientService;
@@ -90,17 +90,26 @@ public class RootController {
                 pane.addEventHandler(TORRENT_START.getEventType(), start -> {
                     logger.info("Handle event {} from source {} on target {}", start.getEventType(), start.getSource(), start.getTarget());
                     if (!movieModel.isDownloaded()) {
-                        Magnetize magnetize = movieModel.isSeries() ? movieModel.getActiveSeasonModel().getActiveEpisodeModel().getEpisode() : movieModel.getMovie();
-                        EXECUTOR_SERVICE.submit(() -> BtClientService.INSTANCE.downloadTorrentFiles(magnetize));
+                        Source source = movieModel.isSeries() ? movieModel.getActiveSeasonModel().getActiveEpisodeModel().getEpisode() : movieModel.getMovie();
+                        EXECUTOR_SERVICE.submit(() -> BtClientService.INSTANCE.downloadTorrentFiles(source));
                     }
                 });
                 pane.addEventHandler(SHUTDOWN.getEventType(), shutdown -> {
                     logger.info("Handle event {} from source {} on target {}", shutdown.getEventType(), shutdown.getSource(), shutdown.getTarget());
                     SceneModel.INSTANCE.unRegisterEventTarget(pane);
+                    SceneModel.INSTANCE.unRegisterEventTarget(menuPane);
                     EXECUTOR_SERVICE.submit(BtClientService.INSTANCE::stop);
                     rootPane.getChildren().remove(pane);
                 });
                 SceneModel.INSTANCE.registerEventTarget(pane);
+                menuPane.addEventHandler(SHUTDOWN.getEventType(), shutdown -> {
+                    logger.info("Handle event {} from source {} on target {}", shutdown.getEventType(), shutdown.getSource(), shutdown.getTarget());
+                    SceneModel.INSTANCE.unRegisterEventTarget(menuPane);
+                    SceneModel.INSTANCE.unRegisterEventTarget(pane);
+                    EXECUTOR_SERVICE.submit(BtClientService.INSTANCE::stop);
+                    rootPane.getChildren().remove(pane);
+                });
+                SceneModel.INSTANCE.registerEventTarget(menuPane);
                 rootPane.getChildren().add(pane);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -116,5 +125,15 @@ public class RootController {
                 contentPane.getChildren().remove(node);
             }
         });
+    }
+
+    private void registerEventHandler(Pane pane) {
+        pane.addEventHandler(SHUTDOWN.getEventType(), shutdown -> {
+            logger.info("Handle event {} from source {} on target {}", shutdown.getEventType(), shutdown.getSource(), shutdown.getTarget());
+            SceneModel.INSTANCE.unRegisterEventTarget(pane);
+            EXECUTOR_SERVICE.submit(BtClientService.INSTANCE::stop);
+            rootPane.getChildren().remove(pane);
+        });
+        SceneModel.INSTANCE.registerEventTarget(pane);
     }
 }

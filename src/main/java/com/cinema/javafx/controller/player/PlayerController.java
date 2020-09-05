@@ -1,7 +1,11 @@
 package com.cinema.javafx.controller.player;
 
-import com.cinema.javafx.model.PlayerModel;
-import com.cinema.javafx.player.Time;
+import com.cinema.core.config.Preferences;
+import com.cinema.core.entity.Movie;
+import com.cinema.core.model.impl.SceneModel;
+import com.cinema.core.model.impl.TorrentModel;
+import com.cinema.core.service.bt.BtClientService;
+import com.cinema.javafx.player2.PlayerFactory;
 import javafx.application.Platform;
 import javafx.event.Event;
 import javafx.event.EventHandler;
@@ -9,7 +13,6 @@ import javafx.fxml.FXML;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
@@ -19,15 +22,23 @@ import javafx.scene.robot.Robot;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.co.caprica.vlcj.media.MediaRef;
+import uk.co.caprica.vlcj.media.TrackType;
 import uk.co.caprica.vlcj.player.base.MediaPlayer;
 import uk.co.caprica.vlcj.player.base.MediaPlayerEventAdapter;
+import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer;
 
+import java.io.File;
 import java.time.LocalDateTime;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static com.cinema.core.model.ModelEventType.SHUTDOWN;
+import static com.cinema.core.config.Preferences.getPreference;
+import static com.cinema.core.model.ModelEventType.*;
+import static com.sun.javafx.event.EventUtil.fireEvent;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static javafx.scene.input.KeyCode.SPACE;
 import static javafx.scene.input.MouseEvent.ANY;
@@ -36,41 +47,36 @@ public class PlayerController {
 
     private static final Logger logger = LoggerFactory.getLogger(PlayerController.class);
 
+    public static EmbeddedMediaPlayer mediaPlayer;
+
     @FXML
     private StackPane playerPane;
     @FXML
-    private ImageView videoImageView;
+    public ImageView videoImageView;
     @FXML
     private AnchorPane controlPane;
-    @FXML
-    private Label currentTimeLabel;
+//    @FXML
+//    public Label currentTimeLabel;
+//    @FXML
+//    private Label durationLabel;
     @FXML
     private Slider timelineSlider;
     @FXML
     private Slider volumeSlider;
     @FXML
-    private Label durationLabel;
-    @FXML
     private Button playButton;
-    @FXML
-    private Button muteButton;
     @FXML
     private Button volumeButton;
     @FXML
-    private Button fullscreenIn;
-    @FXML
-    private Button fullscreenOut;
+    private Button fullscreenButton;
     @FXML
     private Button closeButton;
 
     private int lastVolume = 50;
 
-    private static MediaPlayer mediaPlayer;
-
-    private final AtomicBoolean tracking = new AtomicBoolean();
+    private final AtomicBoolean timelineTracking = new AtomicBoolean();
     private final AtomicBoolean volumeTracking = new AtomicBoolean();
 
-    private Timer clockTimer = new Timer();
     private Timer mouseTimer = new Timer();
     private Timer preventSleepTimer = new Timer();
     private LocalDateTime lastMouseMove;
@@ -80,97 +86,276 @@ public class PlayerController {
         controls(true);
     };
 
-    public PlayerController() {
-        mediaPlayer = PlayerModel.INSTANCE.getEmbeddedMediaPlayer();
-
-        mediaPlayer.events().addMediaPlayerEventListener(new MediaPlayerEventAdapter() {
-            @Override
-            public void playing(MediaPlayer mediaPlayer) {
-                startTimer();
+    private TimerTask mouseMoveTask = new TimerTask() {
+        @Override
+        public void run() {
+            try {
+                System.out.println("mouseMoveTask");
+                Robot robot = new Robot();
+                robot.mouseMove(0, 0);
+                robot.mouseMove(1, 1);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
+        }
+    };
+    private TimerTask mouseHideTask = new TimerTask() {
+        @Override
+        public void run() {
+            Platform.runLater(() -> {
+                if (SECONDS.between(lastMouseMove, LocalDateTime.now()) > 3) {
+                    System.out.println("mouseHideTask");
+                    controls(false);
+                }
+            });
+        }
+    };
 
+    private Timer timer;
+
+    public void play() {
+        mediaPlayer.submit(() ->
+                mediaPlayer.media().play(
+                        getPreference(Preferences.PrefKey.STORAGE) +
+                                SceneModel.INSTANCE.getActiveMovieModel().getMovie().getFile()
+                )
+        );
+    }
+
+    public void startTimer() {
+        timer = new Timer();
+        timer.scheduleAtFixedRate(new TimerTask() {
             @Override
-            public void paused(MediaPlayer mediaPlayer) {
-                stopTimer();
+            public void run() {
+                fireEvent(new Event(PLAYER_TICK.getEventType()));
             }
+        }, 0, 1000);
+    }
 
-            @Override
-            public void stopped(MediaPlayer mediaPlayer) {
-                stopTimer();
-                clockTimer.cancel();
-            }
+    public void stopTimer() {
+        if (timer != null) {
+            timer.cancel();
+        }
+    }
 
-            @Override
-            public void finished(MediaPlayer mediaPlayer) {
-                stopTimer();
-                clockTimer.cancel();
-            }
-
-            @Override
-            public void error(MediaPlayer mediaPlayer) {
-                stopTimer();
-                clockTimer.cancel();
-            }
-
-
-            @Override
-            public void lengthChanged(MediaPlayer mediaPlayer, long newLength) {
-                Platform.runLater(() -> updateDuration(newLength));
-            }
-
-            @Override
-            public void positionChanged(MediaPlayer mediaPlayer, float newPosition) {
-                Platform.runLater(() -> updateSliderPosition(newPosition));
-            }
-
-            @Override
-            public void volumeChanged(MediaPlayer mediaPlayer, float volume) {
-                Platform.runLater(() -> updateVolumeSliderPosition(volume * 100));
-            }
-        });
+    private void bindVideoImageViewSize() {
+        videoImageView.fitWidthProperty().bind(playerPane.getScene().widthProperty());
+        videoImageView.fitHeightProperty().bind(playerPane.getScene().heightProperty());
     }
 
     @FXML
     public void initialize() {
-        PlayerModel.INSTANCE.setVideoImageView(videoImageView);
-        PlayerModel.INSTANCE.play();
         Platform.runLater(() -> {
-            videoImageView.fitWidthProperty().bind(playerPane.getScene().widthProperty());
-            videoImageView.fitHeightProperty().bind(playerPane.getScene().heightProperty());
-            hotKeys();
+            mediaPlayer = PlayerFactory.buildMediaPlayer(videoImageView);
+            mediaPlayer.events().addMediaPlayerEventListener(new MediaPlayerEventAdapter() {
+                @Override
+                public void mediaChanged(MediaPlayer mediaPlayer, MediaRef media) {}
+
+                @Override
+                public void opening(MediaPlayer mediaPlayer) {
+                    System.out.println("opening");
+                    Platform.runLater(() -> volumeSlider.setValue(lastVolume));
+                }
+
+                @Override
+                public void buffering(MediaPlayer mediaPlayer, float newCache) {
+                    System.out.println("buffering");
+                }
+
+                @Override
+                public void playing(MediaPlayer mediaPlayer) {
+                    System.out.println("playing");
+                    Platform.runLater(() -> {
+                        playButton.getStyleClass().remove("icon-play");
+                        if (!playButton.getStyleClass().contains("icon-pause")) {
+                            playButton.getStyleClass().add("icon-pause");
+                        }
+                    });
+                    startTimer();
+                }
+
+                @Override
+                public void paused(MediaPlayer mediaPlayer) {
+                    System.out.println("paused");
+                    Platform.runLater(() -> {
+                        playButton.getStyleClass().remove("icon-pause");
+                        playButton.getStyleClass().add("icon-play");
+                    });
+                    stopTimer();
+                }
+
+                @Override
+                public void stopped(MediaPlayer mediaPlayer) {
+                    System.out.println("stopped");
+                    stopTimer();
+                }
+
+                @Override
+                public void forward(MediaPlayer mediaPlayer) {
+                    System.out.println("forward");
+                }
+
+                @Override
+                public void backward(MediaPlayer mediaPlayer) {
+                    System.out.println("backward");
+                }
+
+                @Override
+                public void finished(MediaPlayer mediaPlayer) {
+                    System.out.println("finished");
+                    stopTimer();
+                }
+
+                @Override
+                public void timeChanged(MediaPlayer mediaPlayer, long newTime) {
+//                    System.out.println("timeChanged");
+                }
+
+                @Override
+                public void positionChanged(MediaPlayer mediaPlayer, float newPosition) {
+                    updateMovieTrackingPosition(newPosition);
+//                    System.out.printf("positionChanged: %s\n", newPosition);
+                }
+
+                @Override
+                public void seekableChanged(MediaPlayer mediaPlayer, int newSeekable) {
+                    System.out.printf("seekableChanged: %s\n", newSeekable);
+                    super.seekableChanged(mediaPlayer, newSeekable);
+                }
+
+                @Override
+                public void pausableChanged(MediaPlayer mediaPlayer, int newPausable) {
+                    super.pausableChanged(mediaPlayer, newPausable);
+                }
+
+                @Override
+                public void titleChanged(MediaPlayer mediaPlayer, int newTitle) {
+                    super.titleChanged(mediaPlayer, newTitle);
+                }
+
+                @Override
+                public void snapshotTaken(MediaPlayer mediaPlayer, String filename) {
+                    super.snapshotTaken(mediaPlayer, filename);
+                }
+
+                @Override
+                public void lengthChanged(MediaPlayer mediaPlayer, long newLength) {
+                    super.lengthChanged(mediaPlayer, newLength);
+                }
+
+                @Override
+                public void videoOutput(MediaPlayer mediaPlayer, int newCount) {
+                    super.videoOutput(mediaPlayer, newCount);
+                }
+
+                @Override
+                public void scrambledChanged(MediaPlayer mediaPlayer, int newScrambled) {
+                    super.scrambledChanged(mediaPlayer, newScrambled);
+                }
+
+                @Override
+                public void elementaryStreamAdded(MediaPlayer mediaPlayer, TrackType type, int id) {
+                    super.elementaryStreamAdded(mediaPlayer, type, id);
+                }
+
+                @Override
+                public void elementaryStreamDeleted(MediaPlayer mediaPlayer, TrackType type, int id) {
+                    super.elementaryStreamDeleted(mediaPlayer, type, id);
+                }
+
+                @Override
+                public void elementaryStreamSelected(MediaPlayer mediaPlayer, TrackType type, int id) {
+                    super.elementaryStreamSelected(mediaPlayer, type, id);
+                }
+
+                @Override
+                public void corked(MediaPlayer mediaPlayer, boolean corked) {
+                    System.out.format("corked: %s\n", corked);
+                }
+
+                @Override
+                public void muted(MediaPlayer mediaPlayer, boolean muted) {
+                    System.out.format("muted: %s\n", muted);
+                    Platform.runLater(() -> {
+                        if (muted) {
+                            if (mediaPlayer.audio().volume() > 0) {
+                                lastVolume = mediaPlayer.audio().volume();
+                            }
+                            volumeSlider.setValue(0);
+                            volumeButton.getStyleClass().remove("icon-volume");
+                            volumeButton.getStyleClass().add("icon-mute");
+
+                        } else {
+                            volumeSlider.setValue(lastVolume);
+                            if (!volumeButton.getStyleClass().contains("icon-volume")) {
+                                volumeButton.getStyleClass().add("icon-volume");
+                            }
+                        }
+                    });
+                }
+
+                @Override
+                public void volumeChanged(MediaPlayer mediaPlayer, float volume) {
+                    System.out.format("volumeChanged: %s\n", volume);
+                }
+
+                @Override
+                public void audioDeviceChanged(MediaPlayer mediaPlayer, String audioDevice) {
+                    super.audioDeviceChanged(mediaPlayer, audioDevice);
+                }
+
+                @Override
+                public void chapterChanged(MediaPlayer mediaPlayer, int newChapter) {
+                    super.chapterChanged(mediaPlayer, newChapter);
+                }
+
+                @Override
+                public void error(MediaPlayer mediaPlayer) {
+                    System.out.println("error");
+                }
+
+                @Override
+                public void mediaPlayerReady(MediaPlayer mediaPlayer) {
+                    System.out.println("mediaPlayerReady");
+                }
+            });
+
+            play();
+            bindVideoImageViewSize();
         });
+
+
+//        currentTimeLabel.addEventHandler(PLAYER_TICK.getEventType(), event -> Platform.runLater(() ->
+//                currentTimeLabel.setText(Time.formatTime(mediaPlayer.status().time()))));
+//        PlayerFactory.INSTANCE.registerEventTarget(currentTimeLabel);
 
         controlPane.prefWidthProperty().bind(playerPane.widthProperty());
-
-        fullscreenOut.setVisible(false);
-
-        PlayerModel.INSTANCE.registerEventTarget(playerPane);
-        playerPane.addEventHandler(SHUTDOWN.getEventType(), event -> {
-            logger.info("Handle event {} from source {} on target {}", event.getEventType(), event.getSource(), event.getTarget());
-            PlayerModel.INSTANCE.unRegisterEventTarget(playerPane);
-            PlayerModel.INSTANCE.stop();
-        });
         timelineSlider.valueProperty().addListener((obs, oldValue, newValue) -> updateMediaPlayerPosition(newValue.floatValue() / 100));
         volumeSlider.valueProperty().addListener((obs, oldValue, newValue) -> updateMediaPlayerVolumePosition(newValue.intValue()));
-
-        muteButton.setVisible(false);
-        volumeButton.setVisible(true);
     }
 
     @FXML
     public void closePlayer() {
         Stage stage = ((Stage) videoImageView.getScene().getWindow());
         if (stage.isFullScreen()) {
-            fullscreen();
+            changeFullscreenStatus();
         }
+        stop();
         playerPane.fireEvent(new Event(SHUTDOWN.getEventType()));
+    }
+
+    private static void stop() {
+        if (mediaPlayer != null) {
+            mediaPlayer.controls().stop();
+            mediaPlayer.release();
+        }
     }
 
     @FXML
     public void changePlayingShortcut(MouseEvent event) {
         if (event.getButton().equals(MouseButton.PRIMARY)) {
             if (event.getClickCount() == 2) {
-                fullscreen();
+                changeFullscreenStatus();
             }
             changePlaying();
         }
@@ -180,12 +365,8 @@ public class PlayerController {
     public void changePlaying() {
         if (mediaPlayer.status().isPlaying()) {
             mediaPlayer.controls().pause();
-            playButton.getStyleClass().remove("icon-pause");
-            playButton.getStyleClass().add("icon-play");
         } else {
             mediaPlayer.controls().play();
-            playButton.getStyleClass().remove("icon-play");
-            playButton.getStyleClass().add("icon-pause");
         }
     }
 
@@ -195,46 +376,26 @@ public class PlayerController {
     }
 
     @FXML
-    public void fullscreen() {
+    public void changeFullscreenStatus() {
         Stage stage = ((Stage) videoImageView.getScene().getWindow());
         if (stage.isFullScreen()) {
-            stage.setFullScreen(false);
-            fullscreenIn.setVisible(true);
-            fullscreenOut.setVisible(false);
-            closeButton.setVisible(true);
             stage.getScene().removeEventHandler(ANY, mouseMovedEventHandler);
+            stage.setFullScreen(false);
+            fullscreenButton.getStyleClass().remove("icon-fullscreen-out");
+            fullscreenButton.getStyleClass().add("icon-fullscreen-in");
+            closeButton.setVisible(true);
             mouseTimer.cancel();
             preventSleepTimer.cancel();
         } else {
-            stage.setFullScreen(true);
-            fullscreenIn.setVisible(false);
-            fullscreenOut.setVisible(true);
-            closeButton.setVisible(false);
             stage.getScene().setOnMouseMoved(mouseMovedEventHandler);
+            stage.setFullScreen(true);
+            fullscreenButton.getStyleClass().remove("icon-fullscreen-in");
+            fullscreenButton.getStyleClass().add("icon-fullscreen-out");
+            closeButton.setVisible(false);
             mouseTimer = new Timer();
-            mouseTimer.scheduleAtFixedRate(new TimerTask() {
-                @Override
-                public void run() {
-                    Platform.runLater(() -> {
-                        if (SECONDS.between(lastMouseMove, LocalDateTime.now()) > 3) {
-                            controls(false);
-                        }
-                    });
-                }
-            }, 0, 3000);
+            mouseTimer.scheduleAtFixedRate(mouseHideTask, 0, 3000);
             preventSleepTimer = new Timer();
-            preventSleepTimer.scheduleAtFixedRate(new TimerTask() {
-                @Override
-                public void run() {
-                    try {
-                        Robot robot = new Robot();
-                        robot.mouseMove(0, 0);
-                        robot.mouseMove(1, 1);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }, 0, 600000);
+            preventSleepTimer.scheduleAtFixedRate(mouseMoveTask, 0, 600000);
         }
     }
 
@@ -244,46 +405,16 @@ public class PlayerController {
     }
 
     @FXML
-    public void mute() {
-        mediaPlayer.audio().setMute(true);
-        if (mediaPlayer.audio().volume() > 0) {
-            lastVolume = mediaPlayer.audio().volume();
-        }
-        mediaPlayer.audio().setVolume(0);
-        muteButton.setVisible(true);
-        volumeButton.setVisible(false);
-    }
-
-    @FXML
     public void volume() {
-        mediaPlayer.audio().setMute(false);
-        if (mediaPlayer.audio().volume() == 0) {
-            mediaPlayer.audio().setVolume(lastVolume);
-        }
-        volumeButton.setVisible(true);
-        muteButton.setVisible(false);
-    }
-
-    private void startTimer() {
-        clockTimer = new Timer();
-        clockTimer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-//                Platform.runLater(() -> currentTimeLabel.setText(Time.formatTime(mediaPlayer.status().time())));
-            }
-        }, 0, 1000);
-    }
-
-    private void stopTimer() {
-        clockTimer.cancel();
+        mediaPlayer.audio().setMute(!mediaPlayer.audio().isMute());
     }
 
     private void updateDuration(long newValue) {
-        durationLabel.setText(Time.formatTime(newValue));
+//        durationLabel.setText(Time.formatTime(newValue));
     }
 
     private synchronized void updateMediaPlayerPosition(float newValue) {
-        if (tracking.get()) {
+        if (timelineTracking.get()) {
             mediaPlayer.controls().setPosition(newValue);
         }
     }
@@ -295,15 +426,33 @@ public class PlayerController {
     }
 
     @FXML
-    private synchronized void beginTracking() {
-        tracking.set(true);
+    private synchronized void beginMovieTracking() {
+        timelineTracking.set(true);
     }
 
     @FXML
-    private synchronized void endTracking() {
-        tracking.set(false);
-        // This deals with the case where there was an absolute click in the timeline rather than a drag
-        mediaPlayer.controls().setPosition((float) timelineSlider.getValue() / 100);
+    private synchronized void endMovieTracking() {
+        timelineTracking.set(false);
+        float ratio = (float) timelineSlider.getValue() / 100;
+        Movie movie = SceneModel.INSTANCE.getActiveMovieModel().getMovie();
+        Long fileSize = movie.getFileSize();
+        if (fileSize != null) {
+            File file = new File(Preferences.getPreference(Preferences.PrefKey.STORAGE) + movie.getFile());
+            if (file.exists() && file.length() > fileSize * ratio) {
+                mediaPlayer.controls().setPosition(ratio);
+                return;
+            }
+        }
+//        CompletableFuture<Boolean> future = BtClientService.INSTANCE.toPosition(ratio);
+//        try {
+//            mediaPlayer.controls().pause();
+//            if (future.get()) {
+//                mediaPlayer.controls().setPosition(ratio);
+//            }
+//            mediaPlayer.controls().play();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
     }
 
     @FXML
@@ -314,32 +463,21 @@ public class PlayerController {
     @FXML
     private synchronized void endVolumeTracking() {
         volumeTracking.set(false);
-        // This deals with the case where there was an absolute click in the timeline rather than a drag
         mediaPlayer.audio().setVolume((int) volumeSlider.getValue());
+        lastVolume = (int) volumeSlider.getValue();
+        if (mediaPlayer.audio().isMute()) {
+            volume();
+        }
     }
 
-    private synchronized void updateSliderPosition(float newValue) {
-        if (!tracking.get()) {
+    private synchronized void updateMovieTrackingPosition(float newValue) {
+        if (!timelineTracking.get()) {
             timelineSlider.setValue(newValue * 100);
         }
     }
 
-    private synchronized void updateVolumeSliderPosition(float newValue) {
-        if (!volumeTracking.get()) {
-            volumeSlider.setValue(Math.max(0, newValue));
-            if (!mediaPlayer.audio().isMute()) {
-                if (volumeSlider.getValue() > 0) {
-                    lastVolume = (int) volumeSlider.getValue();
-                }
-            } else if (volumeSlider.getValue() > 0) {
-                lastVolume = (int) volumeSlider.getValue();
-                volume();
-            }
-        }
-    }
-
     private void hotKeys() {
-        Scene scene = playerPane.getScene();
+        Scene scene = videoImageView.getScene();
         KeyCombination kc = new KeyCodeCombination(SPACE);
         scene.getAccelerators().put(kc, this::changePlaying);
     }

@@ -1,7 +1,7 @@
 package com.cinema.core.service.bt.selectors.file.impl;
 
 import bt.metainfo.TorrentFile;
-import com.cinema.core.entity.Magnetize;
+import com.cinema.core.entity.Source;
 import com.cinema.core.entity.Movie;
 import com.cinema.core.model.impl.MovieModel;
 import com.cinema.core.service.bt.selectors.file.AbstractFileSelector;
@@ -13,8 +13,8 @@ public class MovieFileSelector extends AbstractFileSelector {
     }
 
     @Override
-    protected void update(Magnetize magnetize) {
-        MovieModel.update((Movie) magnetize);
+    protected void update(Source source) {
+        MovieModel.update((Movie) source);
     }
 
     @Override

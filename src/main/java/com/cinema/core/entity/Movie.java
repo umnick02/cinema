@@ -17,7 +17,7 @@ import static com.cinema.core.utils.StringUtils.longToString;
 
 @Entity
 @Table(name = "movie")
-public class Movie implements Magnetize {
+public class Movie implements Source {
 
     @Id
     @GeneratedValue
@@ -143,18 +143,23 @@ public class Movie implements Magnetize {
     }
 
     @Override
-    public Magnet.Status getStatus() {
-        return magnet.getStatus();
-    }
-
-    @Override
     public void setFile(String file) {
         magnet.setFile(file);
     }
 
     @Override
-    public void setStatus(Magnet.Status status) {
-        magnet.setStatus(status);
+    public void setFileSize(Long fileSize) {
+        magnet.setFileSize(fileSize);
+    }
+
+    @Override
+    public Long getFileSize() {
+        return magnet.getFileSize();
+    }
+
+    @Override
+    public List<Magnet.Subtitle> getSubtitles() {
+        return magnet.getSubtitles();
     }
 
     public Award getAward() {

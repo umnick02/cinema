@@ -1,7 +1,6 @@
 package com.cinema.core.model.impl;
 
 import bt.torrent.TorrentSessionState;
-import com.cinema.core.entity.Magnet;
 import com.cinema.core.entity.Movie;
 import com.cinema.core.model.ModelEventType;
 import com.cinema.core.model.ObservableModel;
@@ -24,6 +23,24 @@ public class TorrentModel extends ObservableModel implements Stoppable {
     private LocalDateTime start;
 
     private TorrentSessionState torrentSessionState;
+    private int pieceTotal;
+    private int pieceMax;
+
+    public int getPieceMax() {
+        return pieceMax;
+    }
+
+    public void setPieceMax(int pieceMax) {
+        this.pieceMax = pieceMax;
+    }
+
+    public int getPieceTotal() {
+        return pieceTotal;
+    }
+
+    public void setPieceTotal(int pieceTotal) {
+        this.pieceTotal = pieceTotal;
+    }
 
     public void setTorrentSessionState(TorrentSessionState torrentSessionState) {
         this.torrentSessionState = torrentSessionState;
@@ -53,7 +70,6 @@ public class TorrentModel extends ObservableModel implements Stoppable {
         }
         double downloadedPart = piecesDownloaded / totalPiecesForDownload;
         if (downloadedPart >= 1) {
-            movie.setStatus(Magnet.Status.PLAYABLE);
             MovieModel.update(movie);
             fireEvent(new Event(MOVIE_PLAY.getEventType()));
         }
@@ -65,7 +81,7 @@ public class TorrentModel extends ObservableModel implements Stoppable {
     }
 
     @Override
-    public void stop() {
+    public synchronized void stop() {
         BtClientService.INSTANCE.stop();
     }
 }

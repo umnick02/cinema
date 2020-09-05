@@ -5,8 +5,7 @@ import bt.torrent.fileselector.SelectionResult;
 import bt.torrent.fileselector.TorrentFileSelector;
 import com.cinema.core.config.Preferences;
 import com.cinema.core.entity.Magnet;
-import com.cinema.core.entity.Magnetize;
-import com.cinema.core.model.impl.MovieModel;
+import com.cinema.core.entity.Source;
 import com.cinema.core.model.impl.SceneModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,10 +18,10 @@ public abstract class AbstractFileSelector extends TorrentFileSelector {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractFileSelector.class);
 
-    protected Magnetize magnetize;
+    protected Source source;
 
-    protected AbstractFileSelector(Magnetize magnetize) {
-        this.magnetize = magnetize;
+    protected AbstractFileSelector(Source source) {
+        this.source = source;
     }
 
     private boolean isVideoFile(TorrentFile file) {
@@ -30,18 +29,17 @@ public abstract class AbstractFileSelector extends TorrentFileSelector {
                 file.getPathElements().get(file.getPathElements().size() - 1).endsWith(".mkv");
     }
 
-    private boolean isVideoFile(Magnetize magnetize, TorrentFile file) {
-        return magnetize != null && isVideoFile(file);
+    private boolean isVideoFile(Source source, TorrentFile file) {
+        return source != null && isVideoFile(file);
     }
 
-    protected abstract void update(Magnetize magnetize);
+    protected abstract void update(Source source);
     protected abstract boolean isValidFile(TorrentFile file);
 
     @Override
     public List<SelectionResult> selectFiles(List<TorrentFile> files) {
-        if (magnetize.getFile() == null ||
-                !new File(Preferences.getPreference(Preferences.PrefKey.STORAGE) + magnetize.getFile()).exists() ||
-                magnetize.getStatus() != Magnet.Status.DOWNLOADED) {
+        File onDiskFile = new File(Preferences.getPreference(Preferences.PrefKey.STORAGE) + source.getFile());
+        if (source.getFile() == null || !onDiskFile.exists() || source.getFileSize() != onDiskFile.length()) {
 //            files.sort(Comparator.comparingLong(TorrentFile::getSize));
             List<SelectionResult> selectionResults = new ArrayList<>();
             for (TorrentFile file : files) {
@@ -49,7 +47,7 @@ public abstract class AbstractFileSelector extends TorrentFileSelector {
             }
             return selectionResults;
         }
-        logger.info("Find downloaded file [{}] for [{}]. Skip all files", magnetize.getFile(), magnetize);
+        logger.info("Find downloaded file [{}] for [{}]. Skip all files", source.getFile(), source);
         return files.stream().map(f -> SelectionResult.skip()).collect(Collectors.toList());
     }
 
@@ -58,11 +56,11 @@ public abstract class AbstractFileSelector extends TorrentFileSelector {
         if (!isValidFile(file)) {
             return SelectionResult.skip();
         }
-        if (isVideoFile(magnetize, file) && !SceneModel.INSTANCE.getActiveMovieModel().isPlayable()) {
-            magnetize.setFile(String.join("/", file.getPathElements()));
-            magnetize.setStatus(Magnet.Status.UNPLAYABLE);
-            logger.info("Set file [{}] for [{}]", magnetize.getFile(), magnetize);
-            update(magnetize);
+        if (isVideoFile(source, file) && !SceneModel.INSTANCE.getActiveMovieModel().isPlayable()) {
+            source.setFile(String.join("/", file.getPathElements()));
+            source.setFileSize(file.getSize());
+            logger.info("Set file [{}] for [{}]", source.getFile(), source);
+            update(source);
         }
         return SelectionResult.select().build();
     }

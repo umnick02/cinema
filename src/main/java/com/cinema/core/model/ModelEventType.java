@@ -11,8 +11,11 @@ public enum ModelEventType {
     SEASONS_SHOW(new EventType<>("SEASONS_SHOW")),
     SHUTDOWN(new EventType<>("SHUTDOWN")),
     TORRENT_UPDATE(new EventType<>("TORRENT_UPDATE")),
-//    PLAYER_START(new EventType<>("PLAYER_START")),
-    TORRENT_START(new EventType<>("TORRENT_START"));
+    PLAYER_TICK(new EventType<>("PLAYER_TICK")),
+    BUFFER_START(new EventType<>("BUFFER_START")),
+    BUFFER_STOP(new EventType<>("BUFFER_STOP")),
+    TORRENT_START(new EventType<>("TORRENT_START")),
+    ;
 
     private EventType<? extends Event> eventType;
 

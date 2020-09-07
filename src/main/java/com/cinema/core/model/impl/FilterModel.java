@@ -1,12 +1,17 @@
 package com.cinema.core.model.impl;
 
 import bt.metainfo.Torrent;
-import com.cinema.core.entity.Magnet;
+import com.cinema.core.config.Lang;
 import com.cinema.core.entity.Movie;
 import com.cinema.core.model.Filter;
 import com.cinema.core.service.bt.BtClientService;
 import com.cinema.core.service.parser.MagnetParser;
+import com.cinema.core.service.parser.SubtitleParser;
 import com.cinema.javafx.controller.RootController;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 public class FilterModel {
 
@@ -24,13 +29,23 @@ public class FilterModel {
     }
 
     public void setFilter(Filter filter) {
-        this.filter = filter;
+        FilterModel.filter = filter;
         if (filter.isMagnet()) {
             RootController.EXECUTOR_SERVICE.submit(() -> {
                 Torrent torrent = BtClientService.INSTANCE.downloadTorrent(filter.getTitle());
                 Movie movie = MagnetParser.INSTANCE.parse(torrent);
-                movie.setMagnet(new Magnet(filter.getTitle()));
-                MovieModel.save(movie);
+                movie.setSubtitles(SubtitleParser.buildSubtitles(movie, Lang.EN, Lang.RU, Lang.DE));
+                MovieModel.update(movie);
+                SceneModel.INSTANCE.setMovies(Set.of(movie));
+            });
+        } else {
+            RootController.EXECUTOR_SERVICE.submit(() -> {
+                Movie movie = MovieModel.getMovie(filter.getTitle());
+                if (Objects.nonNull(movie)) {
+                    movie.setSubtitles(SubtitleParser.buildSubtitles(movie, Lang.EN, Lang.RU, Lang.DE));
+                    MovieModel.update(movie);
+                    SceneModel.INSTANCE.setMovies(Set.of(movie));
+                }
             });
         }
     }

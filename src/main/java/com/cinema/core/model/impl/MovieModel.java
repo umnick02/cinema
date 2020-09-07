@@ -4,6 +4,7 @@ import com.cinema.core.config.Preferences;
 import com.cinema.core.dao.MovieDAO;
 import com.cinema.core.entity.Episode;
 import com.cinema.core.entity.Movie;
+import com.cinema.core.entity.Source;
 import com.cinema.core.model.Filter;
 import com.cinema.core.model.ModelEventType;
 import com.cinema.core.model.ObservableModel;
@@ -117,6 +118,10 @@ public class MovieModel extends ObservableModel {
         return getMovies(FilterModel.getFilter(), 12, 0);
     }
 
+    public static Movie getMovie(String originalTitle) {
+        return MovieDAO.INSTANCE.getMovie(originalTitle);
+    }
+
     public static Set<Movie> getMovies(Filter filter, int limit, int offset) {
         List<Movie> movies = MOVIE_DAO.getMovies(filter, limit, offset);
         return new HashSet<>(movies);
@@ -142,6 +147,10 @@ public class MovieModel extends ObservableModel {
             File onDiskFile = new File(Preferences.getPreference(Preferences.PrefKey.STORAGE) + movie.getFile());
             return movie.getFile() != null && onDiskFile.exists() && onDiskFile.length() == movie.getFileSize();
         }
+    }
+
+    public static String getFolder(Source source) {
+        return (source instanceof Movie ? ((Movie) source).getOriginalTitle() : ((Episode) source).getSeries().getOriginalTitle()).replaceAll(" ", "_");
     }
 
     public Movie processMovieFromMagnet(Movie movie) {

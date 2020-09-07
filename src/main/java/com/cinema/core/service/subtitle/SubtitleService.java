@@ -1,6 +1,7 @@
 package com.cinema.core.service.subtitle;
 
 import com.cinema.core.config.Lang;
+import com.cinema.core.config.Preferences;
 import com.cinema.core.dto.Subtitle;
 import com.cinema.core.entity.Magnet;
 import com.cinema.core.entity.Source;
@@ -16,6 +17,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.cinema.core.config.Preferences.PrefKey.STORAGE;
 import static com.cinema.core.service.parser.SubtitleParser.getSubtitleFile;
 import static java.lang.Character.isLetter;
 
@@ -27,7 +29,7 @@ public class SubtitleService {
         buildSubtitles(new File("C:\\Users\\umnick\\Downloads\\Cinema\\Guns.Akimbo.2019.HDRip.XviD.AC3-EVO.srt"));
     }
 
-    public static Set<Subtitle> buildSubtitles(Lang lang) throws IOException {
+    public static Set<Subtitle> buildSubtitles(Lang lang) {
         Source source;
         if (SceneModel.INSTANCE.getActiveMovieModel().isSeries()) {
             source = SceneModel.INSTANCE.getActiveMovieModel().getActiveSeasonModel().getActiveEpisodeModel().getEpisode();
@@ -39,11 +41,15 @@ public class SubtitleService {
         if (Objects.isNull(subtitle)) {
             return null;
         }
-        File file = new File(subtitle.getFile());
+        File file = new File(Preferences.getPreference(STORAGE) + subtitle.getFile());
         if (!file.exists()) {
             getSubtitleFile(source, lang);
         }
-        return buildSubtitles(file);
+        try {
+            return buildSubtitles(file);
+        } catch (IOException e) {
+            return null;
+        }
     }
 
     private static Set<Subtitle> buildSubtitles(File file) throws IOException {
@@ -56,8 +62,8 @@ public class SubtitleService {
             while ((line = br.readLine()) != null) {
                 if (line.trim().length() == 0) {
                     subtitles.add(subtitle);
-                } else if (line.contains("-->")) {
-                    String[] times = line.split("-->");
+                } else if (line.contains(" --> ")) {
+                    String[] times = line.split(" --> ");
                     subtitle.setFrom(LocalTime.parse(times[0].trim(), DateTimeFormatter.ofPattern("HH:mm:ss,SSS")));
                     subtitle.setTo(LocalTime.parse(times[1].trim().split(" ")[0].trim(), DateTimeFormatter.ofPattern("HH:mm:ss,SSS")));
                 } else if (line.trim().matches("^\\d+\\s*$")) {

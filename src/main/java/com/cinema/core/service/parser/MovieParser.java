@@ -118,7 +118,7 @@ public enum MovieParser implements Parser, MovieFields {
     @Override
     public String fetchPoster(Document html) {
         String[] srcset = html.select(".film-poster").attr("srcset").split(",");
-        return srcset[srcset.length - 1].trim().split(" ")[0];
+        return "https:" + srcset[srcset.length - 1].trim().split(" ")[0];
     }
 
     @Override
@@ -172,7 +172,6 @@ public enum MovieParser implements Parser, MovieFields {
                     !awardImg.contains("Gray")
             );
         } catch (Exception e) {
-            logger.info("", e);
             return null;
         }
     }

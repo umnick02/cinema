@@ -4,7 +4,8 @@ import com.cinema.core.config.Lang;
 import com.cinema.core.converter.SubtitleConverter;
 
 import javax.persistence.*;
-import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 @Embeddable
 public class Magnet {
@@ -17,7 +18,7 @@ public class Magnet {
 
     @Convert(converter = SubtitleConverter.class)
     @Column(name = "subtitle", columnDefinition = "text")
-    private List<Subtitle> subtitles;
+    private Set<Subtitle> subtitles;
 
     @Column(name = "file_size")
     private Long fileSize;
@@ -52,11 +53,11 @@ public class Magnet {
         this.fileSize = fileSize;
     }
 
-    public List<Subtitle> getSubtitles() {
+    public Set<Subtitle> getSubtitles() {
         return subtitles;
     }
 
-    public void setSubtitles(List<Subtitle> subtitles) {
+    public void setSubtitles(Set<Subtitle> subtitles) {
         this.subtitles = subtitles;
     }
 
@@ -78,6 +79,20 @@ public class Magnet {
 
         public void setFile(String file) {
             this.file = file;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Subtitle subtitle = (Subtitle) o;
+            return lang == subtitle.lang &&
+                    file.equals(subtitle.file);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(lang, file);
         }
     }
 }

@@ -92,7 +92,7 @@ public enum BtClientService implements Stoppable {
                 .config(config)
                 .module(dhtModule)
                 .storage(storage)
-                .magnet(source.getHash())
+                .magnet("magnet:?xt=urn:btih:" + source.getHash())
                 .autoLoadModules()
                 .initEagerly()
                 .selector(selector)

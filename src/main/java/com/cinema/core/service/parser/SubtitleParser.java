@@ -18,9 +18,8 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.cinema.core.helper.HttpHelper.*;
 
@@ -30,6 +29,13 @@ public class SubtitleParser {
         parseSubtitle("Guns Akimbo", 2019, Lang.EN, null, null);
     }
 
+    public static Set<Magnet.Subtitle> buildSubtitles(Source source, Lang... langs) {
+        return Arrays.stream(langs)
+                .map(lang -> SubtitleParser.getSubtitleFile(source, lang))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+    }
+
     public static Magnet.Subtitle getSubtitleFile(Source source, Lang lang) {
         Magnet.Subtitle subtitle = getSubtitle(source.getSubtitles(), lang);
         if (Objects.nonNull(subtitle)) {
@@ -37,14 +43,14 @@ public class SubtitleParser {
         }
         if (source instanceof Movie) {
             Movie movie = (Movie) source;
-            return parseSubtitle(movie.getTitle(), movie.getReleaseDate().getYear(), lang, null, null);
+            return parseSubtitle(movie.getOriginalTitle(), movie.getReleaseDate().getYear(), lang, null, null);
         } else {
             Episode episode = (Episode) source;
-            return parseSubtitle(episode.getTitle(), episode.getReleaseDate().getYear(), lang, episode.getSeason(), episode.getEpisode());
+            return parseSubtitle(episode.getSeries().getOriginalTitle(), episode.getReleaseDate().getYear(), lang, episode.getSeason(), episode.getEpisode());
         }
     }
 
-    private static Magnet.Subtitle getSubtitle(List<Magnet.Subtitle> subtitles, Lang lang) {
+    private static Magnet.Subtitle getSubtitle(Set<Magnet.Subtitle> subtitles, Lang lang) {
         if (Objects.isNull(subtitles)) {
             return null;
         }
@@ -63,22 +69,31 @@ public class SubtitleParser {
         HttpRequest request = buildRequest(host + path);
         try {
             HttpResponse<InputStream> response = sendRequest(request);
-            Elements elements = Jsoup.parse(fetchResponseBody(response)).select("table#search_results tr");
-            Optional<Element> optional = elements.stream()
-                    .filter(row -> row.select("td a").stream()
-                            .anyMatch(col -> col.text().matches("\\d+x")))
-                    .findFirst();
-            if (optional.isPresent()) {
-                String subtitlePath = optional.get().select("td a").stream()
-                        .filter(col -> col.text().matches("\\d+x"))
-                        .findFirst().get()
-                        .attr("href");
+            Document document = Jsoup.parse(fetchResponseBody(response));
+            Elements elements = document.select("table#search_results tr");
+            String subtitlePath = null;
+            if (!elements.isEmpty()) {
+                Optional<Element> optional = elements.stream()
+                        .filter(row -> row.select("td a").stream()
+                                .anyMatch(col -> col.text().matches("\\d+x")))
+                        .findFirst();
+                if (optional.isPresent()) {
+                    subtitlePath = optional.get().select("td a").stream()
+                            .filter(col -> col.text().matches("\\d+x"))
+                            .findFirst().get()
+                            .attr("href");
+                }
+            } else {
+                subtitlePath = document.select("#bt-dwl-bt").attr("href");
+            }
+            if (Objects.nonNull(subtitlePath) && subtitlePath.length() > 0) {
                 HttpRequest subtitleRequest = buildRequest(host + subtitlePath);
                 HttpResponse<InputStream> subtitleResponse = sendRequest(subtitleRequest);
                 String subtitleFilePath = fetchResponseFile(subtitleResponse, movieName);
                 Magnet.Subtitle subtitle = new Magnet.Subtitle();
                 subtitle.setLang(lang);
                 subtitle.setFile(subtitleFilePath);
+                return subtitle;
             }
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();

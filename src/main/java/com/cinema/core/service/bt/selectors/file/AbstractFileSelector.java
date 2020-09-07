@@ -4,8 +4,11 @@ import bt.metainfo.TorrentFile;
 import bt.torrent.fileselector.SelectionResult;
 import bt.torrent.fileselector.TorrentFileSelector;
 import com.cinema.core.config.Preferences;
+import com.cinema.core.entity.Episode;
 import com.cinema.core.entity.Magnet;
+import com.cinema.core.entity.Movie;
 import com.cinema.core.entity.Source;
+import com.cinema.core.model.impl.MovieModel;
 import com.cinema.core.model.impl.SceneModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,8 +59,8 @@ public abstract class AbstractFileSelector extends TorrentFileSelector {
         if (!isValidFile(file)) {
             return SelectionResult.skip();
         }
-        if (isVideoFile(source, file) && !SceneModel.INSTANCE.getActiveMovieModel().isPlayable()) {
-            source.setFile(String.join("/", file.getPathElements()));
+        if (Objects.isNull(source.getFile()) || (isVideoFile(source, file) && !SceneModel.INSTANCE.getActiveMovieModel().isPlayable())) {
+            source.setFile(MovieModel.getFolder(source) + "\\" + String.join("/", file.getPathElements()));
             source.setFileSize(file.getSize());
             logger.info("Set file [{}] for [{}]", source.getFile(), source);
             update(source);

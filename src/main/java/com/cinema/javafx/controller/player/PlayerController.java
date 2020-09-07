@@ -1,23 +1,28 @@
 package com.cinema.javafx.controller.player;
 
+import com.cinema.core.config.Lang;
 import com.cinema.core.config.Preferences;
+import com.cinema.core.dto.Subtitle;
+import com.cinema.core.entity.Magnet;
 import com.cinema.core.entity.Movie;
 import com.cinema.core.model.impl.SceneModel;
-import com.cinema.core.model.impl.TorrentModel;
-import com.cinema.core.service.bt.BtClientService;
-import com.cinema.javafx.player2.PlayerFactory;
+import com.cinema.core.model.impl.SubtitleModel;
+import com.cinema.core.service.subtitle.SubtitleService;
+import com.cinema.javafx.controller.subtitle.SubtitleController;
+import com.cinema.javafx.player.PlayerFactory;
 import javafx.application.Platform;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Slider;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.robot.Robot;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
@@ -29,12 +34,11 @@ import uk.co.caprica.vlcj.player.base.MediaPlayerEventAdapter;
 import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer;
 
 import java.io.File;
+import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 import static com.cinema.core.config.Preferences.getPreference;
 import static com.cinema.core.model.ModelEventType.*;
@@ -71,8 +75,15 @@ public class PlayerController {
     private Button fullscreenButton;
     @FXML
     private Button closeButton;
+    @FXML
+    private Menu audioMenu;
+    @FXML
+    private Menu subtitleMenu;
+    @FXML
+    private VBox subtitleBox;
 
     private int lastVolume = 50;
+    private boolean isAudioMenuSet = false;
 
     private final AtomicBoolean timelineTracking = new AtomicBoolean();
     private final AtomicBoolean volumeTracking = new AtomicBoolean();
@@ -171,6 +182,19 @@ public class PlayerController {
                             playButton.getStyleClass().add("icon-pause");
                         }
                     });
+                    if (!isAudioMenuSet) {
+                        isAudioMenuSet = true;
+                        ToggleGroup toggleGroup = new ToggleGroup();
+                        Platform.runLater(() -> mediaPlayer.audio().trackDescriptions().forEach(trackDescription -> {
+                            RadioMenuItem menuItem = new RadioMenuItem(trackDescription.description());
+                            menuItem.setOnAction(event -> mediaPlayer.audio().setTrack(trackDescription.id()));
+                            toggleGroup.getToggles().add(menuItem);
+                            if (mediaPlayer.audio().track() == trackDescription.id()) {
+                                toggleGroup.selectToggle(menuItem);
+                            }
+                            audioMenu.getItems().add(menuItem);
+                        }));
+                    }
                     startTimer();
                 }
 
@@ -322,6 +346,11 @@ public class PlayerController {
 
             play();
             bindVideoImageViewSize();
+            ToggleGroup toggleGroup = new ToggleGroup();
+            buildSubtitleMenuItems().forEach(menuItem -> {
+                toggleGroup.getToggles().add(menuItem);
+                subtitleMenu.getItems().add(menuItem);
+            });
         });
 
 
@@ -332,6 +361,36 @@ public class PlayerController {
         controlPane.prefWidthProperty().bind(playerPane.widthProperty());
         timelineSlider.valueProperty().addListener((obs, oldValue, newValue) -> updateMediaPlayerPosition(newValue.floatValue() / 100));
         volumeSlider.valueProperty().addListener((obs, oldValue, newValue) -> updateMediaPlayerVolumePosition(newValue.intValue()));
+    }
+
+    private List<RadioMenuItem> buildSubtitleMenuItems() {
+        Set<Magnet.Subtitle> subtitles;
+        if (!SceneModel.INSTANCE.getActiveMovieModel().isSeries()) {
+            subtitles = SceneModel.INSTANCE.getActiveMovieModel().getMovie().getSubtitles();
+        } else {
+            subtitles = SceneModel.INSTANCE.getActiveMovieModel().getActiveSeasonModel().getActiveEpisodeModel().getEpisode().getSubtitles();
+        }
+        return subtitles.stream()
+                .map(subtitle -> {
+                    RadioMenuItem menuItem = new RadioMenuItem(subtitle.getLang().getFullName());
+                    menuItem.setId(subtitle.getLang().name());
+                    menuItem.setGraphic(new ImageView("file:" + subtitle.getLang().getIcon()));
+                    menuItem.setOnAction(event -> {
+                        Platform.runLater(() -> {
+                            Set<Subtitle> subtitlesDto = SubtitleService.buildSubtitles(Lang.valueOf(((RadioMenuItem) event.getTarget()).getId()));
+                            if (Objects.nonNull(subtitlesDto)) {
+                                FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/player/subtitle.fxml"));
+                                try {
+                                    subtitleBox.getChildren().add(loader.load());
+                                    SubtitleModel.INSTANCE.setSubtitles(subtitlesDto);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
+                    });
+                    return menuItem;
+                }).collect(Collectors.toList());
     }
 
     @FXML

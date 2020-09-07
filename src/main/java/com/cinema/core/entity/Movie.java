@@ -138,6 +138,11 @@ public class Movie implements Source {
     }
 
     @Override
+    public void setHash(String hash) {
+        magnet.setHash(hash);
+    }
+
+    @Override
     public String getFile() {
         return magnet.getFile();
     }
@@ -158,8 +163,13 @@ public class Movie implements Source {
     }
 
     @Override
-    public List<Magnet.Subtitle> getSubtitles() {
+    public Set<Magnet.Subtitle> getSubtitles() {
         return magnet.getSubtitles();
+    }
+
+    @Override
+    public void setSubtitles(Set<Magnet.Subtitle> subtitles) {
+        magnet.setSubtitles(subtitles);
     }
 
     public Award getAward() {

@@ -10,6 +10,9 @@
    <AnchorPane fx:id="controlPane" styleClass="control-panel" StackPane.alignment="BOTTOM_CENTER">
       <children>
          <BorderPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+             <top>
+                 <VBox fx:id="subtitleBox"/>
+             </top>
             <center>
                    <StackPane>
                        <Slider fx:id="timelineSlider" onMousePressed="#beginMovieTracking" onMouseReleased="#endMovieTracking" HBox.hgrow="ALWAYS" />
@@ -27,7 +30,12 @@
                    <HBox alignment="CENTER_RIGHT" BorderPane.alignment="CENTER">
                        <Button fx:id="volumeButton" alignment="CENTER" onMouseClicked="#volume" styleClass="icon-player, icon-volume" />
                        <Slider fx:id="volumeSlider" onMousePressed="#beginVolumeTracking" onMouseReleased="#endVolumeTracking" HBox.hgrow="ALWAYS" />
-                       <Button fx:id="settings" alignment="CENTER" onMouseClicked="#settings" styleClass="icon-player, icon-settings-video" />
+                           <MenuButton fx:id="settings" styleClass="icon-player, icon-settings-video">
+                        <items>
+                           <Menu fx:id="audioMenu" mnemonicParsing="false" styleClass="background-black" text="Аудиодорожка" />
+                           <Menu fx:id="subtitleMenu" mnemonicParsing="false" styleClass="background-black" text="Субтитры" />
+                        </items>
+                           </MenuButton>
                        <Button fx:id="fullscreenButton" alignment="CENTER" onMouseClicked="#changeFullscreenStatus" styleClass="icon-player, icon-fullscreen-in" />
                    </HBox>
             </right>

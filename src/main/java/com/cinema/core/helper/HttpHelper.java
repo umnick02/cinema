@@ -137,9 +137,8 @@ public class HttpHelper {
                     if (!entryName.matches(".*\\.srt$")) {
                         continue;
                     }
-                    String subtitleFilePath = String.format("%s%s\\%s", Preferences.getPreference(Preferences.PrefKey.STORAGE),
-                            folderName, entryName);
-                    File destFile = new File(subtitleFilePath);
+                    String subtitleFilePath = String.format("%s\\%s", folderName, entryName);
+                    File destFile = new File(Preferences.getPreference(Preferences.PrefKey.STORAGE) + subtitleFilePath);
                     destFile.getParentFile().mkdirs();
                     if (!entry.isDirectory()) {
                         try (BufferedInputStream is = new BufferedInputStream(zipFile.getInputStream(entry))) {

@@ -6,20 +6,20 @@ import com.google.gson.reflect.TypeToken;
 
 import javax.persistence.AttributeConverter;
 import java.lang.reflect.Type;
-import java.util.List;
+import java.util.Set;
 
-public class SubtitleConverter implements AttributeConverter<List<Magnet.Subtitle>, String> {
+public class SubtitleConverter implements AttributeConverter<Set<Magnet.Subtitle>, String> {
 
     private final Gson gson = new Gson();
-    private final Type type = new TypeToken<List<Magnet.Subtitle>>(){}.getType();
+    private final Type type = new TypeToken<Set<Magnet.Subtitle>>(){}.getType();
 
     @Override
-    public String convertToDatabaseColumn(List<Magnet.Subtitle> attribute) {
+    public String convertToDatabaseColumn(Set<Magnet.Subtitle> attribute) {
         return gson.toJson(attribute);
     }
 
     @Override
-    public List<Magnet.Subtitle> convertToEntityAttribute(String dbData) {
+    public Set<Magnet.Subtitle> convertToEntityAttribute(String dbData) {
         return gson.fromJson(dbData, type);
     }
 }

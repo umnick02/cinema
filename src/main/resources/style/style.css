@@ -276,3 +276,20 @@
 .hand {
     -fx-cursor: hand;
 }
+
+.menu-button > .arrow-button {
+    -fx-padding: 0;
+}
+.menu-button > .arrow-button > .arrow {
+    -fx-padding: 0;
+}
+.context-menu {
+    -fx-padding: 0;
+    -fx-background-color: #000000;
+}
+.menu-item:focused, .menu-item:hover {
+    -fx-background-color: #2b2b2b
+}
+.menu-item .label {
+    -fx-text-fill: #bababa;
+}

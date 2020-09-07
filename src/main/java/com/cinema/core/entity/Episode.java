@@ -2,8 +2,8 @@ package com.cinema.core.entity;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(indexes = {
@@ -54,6 +54,11 @@ public class Episode implements Source {
     }
 
     @Override
+    public void setHash(String hash) {
+        magnet.setHash(hash);
+    }
+
+    @Override
     public String getFile() {
         return magnet.getFile();
     }
@@ -63,8 +68,13 @@ public class Episode implements Source {
     }
 
     @Override
-    public List<Magnet.Subtitle> getSubtitles() {
+    public Set<Magnet.Subtitle> getSubtitles() {
         return magnet.getSubtitles();
+    }
+
+    @Override
+    public void setSubtitles(Set<Magnet.Subtitle> subtitles) {
+        magnet.setSubtitles(subtitles);
     }
 
     @Override

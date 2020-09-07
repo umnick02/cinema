@@ -1,4 +1,4 @@
-package com.cinema.javafx.player2;
+package com.cinema.javafx.player;
 
 import javafx.application.Platform;
 import javafx.scene.image.ImageView;

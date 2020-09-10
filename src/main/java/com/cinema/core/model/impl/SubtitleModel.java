@@ -5,6 +5,7 @@ import com.cinema.core.model.ModelEventType;
 import com.cinema.core.model.ObservableModel;
 import javafx.event.Event;
 
+import java.time.LocalTime;
 import java.util.Set;
 
 public class SubtitleModel extends ObservableModel {
@@ -12,10 +13,30 @@ public class SubtitleModel extends ObservableModel {
     public static SubtitleModel INSTANCE = new SubtitleModel();
 
     private Set<Subtitle> subtitles;
+    private Subtitle activeSubtitle;
+    private boolean showSubtitles = false;
 
+    public boolean isShowSubtitles() {
+        return showSubtitles;
+    }
+
+    public void setShowSubtitles(boolean showSubtitles) {
+        this.showSubtitles = showSubtitles;
+    }
 
     public void setSubtitles(Set<Subtitle> subtitles) {
         this.subtitles = subtitles;
-        fireEvent(new Event(ModelEventType.SUBTITLE_SHOW.getEventType()));
+        showSubtitles = true;
+    }
+
+    public Subtitle getActiveSubtitle() {
+        return activeSubtitle;
+    }
+
+    public Subtitle actualSubtitle(long time) {
+        LocalTime localTime = LocalTime.ofNanoOfDay(time * 1_000_000);
+        return subtitles.stream()
+                .filter(subtitle -> subtitle.getFrom().isBefore(localTime) && subtitle.getTo().isAfter(localTime))
+                .findFirst().orElse(null);
     }
 }

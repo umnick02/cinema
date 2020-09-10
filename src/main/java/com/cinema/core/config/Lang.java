@@ -1,9 +1,9 @@
 package com.cinema.core.config;
 
 public enum Lang {
-    EN("eng", "English", "flag/united-kingdom.png"),
-    RU("rus", "Russian", "flag/russia.png"),
-    DE("ger", "German", "flag/german.png");
+    EN("eng", "English", "flag/UK.png"),
+    RU("rus", "Russian", "flag/RU.png"),
+    DE("ger", "German", "flag/GE.png");
 
     private String value;
     private String fullName;

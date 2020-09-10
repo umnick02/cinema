@@ -9,12 +9,14 @@
     <Button fx:id="closeButton" alignment="CENTER" onMouseClicked="#closePlayer" styleClass="icon-player, icon-close" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" StackPane.alignment="TOP_LEFT" />
    <AnchorPane fx:id="controlPane" styleClass="control-panel" StackPane.alignment="BOTTOM_CENTER">
       <children>
-         <BorderPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-             <top>
-                 <VBox fx:id="subtitleBox"/>
-             </top>
-            <center>
-                   <StackPane>
+         <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+                 <FlowPane fx:id="subtitlePane" alignment="BOTTOM_CENTER" columnHalignment="CENTER" />
+             <BorderPane fx:id="playerControlsPane">
+                 <left>
+                 <Button fx:id="playButton" alignment="CENTER" onMouseClicked="#changePlaying" styleClass="icon-player, icon-pause" />
+                 </left>
+                 <center>
+                 <StackPane>
                        <Slider fx:id="timelineSlider" onMousePressed="#beginMovieTracking" onMouseReleased="#endMovieTracking" HBox.hgrow="ALWAYS" />
 <!--                       <HBox alignment="CENTER_LEFT" styleClass="timeline-labels">-->
 <!--                           <Label fx:id="currentTimeLabel" styleClass="white, bold" HBox.hgrow="NEVER" />-->
@@ -22,11 +24,8 @@
 <!--                           <Label fx:id="durationLabel" styleClass="white, bold" HBox.hgrow="NEVER" />-->
 <!--                       </HBox>-->
                    </StackPane>
-            </center>
-            <left>
-               <Button fx:id="playButton" alignment="CENTER" onMouseClicked="#changePlaying" styleClass="icon-player, icon-pause" />
-            </left>
-            <right>
+                 </center>
+                 <right>
                    <HBox alignment="CENTER_RIGHT" BorderPane.alignment="CENTER">
                        <Button fx:id="volumeButton" alignment="CENTER" onMouseClicked="#volume" styleClass="icon-player, icon-volume" />
                        <Slider fx:id="volumeSlider" onMousePressed="#beginVolumeTracking" onMouseReleased="#endVolumeTracking" HBox.hgrow="ALWAYS" />
@@ -38,8 +37,9 @@
                            </MenuButton>
                        <Button fx:id="fullscreenButton" alignment="CENTER" onMouseClicked="#changeFullscreenStatus" styleClass="icon-player, icon-fullscreen-in" />
                    </HBox>
-            </right>
-         </BorderPane>
+                 </right>
+             </BorderPane>
+         </VBox>
       </children>
    </AnchorPane>
 </StackPane>

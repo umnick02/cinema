@@ -29,6 +29,10 @@ public class SubtitleService {
         buildSubtitles(new File("C:\\Users\\umnick\\Downloads\\Cinema\\Guns.Akimbo.2019.HDRip.XviD.AC3-EVO.srt"));
     }
 
+    public static boolean isWord(String element) {
+        return element.matches("^[^\\d\\W]+$") || element.matches("^[^\\d\\W]+[-']?[^\\d\\W]+$");
+    }
+
     public static Set<Subtitle> buildSubtitles(Lang lang) {
         Source source;
         if (SceneModel.INSTANCE.getActiveMovieModel().isSeries()) {

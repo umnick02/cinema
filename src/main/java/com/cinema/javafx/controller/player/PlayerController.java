@@ -8,7 +8,6 @@ import com.cinema.core.entity.Movie;
 import com.cinema.core.model.impl.SceneModel;
 import com.cinema.core.model.impl.SubtitleModel;
 import com.cinema.core.service.subtitle.SubtitleService;
-import com.cinema.javafx.controller.subtitle.SubtitleController;
 import com.cinema.javafx.player.PlayerFactory;
 import javafx.application.Platform;
 import javafx.event.Event;
@@ -20,10 +19,9 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.robot.Robot;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,7 +78,12 @@ public class PlayerController {
     @FXML
     private Menu subtitleMenu;
     @FXML
-    private VBox subtitleBox;
+    private FlowPane subtitlePane;
+    @FXML
+    private BorderPane playerControlsPane;
+
+    private long subLastUpdate;
+    private float sliderLastUpdate;
 
     private int lastVolume = 50;
     private boolean isAudioMenuSet = false;
@@ -170,7 +173,6 @@ public class PlayerController {
 
                 @Override
                 public void buffering(MediaPlayer mediaPlayer, float newCache) {
-                    System.out.println("buffering");
                 }
 
                 @Override
@@ -232,13 +234,70 @@ public class PlayerController {
 
                 @Override
                 public void timeChanged(MediaPlayer mediaPlayer, long newTime) {
-//                    System.out.println("timeChanged");
+                    if (!SubtitleModel.INSTANCE.isShowSubtitles() || newTime - subLastUpdate < 100) {
+                        return;
+                    }
+                    subLastUpdate = newTime;
+                    Subtitle subtitle = SubtitleModel.INSTANCE.actualSubtitle(newTime);
+                    if (subtitle != null) {
+                        if (subtitle.equals(SubtitleModel.INSTANCE.getActiveSubtitle())) {
+                            return;
+                        }
+                        if (!subtitlePane.isVisible()) {
+                            Platform.runLater(() -> {
+                                subtitlePane.getChildren().clear();
+                                subtitlePane.setVisible(true);
+                            });
+                        }
+
+                        List<Label> elements = new ArrayList<>();
+                        Stage stage = ((Stage) videoImageView.getScene().getWindow());
+                        boolean italic = false;
+                        for (String element : subtitle.getElements()) {
+                            if (element.equals("<i>")) {
+                                italic = true;
+                                continue;
+                            }
+                            if (element.equals("</i>")) {
+                                italic = false;
+                                continue;
+                            }
+
+                            Label text = new Label();
+                            text.setText(element);
+                            text.getStyleClass().addAll("subtitle-element", stage.isFullScreen() ? "sub-big" : "sub-small");
+                            if (italic) {
+                                text.getStyleClass().add("text-italic");
+                            }
+                            if (SubtitleService.isWord(element)) {
+                                text.hoverProperty().addListener((observable, oldValue, newValue) -> {
+                                    System.out.println("hover");
+                                });
+                            }
+                            elements.add(text);
+                        }
+                        if (!elements.isEmpty()) {
+                            Platform.runLater(() -> {
+                                subtitlePane.getChildren().clear();
+                                subtitlePane.getChildren().addAll(elements);
+                            });
+                        }
+                    } else {
+                        if (subtitlePane.isVisible()) {
+                            Platform.runLater(() -> {
+                                subtitlePane.setVisible(false);
+                                subtitlePane.getChildren().clear();
+                            });
+                        }
+                    }
                 }
 
                 @Override
                 public void positionChanged(MediaPlayer mediaPlayer, float newPosition) {
-                    updateMovieTrackingPosition(newPosition);
-//                    System.out.printf("positionChanged: %s\n", newPosition);
+                    if (newPosition - sliderLastUpdate > 0.001) {
+                        sliderLastUpdate = newPosition;
+                        updateMovieTrackingPosition(newPosition);
+                    }
                 }
 
                 @Override
@@ -370,27 +429,27 @@ public class PlayerController {
         } else {
             subtitles = SceneModel.INSTANCE.getActiveMovieModel().getActiveSeasonModel().getActiveEpisodeModel().getEpisode().getSubtitles();
         }
-        return subtitles.stream()
-                .map(subtitle -> {
-                    RadioMenuItem menuItem = new RadioMenuItem(subtitle.getLang().getFullName());
-                    menuItem.setId(subtitle.getLang().name());
-                    menuItem.setGraphic(new ImageView("file:" + subtitle.getLang().getIcon()));
-                    menuItem.setOnAction(event -> {
-                        Platform.runLater(() -> {
-                            Set<Subtitle> subtitlesDto = SubtitleService.buildSubtitles(Lang.valueOf(((RadioMenuItem) event.getTarget()).getId()));
-                            if (Objects.nonNull(subtitlesDto)) {
-                                FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/player/subtitle.fxml"));
-                                try {
-                                    subtitleBox.getChildren().add(loader.load());
-                                    SubtitleModel.INSTANCE.setSubtitles(subtitlesDto);
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        });
-                    });
-                    return menuItem;
-                }).collect(Collectors.toList());
+        List<RadioMenuItem> subtitleItems = new ArrayList<>();
+        RadioMenuItem offMenuItem = new RadioMenuItem("Off");
+        offMenuItem.setId("Off");
+        offMenuItem.setOnAction(event -> Platform.runLater(() -> SubtitleModel.INSTANCE.setShowSubtitles(false)));
+        subtitleItems.add(offMenuItem);
+        for (Magnet.Subtitle subtitle : subtitles) {
+            RadioMenuItem menuItem = new RadioMenuItem(subtitle.getLang().getFullName());
+            menuItem.setId(subtitle.getLang().name());
+            ImageView imageView = new ImageView("/icons/" + subtitle.getLang().getIcon());
+            imageView.setFitHeight(20);
+            imageView.setPreserveRatio(true);
+            menuItem.setGraphic(imageView);
+            menuItem.setOnAction(event -> {
+                Set<Subtitle> subtitlesDto = SubtitleService.buildSubtitles(Lang.valueOf(((RadioMenuItem) event.getTarget()).getId()));
+                if (subtitlesDto != null) {
+                    Platform.runLater(() -> SubtitleModel.INSTANCE.setSubtitles(subtitlesDto));
+                }
+            });
+            subtitleItems.add(menuItem);
+        }
+        return subtitleItems;
     }
 
     @FXML
@@ -459,7 +518,8 @@ public class PlayerController {
     }
 
     private void controls(boolean visible) {
-        controlPane.setVisible(visible);
+        playerControlsPane.setVisible(visible);
+        closeButton.setVisible(visible);
         videoImageView.getScene().setCursor(visible ? Cursor.DEFAULT : Cursor.NONE);
     }
 
@@ -492,6 +552,7 @@ public class PlayerController {
     @FXML
     private synchronized void endMovieTracking() {
         timelineTracking.set(false);
+        subLastUpdate = 0;
         float ratio = (float) timelineSlider.getValue() / 100;
         Movie movie = SceneModel.INSTANCE.getActiveMovieModel().getMovie();
         Long fileSize = movie.getFileSize();

@@ -293,3 +293,15 @@
 .menu-item .label {
     -fx-text-fill: #bababa;
 }
+
+.subtitle-element {
+    -fx-font-weight: bold;
+    -fx-text-fill: #bababa;
+}
+
+.sub-big {
+    -fx-font-size: 2em;
+}
+.sub-small {
+    -fx-font-size: 1.4em;
+}

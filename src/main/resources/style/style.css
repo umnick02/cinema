@@ -297,6 +297,10 @@
 .subtitle-element {
     -fx-font-weight: bold;
     -fx-text-fill: #bababa;
+    -fx-fill: #bababa;
+}
+.subtitle-element:hover {
+    -fx-background-color: rgba(0, 0, 0, .8);
 }
 
 .sub-big {
@@ -304,4 +308,23 @@
 }
 .sub-small {
     -fx-font-size: 1.4em;
+}
+
+#subtitleBox:hover {
+    -fx-background-color: rgba(0, 0, 0, .3);
+}
+
+.progress-bar > .track {
+    -fx-background-color: rgba(64,64,64, 0.5);
+    -fx-background-insets: 0, 1;
+}
+.progress-bar > .bar {
+    -fx-background-insets: 0, 1, 2;
+    -fx-padding: 0.7em;
+}
+.download-bar > .bar {
+    -fx-background-color: rgba(96,96,96, 0.5);
+}
+.timeline-bar > .bar {
+    -fx-background-color: rgba(128,128,128, 0.5);
 }

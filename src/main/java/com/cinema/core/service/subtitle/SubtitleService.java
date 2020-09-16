@@ -73,6 +73,9 @@ public class SubtitleService {
                 } else if (line.trim().matches("^\\d+\\s*$")) {
                     subtitle = new Subtitle();
                 } else {
+                    if (subtitle.getElements().size() > 0) {
+                        subtitle.getElements().add("\n");
+                    }
                     char[] charArray = line.toCharArray();
                     for (int i = 0; i < charArray.length; i++) {
                         char curr = charArray[i];

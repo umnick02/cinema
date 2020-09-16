@@ -3,26 +3,31 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.web.*?>
 
+<?import javafx.scene.text.Text?>
 <StackPane fx:id="playerPane" styleClass="background-black" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cinema.javafx.controller.player.PlayerController">
     <ImageView fx:id="videoImageView" onMouseClicked="#changePlayingShortcut" preserveRatio="true" />
     <Button fx:id="closeButton" alignment="CENTER" onMouseClicked="#closePlayer" styleClass="icon-player, icon-close" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" StackPane.alignment="TOP_LEFT" />
    <AnchorPane fx:id="controlPane" styleClass="control-panel" StackPane.alignment="BOTTOM_CENTER">
       <children>
-         <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
-                 <FlowPane fx:id="subtitlePane" alignment="BOTTOM_CENTER" columnHalignment="CENTER" />
+         <VBox alignment="CENTER" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+             <VBox alignment="CENTER" fx:id="subtitleContainer">
+                 <VBox fx:id="subtitleBox" alignment="CENTER" maxWidth="-Infinity" />
+             </VBox>
              <BorderPane fx:id="playerControlsPane">
                  <left>
                  <Button fx:id="playButton" alignment="CENTER" onMouseClicked="#changePlaying" styleClass="icon-player, icon-pause" />
                  </left>
                  <center>
                  <StackPane>
-                       <Slider fx:id="timelineSlider" onMousePressed="#beginMovieTracking" onMouseReleased="#endMovieTracking" HBox.hgrow="ALWAYS" />
-<!--                       <HBox alignment="CENTER_LEFT" styleClass="timeline-labels">-->
-<!--                           <Label fx:id="currentTimeLabel" styleClass="white, bold" HBox.hgrow="NEVER" />-->
-<!--                           <Text styleClass="white, bold"> / </Text>-->
-<!--                           <Label fx:id="durationLabel" styleClass="white, bold" HBox.hgrow="NEVER" />-->
-<!--                       </HBox>-->
+                    <ProgressBar fx:id="downloadBar" styleClass="download-bar" HBox.hgrow="ALWAYS" prefWidth="Infinity" progress="0" />
+                     <HBox alignment="CENTER_LEFT" styleClass="timeline-labels">
+                         <Label fx:id="currentTimeLabel" styleClass="white, bold" HBox.hgrow="NEVER" />
+                         <Text styleClass="white, bold"> / </Text>
+                         <Label fx:id="durationLabel" styleClass="white, bold" HBox.hgrow="NEVER" />
+                     </HBox>
+                     <ProgressBar fx:id="timelineBar" styleClass="timeline-bar" onMousePressed="#beginMovieTracking" onMouseReleased="#endMovieTracking" HBox.hgrow="ALWAYS" prefWidth="Infinity" progress="0"/>
                    </StackPane>
                  </center>
                  <right>

@@ -1,5 +1,6 @@
 package com.cinema.core.model.impl;
 
+import com.cinema.core.config.Lang;
 import com.cinema.core.dto.Subtitle;
 import com.cinema.core.model.ModelEventType;
 import com.cinema.core.model.ObservableModel;
@@ -14,7 +15,16 @@ public class SubtitleModel extends ObservableModel {
 
     private Set<Subtitle> subtitles;
     private Subtitle activeSubtitle;
+    private Lang lang;
     private boolean showSubtitles = false;
+
+    public void setLang(Lang lang) {
+        this.lang = lang;
+    }
+
+    public Lang getLang() {
+        return lang;
+    }
 
     public boolean isShowSubtitles() {
         return showSubtitles;

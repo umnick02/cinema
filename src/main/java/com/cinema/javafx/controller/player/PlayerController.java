@@ -10,18 +10,18 @@ import com.cinema.core.model.impl.SubtitleModel;
 import com.cinema.core.service.subtitle.SubtitleService;
 import com.cinema.javafx.player.PlayerFactory;
 import javafx.application.Platform;
+import javafx.concurrent.Worker;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
-import javafx.scene.robot.Robot;
-import javafx.scene.text.Text;
+import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,12 +31,10 @@ import uk.co.caprica.vlcj.player.base.MediaPlayer;
 import uk.co.caprica.vlcj.player.base.MediaPlayerEventAdapter;
 import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 
 import static com.cinema.core.config.Preferences.getPreference;
 import static com.cinema.core.model.ModelEventType.*;
@@ -50,6 +48,7 @@ public class PlayerController {
     private static final Logger logger = LoggerFactory.getLogger(PlayerController.class);
 
     public static EmbeddedMediaPlayer mediaPlayer;
+    private static final String HOST = "https://translate.google.com";
 
     @FXML
     private StackPane playerPane;
@@ -57,12 +56,14 @@ public class PlayerController {
     public ImageView videoImageView;
     @FXML
     private AnchorPane controlPane;
-//    @FXML
-//    public Label currentTimeLabel;
-//    @FXML
-//    private Label durationLabel;
     @FXML
-    private Slider timelineSlider;
+    public Label currentTimeLabel;
+    @FXML
+    private Label durationLabel;
+    @FXML
+    private ProgressBar timelineBar;
+    @FXML
+    private ProgressBar downloadBar;
     @FXML
     private Slider volumeSlider;
     @FXML
@@ -78,15 +79,19 @@ public class PlayerController {
     @FXML
     private Menu subtitleMenu;
     @FXML
-    private FlowPane subtitlePane;
+    private VBox subtitleBox;
     @FXML
     private BorderPane playerControlsPane;
+    private WebView subtitleTranslate;
+    @FXML
+    private VBox subtitleContainer;
 
     private long subLastUpdate;
     private float sliderLastUpdate;
 
     private int lastVolume = 50;
     private boolean isAudioMenuSet = false;
+    private AtomicBoolean isPaused = new AtomicBoolean(false);
 
     private final AtomicBoolean timelineTracking = new AtomicBoolean();
     private final AtomicBoolean volumeTracking = new AtomicBoolean();
@@ -94,25 +99,13 @@ public class PlayerController {
     private Timer mouseTimer = new Timer();
     private Timer preventSleepTimer = new Timer();
     private LocalDateTime lastMouseMove;
+    private String lastClickedWord = null;
 
     private EventHandler<MouseEvent> mouseMovedEventHandler = event -> {
         lastMouseMove = LocalDateTime.now();
         controls(true);
     };
 
-    private TimerTask mouseMoveTask = new TimerTask() {
-        @Override
-        public void run() {
-            try {
-                System.out.println("mouseMoveTask");
-                Robot robot = new Robot();
-                robot.mouseMove(0, 0);
-                robot.mouseMove(1, 1);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    };
     private TimerTask mouseHideTask = new TimerTask() {
         @Override
         public void run() {
@@ -160,6 +153,35 @@ public class PlayerController {
     @FXML
     public void initialize() {
         Platform.runLater(() -> {
+            Movie movie = SceneModel.INSTANCE.getActiveMovieModel().getMovie();
+            Long fileSize = movie.getFileSize();
+            if (fileSize != null) {
+                File file = new File(Preferences.getPreference(Preferences.PrefKey.STORAGE) + movie.getFile());
+                if (file.exists()) {
+                    downloadBar.setProgress((float) file.length() / fileSize);
+                }
+            }
+            durationLabel.setText(String.format(""));
+
+            subtitleTranslate = new WebView();
+            subtitleTranslate.setPrefHeight(200);
+            subtitleTranslate.setPrefWidth(Double.MAX_VALUE);
+            subtitleTranslate.getEngine().setJavaScriptEnabled(true);
+            subtitleTranslate.getEngine().getLoadWorker().stateProperty().addListener((observable, oldValue, newValue) -> {
+                if (newValue == Worker.State.SUCCEEDED) {
+                    subtitleTranslate.getEngine().executeScript("javascript:(function() { " +
+                            "document.getElementsByClassName('input-button-container')[0].style.display='none'; " +
+                            "document.getElementsByClassName('tlid-language-bar')[0].style.display='none'; " +
+                            "document.getElementsByClassName('tlid-source-target')[0].style.display='none'; " +
+                            "document.getElementsByClassName('tlid-source-target')[0].style.paddingTop=0; " +
+                            "document.getElementsByClassName('frame')[0].style.height='auto'; " +
+                            "document.getElementsByClassName('frame')[0].style.overflowY='auto'; " +
+                            "document.getElementsByClassName('notification-area')[0].style.display='none'; " +
+                            "document.getElementsByClassName('gp-footer')[0].style.display='none'; " +
+                            "document.getElementsByTagName('header')[0].style.display='none'; " +
+                            "})()");
+                }
+            });
             mediaPlayer = PlayerFactory.buildMediaPlayer(videoImageView);
             mediaPlayer.events().addMediaPlayerEventListener(new MediaPlayerEventAdapter() {
                 @Override
@@ -179,6 +201,7 @@ public class PlayerController {
                 public void playing(MediaPlayer mediaPlayer) {
                     System.out.println("playing");
                     Platform.runLater(() -> {
+                        subtitleContainer.getChildren().remove(subtitleTranslate);
                         playButton.getStyleClass().remove("icon-play");
                         if (!playButton.getStyleClass().contains("icon-pause")) {
                             playButton.getStyleClass().add("icon-pause");
@@ -243,17 +266,23 @@ public class PlayerController {
                         if (subtitle.equals(SubtitleModel.INSTANCE.getActiveSubtitle())) {
                             return;
                         }
-                        if (!subtitlePane.isVisible()) {
+                        if (!subtitleBox.isVisible()) {
                             Platform.runLater(() -> {
-                                subtitlePane.getChildren().clear();
-                                subtitlePane.setVisible(true);
+                                subtitleBox.getChildren().clear();
+                                subtitleBox.setVisible(true);
                             });
                         }
 
+                        List<HBox> subtitleTextContainer = new ArrayList<>();
                         List<Label> elements = new ArrayList<>();
                         Stage stage = ((Stage) videoImageView.getScene().getWindow());
                         boolean italic = false;
                         for (String element : subtitle.getElements()) {
+                            if (element.equals("\n")) {
+                                subtitleTextContainer.add(buildSubtitleRow(elements));
+                                elements = new ArrayList<>();
+                                continue;
+                            }
                             if (element.equals("<i>")) {
                                 italic = true;
                                 continue;
@@ -270,23 +299,37 @@ public class PlayerController {
                                 text.getStyleClass().add("text-italic");
                             }
                             if (SubtitleService.isWord(element)) {
-                                text.hoverProperty().addListener((observable, oldValue, newValue) -> {
-                                    System.out.println("hover");
+                                text.setCursor(Cursor.HAND);
+                                text.setOnMouseClicked((event) -> {
+                                    if ((lastClickedWord != null && lastClickedWord.equals(text.getText())) || !subtitleContainer.getChildren().contains(subtitleTranslate)) {
+                                        if (subtitleContainer.getChildren().contains(subtitleTranslate)) {
+                                            subtitleContainer.getChildren().remove(subtitleTranslate);
+                                        } else {
+                                            subtitleContainer.getChildren().add(0, subtitleTranslate);
+                                        }
+                                    }
+                                    if (subtitleContainer.getChildren().contains(subtitleTranslate)) {
+                                        isPaused = new AtomicBoolean(true);
+                                        paused(mediaPlayer);
+                                        lastClickedWord = text.getText();
+                                        translate(text.getText(), SubtitleModel.INSTANCE.getLang(), Lang.RU);
+                                    }
                                 });
                             }
                             elements.add(text);
                         }
                         if (!elements.isEmpty()) {
+                            subtitleTextContainer.add(buildSubtitleRow(elements));
                             Platform.runLater(() -> {
-                                subtitlePane.getChildren().clear();
-                                subtitlePane.getChildren().addAll(elements);
+                                subtitleBox.getChildren().clear();
+                                subtitleBox.getChildren().addAll(subtitleTextContainer);
                             });
                         }
                     } else {
-                        if (subtitlePane.isVisible()) {
+                        if (subtitleBox.isVisible()) {
                             Platform.runLater(() -> {
-                                subtitlePane.setVisible(false);
-                                subtitlePane.getChildren().clear();
+                                subtitleBox.setVisible(false);
+                                subtitleBox.getChildren().clear();
                             });
                         }
                     }
@@ -412,14 +455,32 @@ public class PlayerController {
             });
         });
 
-
-//        currentTimeLabel.addEventHandler(PLAYER_TICK.getEventType(), event -> Platform.runLater(() ->
-//                currentTimeLabel.setText(Time.formatTime(mediaPlayer.status().time()))));
-//        PlayerFactory.INSTANCE.registerEventTarget(currentTimeLabel);
-
+        subtitleBox.hoverProperty().addListener((observable, oldValue, newValue) -> {
+            if (!oldValue && newValue) {
+                if (mediaPlayer.status().isPlaying()) {
+                    mediaPlayer.controls().pause();
+                }
+            } else if (oldValue && !newValue) {
+                if (!isPaused.get() && !mediaPlayer.status().isPlaying()) {
+                    mediaPlayer.controls().play();
+                }
+            }
+        });
         controlPane.prefWidthProperty().bind(playerPane.widthProperty());
-        timelineSlider.valueProperty().addListener((obs, oldValue, newValue) -> updateMediaPlayerPosition(newValue.floatValue() / 100));
+        timelineBar.progressProperty().addListener((obs, oldValue, newValue) -> updateMediaPlayerPosition(newValue.floatValue()));
         volumeSlider.valueProperty().addListener((obs, oldValue, newValue) -> updateMediaPlayerVolumePosition(newValue.intValue()));
+    }
+
+    public void translate(String word, Lang from, Lang to) {
+        String url = String.format("%s/#view=home&op=translate&sl=%s&tl=%s&text=%s", HOST, from.name().toLowerCase(), to.name().toLowerCase(), word);
+        subtitleTranslate.getEngine().load(url);
+    }
+
+    private HBox buildSubtitleRow(List<Label> elements) {
+        HBox subtitleRow = new HBox();
+        subtitleRow.setAlignment(Pos.CENTER);
+        subtitleRow.getChildren().addAll(elements);
+        return subtitleRow;
     }
 
     private List<RadioMenuItem> buildSubtitleMenuItems() {
@@ -444,7 +505,10 @@ public class PlayerController {
             menuItem.setOnAction(event -> {
                 Set<Subtitle> subtitlesDto = SubtitleService.buildSubtitles(Lang.valueOf(((RadioMenuItem) event.getTarget()).getId()));
                 if (subtitlesDto != null) {
-                    Platform.runLater(() -> SubtitleModel.INSTANCE.setSubtitles(subtitlesDto));
+                    Platform.runLater(() -> {
+                        SubtitleModel.INSTANCE.setLang(subtitle.getLang());
+                        SubtitleModel.INSTANCE.setSubtitles(subtitlesDto);
+                    });
                 }
             });
             subtitleItems.add(menuItem);
@@ -481,6 +545,7 @@ public class PlayerController {
 
     @FXML
     public void changePlaying() {
+        isPaused = new AtomicBoolean(mediaPlayer.status().isPlaying());
         if (mediaPlayer.status().isPlaying()) {
             mediaPlayer.controls().pause();
         } else {
@@ -502,18 +567,18 @@ public class PlayerController {
             fullscreenButton.getStyleClass().remove("icon-fullscreen-out");
             fullscreenButton.getStyleClass().add("icon-fullscreen-in");
             closeButton.setVisible(true);
-            mouseTimer.cancel();
-            preventSleepTimer.cancel();
+//            mouseTimer.cancel();
+//            preventSleepTimer.cancel();
         } else {
             stage.getScene().setOnMouseMoved(mouseMovedEventHandler);
             stage.setFullScreen(true);
             fullscreenButton.getStyleClass().remove("icon-fullscreen-in");
             fullscreenButton.getStyleClass().add("icon-fullscreen-out");
             closeButton.setVisible(false);
-            mouseTimer = new Timer();
-            mouseTimer.scheduleAtFixedRate(mouseHideTask, 0, 3000);
-            preventSleepTimer = new Timer();
-            preventSleepTimer.scheduleAtFixedRate(mouseMoveTask, 0, 600000);
+//            mouseTimer = new Timer();
+//            mouseTimer.scheduleAtFixedRate(mouseHideTask, 0, 3000);
+//            preventSleepTimer = new Timer();
+//            preventSleepTimer.scheduleAtFixedRate(mouseMoveTask, 0, 600000);
         }
     }
 
@@ -528,11 +593,8 @@ public class PlayerController {
         mediaPlayer.audio().setMute(!mediaPlayer.audio().isMute());
     }
 
-    private void updateDuration(long newValue) {
-//        durationLabel.setText(Time.formatTime(newValue));
-    }
-
     private synchronized void updateMediaPlayerPosition(float newValue) {
+        System.out.println("updateMediaPlayerPosition: " + newValue);
         if (timelineTracking.get()) {
             mediaPlayer.controls().setPosition(newValue);
         }
@@ -546,33 +608,26 @@ public class PlayerController {
 
     @FXML
     private synchronized void beginMovieTracking() {
+        System.out.println("beginMovieTracking");
         timelineTracking.set(true);
     }
 
     @FXML
-    private synchronized void endMovieTracking() {
+    private synchronized void endMovieTracking(Event event) {
+        System.out.println("endMovieTracking");
+
         timelineTracking.set(false);
         subLastUpdate = 0;
-        float ratio = (float) timelineSlider.getValue() / 100;
+        float ratio = (float) (((MouseEvent) event).getX() / timelineBar.getWidth());
         Movie movie = SceneModel.INSTANCE.getActiveMovieModel().getMovie();
         Long fileSize = movie.getFileSize();
         if (fileSize != null) {
             File file = new File(Preferences.getPreference(Preferences.PrefKey.STORAGE) + movie.getFile());
             if (file.exists() && file.length() > fileSize * ratio) {
+                timelineBar.setProgress(ratio);
                 mediaPlayer.controls().setPosition(ratio);
-                return;
             }
         }
-//        CompletableFuture<Boolean> future = BtClientService.INSTANCE.toPosition(ratio);
-//        try {
-//            mediaPlayer.controls().pause();
-//            if (future.get()) {
-//                mediaPlayer.controls().setPosition(ratio);
-//            }
-//            mediaPlayer.controls().play();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
     }
 
     @FXML
@@ -592,7 +647,8 @@ public class PlayerController {
 
     private synchronized void updateMovieTrackingPosition(float newValue) {
         if (!timelineTracking.get()) {
-            timelineSlider.setValue(newValue * 100);
+            System.out.println("updateMovieTrackingPosition: " + newValue);
+            timelineBar.setProgress(newValue);
         }
     }
 

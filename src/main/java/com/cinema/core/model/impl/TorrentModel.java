@@ -76,6 +76,13 @@ public class TorrentModel extends ObservableModel implements Stoppable {
         return (int) (downloadedPart * 100);
     }
 
+    public double getDownloadedPart() {
+        if (torrentSessionState == null || torrentSessionState.getPiecesTotal() == 0) {
+            return 0;
+        }
+        return (double) torrentSessionState.getPiecesComplete() / torrentSessionState.getPiecesTotal();
+    }
+
     public int getPeers() {
         return torrentSessionState.getConnectedPeers().size();
     }

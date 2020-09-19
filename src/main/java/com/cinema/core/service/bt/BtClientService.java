@@ -51,7 +51,6 @@ public enum BtClientService implements Stoppable {
             return Runtime.getRuntime().availableProcessors() * 2;
         }
     };
-    private final Storage storage = new FileSystemStorage(Paths.get(Preferences.getPreference(Preferences.PrefKey.STORAGE)));
     private final SequentialPositioningSelector selector = new SequentialPositioningSelector();
     private BtClient btClient;
     private Source source;
@@ -62,7 +61,6 @@ public enum BtClientService implements Stoppable {
         BtClient btClient = Bt.client()
                 .config(config)
                 .module(dhtModule)
-                .storage(storage)
                 .magnet(hash)
                 .autoLoadModules()
                 .afterTorrentFetched(t -> torrent[0] = t)
@@ -88,6 +86,7 @@ public enum BtClientService implements Stoppable {
             stop();
         }
         this.source = source;
+        Storage storage = new FileSystemStorage(Paths.get(Preferences.getPreference(Preferences.PrefKey.STORAGE) + source.getFile().split("\\\\")[0]));
         btClient = Bt.client()
                 .config(config)
                 .module(dhtModule)

@@ -7,6 +7,7 @@ import com.cinema.core.entity.Magnet;
 import com.cinema.core.entity.Movie;
 import com.cinema.core.model.impl.SceneModel;
 import com.cinema.core.model.impl.SubtitleModel;
+import com.cinema.core.model.impl.TorrentModel;
 import com.cinema.core.service.subtitle.SubtitleService;
 import com.cinema.javafx.player.PlayerFactory;
 import javafx.application.Platform;
@@ -87,6 +88,7 @@ public class PlayerController {
     private VBox subtitleContainer;
 
     private long subLastUpdate;
+    private long timeLabelLastUpdate;
     private float sliderLastUpdate;
 
     private int lastVolume = 50;
@@ -119,6 +121,7 @@ public class PlayerController {
     };
 
     private Timer timer;
+    private Timer downloadTimer;
 
     public void play() {
         mediaPlayer.submit(() ->
@@ -139,6 +142,16 @@ public class PlayerController {
         }, 0, 1000);
     }
 
+    public void startDownloadedTimer() {
+        downloadTimer = new Timer();
+        downloadTimer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                Platform.runLater(() -> downloadBar.setProgress(TorrentModel.INSTANCE.getDownloadedPart()));
+            }
+        }, 1000, 1000);
+    }
+
     public void stopTimer() {
         if (timer != null) {
             timer.cancel();
@@ -150,8 +163,19 @@ public class PlayerController {
         videoImageView.fitHeightProperty().bind(playerPane.getScene().heightProperty());
     }
 
+    public static String formatTime(long value) {
+        value /= 1000;
+        int hours = (int) value / 3600;
+        int remainder = (int) value - hours * 3600;
+        int minutes = remainder / 60;
+        remainder = remainder - minutes * 60;
+        int seconds = remainder;
+        return String.format("%d:%02d:%02d", hours, minutes, seconds);
+    }
+
     @FXML
     public void initialize() {
+        startDownloadedTimer();
         Platform.runLater(() -> {
             Movie movie = SceneModel.INSTANCE.getActiveMovieModel().getMovie();
             Long fileSize = movie.getFileSize();
@@ -161,7 +185,6 @@ public class PlayerController {
                     downloadBar.setProgress((float) file.length() / fileSize);
                 }
             }
-            durationLabel.setText(String.format(""));
 
             subtitleTranslate = new WebView();
             subtitleTranslate.setPrefHeight(200);
@@ -190,7 +213,13 @@ public class PlayerController {
                 @Override
                 public void opening(MediaPlayer mediaPlayer) {
                     System.out.println("opening");
-                    Platform.runLater(() -> volumeSlider.setValue(lastVolume));
+                    subLastUpdate = 0;
+                    timeLabelLastUpdate = 0;
+                    Platform.runLater(() -> {
+                        volumeSlider.setValue(lastVolume);
+                        currentTimeLabel.setText(formatTime(0));
+                        durationLabel.setText(formatTime(movie.getDuration() * 60_000));
+                    });
                 }
 
                 @Override
@@ -257,6 +286,10 @@ public class PlayerController {
 
                 @Override
                 public void timeChanged(MediaPlayer mediaPlayer, long newTime) {
+                    if (newTime - timeLabelLastUpdate >= 1000) {
+                        Platform.runLater(() -> currentTimeLabel.setText(formatTime(newTime)));
+                        timeLabelLastUpdate = newTime;
+                    }
                     if (!SubtitleModel.INSTANCE.isShowSubtitles() || newTime - subLastUpdate < 100) {
                         return;
                     }
@@ -554,11 +587,6 @@ public class PlayerController {
     }
 
     @FXML
-    public void settings() {
-
-    }
-
-    @FXML
     public void changeFullscreenStatus() {
         Stage stage = ((Stage) videoImageView.getScene().getWindow());
         if (stage.isFullScreen()) {
@@ -618,12 +646,13 @@ public class PlayerController {
 
         timelineTracking.set(false);
         subLastUpdate = 0;
+        timeLabelLastUpdate = 0;
         float ratio = (float) (((MouseEvent) event).getX() / timelineBar.getWidth());
         Movie movie = SceneModel.INSTANCE.getActiveMovieModel().getMovie();
         Long fileSize = movie.getFileSize();
         if (fileSize != null) {
             File file = new File(Preferences.getPreference(Preferences.PrefKey.STORAGE) + movie.getFile());
-            if (file.exists() && file.length() > fileSize * ratio) {
+            if (file.exists() && file.length() > fileSize * ratio * 1.1) {
                 timelineBar.setProgress(ratio);
                 mediaPlayer.controls().setPosition(ratio);
             }

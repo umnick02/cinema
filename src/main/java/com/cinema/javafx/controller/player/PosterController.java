@@ -61,7 +61,11 @@ public class PosterController {
                 Platform.runLater(() -> {
                     logger.info("Handle event {} from source {} on target {}", event.getEventType(), event.getSource(), event.getTarget());
 
-                    String status = String.format("Загрузка: %d %%", TorrentModel.INSTANCE.getStatus());
+                    int statusVal = TorrentModel.INSTANCE.getStatus();
+                    if (statusVal >= 100) {
+                        TorrentModel.INSTANCE.unRegisterEventTarget(torrentStatistic);
+                    }
+                    String status = String.format("Загрузка: %d %%", statusVal);
                     String peers = String.format("Пиров: %d", TorrentModel.INSTANCE.getPeers());
                     String speed = String.format("Скорость: %d kb/s", TorrentModel.INSTANCE.getAvgSpeed());
 

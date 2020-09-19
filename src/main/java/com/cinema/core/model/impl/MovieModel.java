@@ -131,10 +131,10 @@ public class MovieModel extends ObservableModel {
         if (isSeries()) {
             Episode episode = activeSeasonModel.getActiveEpisodeModel().getEpisode();
             File onDiskFile = new File(Preferences.getPreference(Preferences.PrefKey.STORAGE) + episode.getFile());
-            return episode.getFile() != null && onDiskFile.exists() && onDiskFile.length() > episode.getFileSize() * 0.01;
+            return episode.getFile() != null && onDiskFile.exists() && onDiskFile.length() > episode.getFileSize() * 0.5 / episode.getSeries().getDuration();
         } else {
             File onDiskFile = new File(Preferences.getPreference(Preferences.PrefKey.STORAGE) + movie.getFile());
-            return movie.getFile() != null && onDiskFile.exists() && onDiskFile.length() > movie.getFileSize() * 0.01;
+            return movie.getFile() != null && onDiskFile.exists() && onDiskFile.length() > movie.getFileSize() * 0.5 / movie.getDuration();
         }
     }
 

@@ -38,7 +38,7 @@ public class SubtitleParser {
 
     public static Magnet.Subtitle getSubtitleFile(Source source, Lang lang) {
         Magnet.Subtitle subtitle = getSubtitle(source.getSubtitles(), lang);
-        if (Objects.nonNull(subtitle)) {
+        if (subtitle != null) {
             return subtitle;
         }
         if (source instanceof Movie) {
@@ -51,7 +51,7 @@ public class SubtitleParser {
     }
 
     private static Magnet.Subtitle getSubtitle(Set<Magnet.Subtitle> subtitles, Lang lang) {
-        if (Objects.isNull(subtitles)) {
+        if (subtitles == null) {
             return null;
         }
         Optional<Magnet.Subtitle> optionalSubtitle = subtitles.stream().filter(subtitle -> subtitle.getLang() == lang).findFirst();

@@ -1,7 +1,6 @@
-package com.cinema.core.service.subtitle;
+package com.cinema.core.service.player.subtitle;
 
 import com.cinema.core.config.Lang;
-import com.cinema.core.config.Preferences;
 import com.cinema.core.dto.Subtitle;
 import com.cinema.core.entity.Magnet;
 import com.cinema.core.entity.Source;
@@ -17,7 +16,6 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.cinema.core.config.Preferences.PrefKey.STORAGE;
 import static com.cinema.core.service.parser.SubtitleParser.getSubtitleFile;
 import static java.lang.Character.isLetter;
 
@@ -34,26 +32,30 @@ public class SubtitleService {
     }
 
     public static Set<Subtitle> buildSubtitles(Lang lang) {
-        Source source;
-        if (SceneModel.INSTANCE.getActiveMovieModel().isSeries()) {
-            source = SceneModel.INSTANCE.getActiveMovieModel().getActiveSeasonModel().getActiveEpisodeModel().getEpisode();
-        } else {
-            source = SceneModel.INSTANCE.getActiveMovieModel().getMovie();
-        }
-        Magnet.Subtitle subtitle = source.getSubtitles().stream()
-                .filter(subtitleEntry -> subtitleEntry.getLang() == lang).findFirst().orElse(null);
-        if (Objects.isNull(subtitle)) {
+        Source source = SceneModel.INSTANCE.getActiveSource();
+        Magnet.Subtitle subtitle = getSubtitleWithLang(source, lang);
+        if (subtitle == null) {
             return null;
         }
-        File file = new File(Preferences.getPreference(STORAGE) + subtitle.getFile());
+        File file = new File(subtitle.getFile());
         if (!file.exists()) {
             getSubtitleFile(source, lang);
+            if (!file.exists()) {
+                System.out.println("file not found");
+                return null;
+            }
         }
         try {
             return buildSubtitles(file);
         } catch (IOException e) {
+            e.printStackTrace();
             return null;
         }
+    }
+
+    private static Magnet.Subtitle getSubtitleWithLang(Source source, Lang lang) {
+        return source.getSubtitles().stream()
+                .filter(subtitleEntry -> subtitleEntry.getLang() == lang).findFirst().orElse(null);
     }
 
     private static Set<Subtitle> buildSubtitles(File file) throws IOException {

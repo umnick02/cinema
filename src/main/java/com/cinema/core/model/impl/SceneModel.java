@@ -1,19 +1,16 @@
 package com.cinema.core.model.impl;
 
 import com.cinema.core.entity.Movie;
+import com.cinema.core.entity.Source;
 import com.cinema.core.model.ModelEventType;
 import com.cinema.core.model.ObservableModel;
 import javafx.event.Event;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class SceneModel extends ObservableModel {
-
-    private static final Logger logger = LoggerFactory.getLogger(SceneModel.class);
 
     public static final SceneModel INSTANCE = new SceneModel();
 
@@ -39,6 +36,14 @@ public class SceneModel extends ObservableModel {
 
     public MovieModel getActiveMovieModel() {
         return activeMovieModel;
+    }
+
+    public Source getActiveSource() {
+        if (SceneModel.INSTANCE.getActiveMovieModel().isSeries()) {
+            return SceneModel.INSTANCE.getActiveMovieModel().getActiveSeasonModel().getActiveEpisodeModel().getEpisode();
+        } else {
+            return SceneModel.INSTANCE.getActiveMovieModel().getMovie();
+        }
     }
 
     public void setMovies(Set<Movie> movies) {

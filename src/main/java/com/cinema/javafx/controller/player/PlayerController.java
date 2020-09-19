@@ -8,24 +8,20 @@ import com.cinema.core.entity.Movie;
 import com.cinema.core.model.impl.SceneModel;
 import com.cinema.core.model.impl.SubtitleModel;
 import com.cinema.core.model.impl.TorrentModel;
-import com.cinema.core.service.subtitle.SubtitleService;
+import com.cinema.core.service.player.subtitle.SubtitleService;
 import com.cinema.javafx.player.PlayerFactory;
 import javafx.application.Platform;
-import javafx.concurrent.Worker;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.geometry.Pos;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
-import javafx.scene.web.WebView;
 import javafx.stage.Stage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import uk.co.caprica.vlcj.media.MediaRef;
 import uk.co.caprica.vlcj.media.TrackType;
 import uk.co.caprica.vlcj.player.base.MediaPlayer;
@@ -46,10 +42,7 @@ import static javafx.scene.input.MouseEvent.ANY;
 
 public class PlayerController {
 
-    private static final Logger logger = LoggerFactory.getLogger(PlayerController.class);
-
     public static EmbeddedMediaPlayer mediaPlayer;
-    private static final String HOST = "https://translate.google.com";
 
     @FXML
     private StackPane playerPane;
@@ -80,20 +73,15 @@ public class PlayerController {
     @FXML
     private Menu subtitleMenu;
     @FXML
-    private VBox subtitleBox;
-    @FXML
     private BorderPane playerControlsPane;
-    private WebView subtitleTranslate;
     @FXML
-    private VBox subtitleContainer;
+    private VBox playerBottom;
 
-    private long subLastUpdate;
     private long timeLabelLastUpdate;
     private float sliderLastUpdate;
 
     private int lastVolume = 50;
     private boolean isAudioMenuSet = false;
-    private AtomicBoolean isPaused = new AtomicBoolean(false);
 
     private final AtomicBoolean timelineTracking = new AtomicBoolean();
     private final AtomicBoolean volumeTracking = new AtomicBoolean();
@@ -101,7 +89,6 @@ public class PlayerController {
     private Timer mouseTimer = new Timer();
     private Timer preventSleepTimer = new Timer();
     private LocalDateTime lastMouseMove;
-    private String lastClickedWord = null;
 
     private EventHandler<MouseEvent> mouseMovedEventHandler = event -> {
         lastMouseMove = LocalDateTime.now();
@@ -123,6 +110,7 @@ public class PlayerController {
     private Timer timer;
     private Timer downloadTimer;
 
+    private SubtitleController subtitleController;
     public void play() {
         mediaPlayer.submit(() ->
                 mediaPlayer.media().play(
@@ -186,25 +174,6 @@ public class PlayerController {
                 }
             }
 
-            subtitleTranslate = new WebView();
-            subtitleTranslate.setPrefHeight(200);
-            subtitleTranslate.setPrefWidth(Double.MAX_VALUE);
-            subtitleTranslate.getEngine().setJavaScriptEnabled(true);
-            subtitleTranslate.getEngine().getLoadWorker().stateProperty().addListener((observable, oldValue, newValue) -> {
-                if (newValue == Worker.State.SUCCEEDED) {
-                    subtitleTranslate.getEngine().executeScript("javascript:(function() { " +
-                            "document.getElementsByClassName('input-button-container')[0].style.display='none'; " +
-                            "document.getElementsByClassName('tlid-language-bar')[0].style.display='none'; " +
-                            "document.getElementsByClassName('tlid-source-target')[0].style.display='none'; " +
-                            "document.getElementsByClassName('tlid-source-target')[0].style.paddingTop=0; " +
-                            "document.getElementsByClassName('frame')[0].style.height='auto'; " +
-                            "document.getElementsByClassName('frame')[0].style.overflowY='auto'; " +
-                            "document.getElementsByClassName('notification-area')[0].style.display='none'; " +
-                            "document.getElementsByClassName('gp-footer')[0].style.display='none'; " +
-                            "document.getElementsByTagName('header')[0].style.display='none'; " +
-                            "})()");
-                }
-            });
             mediaPlayer = PlayerFactory.buildMediaPlayer(videoImageView);
             mediaPlayer.events().addMediaPlayerEventListener(new MediaPlayerEventAdapter() {
                 @Override
@@ -213,7 +182,6 @@ public class PlayerController {
                 @Override
                 public void opening(MediaPlayer mediaPlayer) {
                     System.out.println("opening");
-                    subLastUpdate = 0;
                     timeLabelLastUpdate = 0;
                     Platform.runLater(() -> {
                         volumeSlider.setValue(lastVolume);
@@ -230,7 +198,6 @@ public class PlayerController {
                 public void playing(MediaPlayer mediaPlayer) {
                     System.out.println("playing");
                     Platform.runLater(() -> {
-                        subtitleContainer.getChildren().remove(subtitleTranslate);
                         playButton.getStyleClass().remove("icon-play");
                         if (!playButton.getStyleClass().contains("icon-pause")) {
                             playButton.getStyleClass().add("icon-pause");
@@ -289,82 +256,6 @@ public class PlayerController {
                     if (newTime - timeLabelLastUpdate >= 1000) {
                         Platform.runLater(() -> currentTimeLabel.setText(formatTime(newTime)));
                         timeLabelLastUpdate = newTime;
-                    }
-                    if (!SubtitleModel.INSTANCE.isShowSubtitles() || newTime - subLastUpdate < 100) {
-                        return;
-                    }
-                    subLastUpdate = newTime;
-                    Subtitle subtitle = SubtitleModel.INSTANCE.actualSubtitle(newTime);
-                    if (subtitle != null) {
-                        if (subtitle.equals(SubtitleModel.INSTANCE.getActiveSubtitle())) {
-                            return;
-                        }
-                        if (!subtitleBox.isVisible()) {
-                            Platform.runLater(() -> {
-                                subtitleBox.getChildren().clear();
-                                subtitleBox.setVisible(true);
-                            });
-                        }
-
-                        List<HBox> subtitleTextContainer = new ArrayList<>();
-                        List<Label> elements = new ArrayList<>();
-                        Stage stage = ((Stage) videoImageView.getScene().getWindow());
-                        boolean italic = false;
-                        for (String element : subtitle.getElements()) {
-                            if (element.equals("\n")) {
-                                subtitleTextContainer.add(buildSubtitleRow(elements));
-                                elements = new ArrayList<>();
-                                continue;
-                            }
-                            if (element.equals("<i>")) {
-                                italic = true;
-                                continue;
-                            }
-                            if (element.equals("</i>")) {
-                                italic = false;
-                                continue;
-                            }
-
-                            Label text = new Label();
-                            text.setText(element);
-                            text.getStyleClass().addAll("subtitle-element", stage.isFullScreen() ? "sub-big" : "sub-small");
-                            if (italic) {
-                                text.getStyleClass().add("text-italic");
-                            }
-                            if (SubtitleService.isWord(element)) {
-                                text.setCursor(Cursor.HAND);
-                                text.setOnMouseClicked((event) -> {
-                                    if ((lastClickedWord != null && lastClickedWord.equals(text.getText())) || !subtitleContainer.getChildren().contains(subtitleTranslate)) {
-                                        if (subtitleContainer.getChildren().contains(subtitleTranslate)) {
-                                            subtitleContainer.getChildren().remove(subtitleTranslate);
-                                        } else {
-                                            subtitleContainer.getChildren().add(0, subtitleTranslate);
-                                        }
-                                    }
-                                    if (subtitleContainer.getChildren().contains(subtitleTranslate)) {
-                                        isPaused = new AtomicBoolean(true);
-                                        paused(mediaPlayer);
-                                        lastClickedWord = text.getText();
-                                        translate(text.getText(), SubtitleModel.INSTANCE.getLang(), Lang.RU);
-                                    }
-                                });
-                            }
-                            elements.add(text);
-                        }
-                        if (!elements.isEmpty()) {
-                            subtitleTextContainer.add(buildSubtitleRow(elements));
-                            Platform.runLater(() -> {
-                                subtitleBox.getChildren().clear();
-                                subtitleBox.getChildren().addAll(subtitleTextContainer);
-                            });
-                        }
-                    } else {
-                        if (subtitleBox.isVisible()) {
-                            Platform.runLater(() -> {
-                                subtitleBox.setVisible(false);
-                                subtitleBox.getChildren().clear();
-                            });
-                        }
                     }
                 }
 
@@ -487,42 +378,13 @@ public class PlayerController {
                 subtitleMenu.getItems().add(menuItem);
             });
         });
-
-        subtitleBox.hoverProperty().addListener((observable, oldValue, newValue) -> {
-            if (!oldValue && newValue) {
-                if (mediaPlayer.status().isPlaying()) {
-                    mediaPlayer.controls().pause();
-                }
-            } else if (oldValue && !newValue) {
-                if (!isPaused.get() && !mediaPlayer.status().isPlaying()) {
-                    mediaPlayer.controls().play();
-                }
-            }
-        });
         controlPane.prefWidthProperty().bind(playerPane.widthProperty());
         timelineBar.progressProperty().addListener((obs, oldValue, newValue) -> updateMediaPlayerPosition(newValue.floatValue()));
         volumeSlider.valueProperty().addListener((obs, oldValue, newValue) -> updateMediaPlayerVolumePosition(newValue.intValue()));
     }
 
-    public void translate(String word, Lang from, Lang to) {
-        String url = String.format("%s/#view=home&op=translate&sl=%s&tl=%s&text=%s", HOST, from.name().toLowerCase(), to.name().toLowerCase(), word);
-        subtitleTranslate.getEngine().load(url);
-    }
-
-    private HBox buildSubtitleRow(List<Label> elements) {
-        HBox subtitleRow = new HBox();
-        subtitleRow.setAlignment(Pos.CENTER);
-        subtitleRow.getChildren().addAll(elements);
-        return subtitleRow;
-    }
-
     private List<RadioMenuItem> buildSubtitleMenuItems() {
-        Set<Magnet.Subtitle> subtitles;
-        if (!SceneModel.INSTANCE.getActiveMovieModel().isSeries()) {
-            subtitles = SceneModel.INSTANCE.getActiveMovieModel().getMovie().getSubtitles();
-        } else {
-            subtitles = SceneModel.INSTANCE.getActiveMovieModel().getActiveSeasonModel().getActiveEpisodeModel().getEpisode().getSubtitles();
-        }
+        Set<Magnet.Subtitle> subtitles = SceneModel.INSTANCE.getActiveSource().getSubtitles();
         List<RadioMenuItem> subtitleItems = new ArrayList<>();
         RadioMenuItem offMenuItem = new RadioMenuItem("Off");
         offMenuItem.setId("Off");
@@ -541,6 +403,17 @@ public class PlayerController {
                     Platform.runLater(() -> {
                         SubtitleModel.INSTANCE.setLang(subtitle.getLang());
                         SubtitleModel.INSTANCE.setSubtitles(subtitlesDto);
+                        if (subtitleController != null) {
+                            subtitleController.stop();
+                        }
+                        FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/player/subtitle.fxml"));
+                        subtitleController = new SubtitleController(mediaPlayer, playerBottom);
+                        loader.setController(subtitleController);
+                        try {
+                            loader.load();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     });
                 }
             });
@@ -578,7 +451,6 @@ public class PlayerController {
 
     @FXML
     public void changePlaying() {
-        isPaused = new AtomicBoolean(mediaPlayer.status().isPlaying());
         if (mediaPlayer.status().isPlaying()) {
             mediaPlayer.controls().pause();
         } else {
@@ -645,7 +517,6 @@ public class PlayerController {
         System.out.println("endMovieTracking");
 
         timelineTracking.set(false);
-        subLastUpdate = 0;
         timeLabelLastUpdate = 0;
         float ratio = (float) (((MouseEvent) event).getX() / timelineBar.getWidth());
         Movie movie = SceneModel.INSTANCE.getActiveMovieModel().getMovie();

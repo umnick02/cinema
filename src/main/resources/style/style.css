@@ -254,6 +254,12 @@
 .text-italic {
     -fx-font-style: italic;
 }
+.text-bold {
+    -fx-font-style: oblique;
+}
+.text-underline {
+    -fx-underline: true;
+}
 
 .text-main {
     -fx-font-size: 1.1em;

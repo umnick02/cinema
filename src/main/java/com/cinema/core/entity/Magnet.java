@@ -1,6 +1,7 @@
 package com.cinema.core.entity;
 
 import com.cinema.core.config.Lang;
+import com.cinema.core.config.Preferences;
 import com.cinema.core.converter.SubtitleConverter;
 
 import javax.persistence.*;
@@ -74,7 +75,7 @@ public class Magnet {
         }
 
         public String getFile() {
-            return file;
+            return Preferences.getPreference(Preferences.PrefKey.STORAGE) + file;
         }
 
         public void setFile(String file) {

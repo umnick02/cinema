@@ -3,7 +3,6 @@ package com.cinema.javafx.controller.player;
 import com.cinema.core.config.Lang;
 import com.cinema.core.dto.SubtitleFileEntry;
 import com.cinema.core.model.impl.PlayerModel;
-import com.cinema.core.model.impl.SceneModel;
 import com.cinema.core.model.impl.SubtitleModel;
 import com.cinema.core.service.Stoppable;
 import com.cinema.core.service.player.subtitle.SubtitleService;
@@ -23,6 +22,8 @@ import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import static com.cinema.core.model.ModelEventType.*;
 
 public class SubtitleController implements Stoppable {
 
@@ -59,6 +60,14 @@ public class SubtitleController implements Stoppable {
 
     @FXML
     public void initialize() {
+        subVBox.addEventFilter(SUBTITLE_UPDATE.getEventType(), event -> {
+            if (SubtitleModel.INSTANCE.getSubtitleFileEntry() == null) {
+                hideSub();
+                return;
+            }
+            renderSubElements(SubtitleModel.INSTANCE.getSubtitleFileEntry());
+        });
+        SubtitleModel.INSTANCE.registerEventTarget(subVBox);
         subVBox.hoverProperty().addListener((observable, oldValue, newValue) -> {
             if (!oldValue && newValue) {
                 if (mediaPlayer.status().isPlaying()) {
@@ -89,15 +98,7 @@ public class SubtitleController implements Stoppable {
                     return;
                 }
                 subLastRenderTime = newTime;
-                SubtitleFileEntry subtitle = SubtitleModel.INSTANCE.actualSubtitle(newTime);
-                if (subtitle == null) {
-                    hideSub();
-                    return;
-                }
-                if (subtitle.equals(SubtitleModel.INSTANCE.getActiveSubtitle())) {
-                    return;
-                }
-                renderSubElements(subtitle);
+                SubtitleModel.INSTANCE.actualSubtitleFileEntry(newTime);
             }
         };
     }
@@ -254,6 +255,7 @@ public class SubtitleController implements Stoppable {
     @Override
     public void stop() {
         mediaPlayer.events().removeMediaPlayerEventListener(eventAdapter);
+        SubtitleModel.INSTANCE.unRegisterEventTarget(subVBox);
         removeSub();
     }
 }

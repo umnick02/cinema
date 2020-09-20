@@ -1,6 +1,5 @@
 package com.cinema.core.entity;
 
-import com.cinema.core.config.Preferences;
 import com.cinema.core.dto.Award;
 import com.cinema.core.dto.Cast;
 import com.google.gson.Gson;
@@ -157,35 +156,27 @@ public class Movie implements MagnetHolder, SubtitleHolder {
     }
 
     public String fetchGenres() {
-        StringBuilder sb = new StringBuilder();
-        if (genre1 != null) {
-            sb.append(genre1);
-        }
-        if (genre2 != null) {
-            sb.append(" / ");
-            sb.append(genre2);
-        }
-        if (genre3 != null) {
-            sb.append(" / ");
-            sb.append(genre3);
-        }
-        return "Жанры: " + sb.toString();
+        return "Жанры: " + buildString(genre1, genre2, genre3);
     }
 
     public String fetchCountry() {
+        return "Страна: " + buildString(country1, country2, country3);
+    }
+
+    private String buildString(String... parts) {
         StringBuilder sb = new StringBuilder();
-        if (country1 != null) {
-            sb.append(country1);
+        if (parts[0] != null) {
+            sb.append(parts[0]);
         }
-        if (country2 != null) {
+        if (parts[1] != null) {
             sb.append(" / ");
-            sb.append(country2);
+            sb.append(parts[1]);
         }
-        if (country3 != null) {
+        if (parts[2] != null) {
             sb.append(" / ");
-            sb.append(country3);
+            sb.append(parts[2]);
         }
-        return "Страна: " + sb;
+        return sb.toString();
     }
 
     public String fetchDuration() {

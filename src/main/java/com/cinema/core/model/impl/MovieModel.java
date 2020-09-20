@@ -126,37 +126,19 @@ public class MovieModel extends ObservableModel {
     }
 
     public boolean isPlayable() {
-        if (movie.isSeries()) {
-            Episode episode = activeSeasonModel.getActiveEpisodeModel().getEpisode();
-            if (episode.getMagnet().getFullFile() == null) {
-                return false;
-            }
-            File onDiskFile = new File(episode.getMagnet().getFullFile());
-            return onDiskFile.exists() && onDiskFile.length() > episode.getMagnet().getFileSize() * Preferences.PRELOAD_MIN / episode.getSeries().getDuration();
-        } else {
-            if (movie.getMagnet().getFullFile() == null) {
-                return false;
-            }
-            File onDiskFile = new File(movie.getMagnet().getFullFile());
-            return onDiskFile.exists() && onDiskFile.length() > movie.getMagnet().getFileSize() * Preferences.PRELOAD_MIN / movie.getDuration();
+        File onDiskFile = getFile();
+        if (onDiskFile == null) {
+            return false;
         }
+        return onDiskFile.exists() && onDiskFile.length() > movie.getMagnet().getFileSize() * Preferences.PRELOAD_MIN / movie.getDuration();
     }
 
     public boolean isDownloaded() {
-        if (movie.isSeries()) {
-            Episode episode = activeSeasonModel.getActiveEpisodeModel().getEpisode();
-            if (episode.getMagnet().getFullFile() == null) {
-                return false;
-            }
-            File onDiskFile = new File(episode.getMagnet().getFullFile());
-            return onDiskFile.exists() && onDiskFile.length() == episode.getMagnet().getFileSize();
-        } else {
-            if (movie.getMagnet().getFullFile() == null) {
-                return false;
-            }
-            File onDiskFile = new File(movie.getMagnet().getFullFile());
-            return onDiskFile.exists() && onDiskFile.length() == movie.getMagnet().getFileSize();
+        File onDiskFile = getFile();
+        if (onDiskFile == null) {
+            return false;
         }
+        return onDiskFile.exists() && onDiskFile.length() == movie.getMagnet().getFileSize();
     }
 
     private File getFile() {

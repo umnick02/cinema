@@ -15,6 +15,7 @@ public enum ModelEventType {
     BUFFER_START(new EventType<>("BUFFER_START")),
     BUFFER_STOP(new EventType<>("BUFFER_STOP")),
     TORRENT_START(new EventType<>("TORRENT_START")),
+    SUBTITLE_UPDATE(new EventType<>("SUBTITLE_UPDATE")),
     ;
 
     private EventType<? extends Event> eventType;

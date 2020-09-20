@@ -383,7 +383,7 @@ public class PlayerController {
     }
 
     private List<RadioMenuItem> buildSubtitleMenuItems() {
-        Set<SubtitleFile> subtitleFiles = SceneModel.INSTANCE.getActiveSubtitle().getSubtitles();
+        Set<SubtitleFile> subtitleFiles = SceneModel.INSTANCE.getActiveSubtitleHolder().getSubtitle().getSubtitles();
         List<RadioMenuItem> subtitleItems = new ArrayList<>();
         RadioMenuItem offMenuItem = new RadioMenuItem("Off");
         offMenuItem.setId("Off");

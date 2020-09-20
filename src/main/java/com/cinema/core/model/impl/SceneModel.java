@@ -1,8 +1,6 @@
 package com.cinema.core.model.impl;
 
-import com.cinema.core.entity.Magnet;
 import com.cinema.core.entity.Movie;
-import com.cinema.core.entity.Subtitle;
 import com.cinema.core.entity.SubtitleHolder;
 import com.cinema.core.model.ModelEventType;
 import com.cinema.core.model.ObservableModel;
@@ -36,26 +34,10 @@ public class SceneModel extends ObservableModel {
     }
 
     public SubtitleHolder getActiveSubtitleHolder() {
-        if (SceneModel.INSTANCE.getActiveMovieModel().getMovie().isSeries()) {
-            return SceneModel.INSTANCE.getActiveMovieModel().getActiveSeasonModel().getActiveEpisodeModel().getEpisode();
+        if (activeMovieModel.getMovie().isSeries()) {
+            return activeMovieModel.getActiveSeasonModel().getActiveEpisodeModel().getEpisode();
         } else {
-            return SceneModel.INSTANCE.getActiveMovieModel().getMovie();
-        }
-    }
-
-    public Subtitle getActiveSubtitle() {
-        if (SceneModel.INSTANCE.getActiveMovieModel().getMovie().isSeries()) {
-            return SceneModel.INSTANCE.getActiveMovieModel().getActiveSeasonModel().getActiveEpisodeModel().getEpisode().getSubtitle();
-        } else {
-            return SceneModel.INSTANCE.getActiveMovieModel().getMovie().getSubtitle();
-        }
-    }
-
-    public Magnet getActiveMagnet() {
-        if (SceneModel.INSTANCE.getActiveMovieModel().getMovie().isSeries()) {
-            return SceneModel.INSTANCE.getActiveMovieModel().getActiveSeasonModel().getActiveEpisodeModel().getEpisode().getMagnet();
-        } else {
-            return SceneModel.INSTANCE.getActiveMovieModel().getMovie().getMagnet();
+            return activeMovieModel.getMovie();
         }
     }
 

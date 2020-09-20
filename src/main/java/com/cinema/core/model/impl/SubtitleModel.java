@@ -1,10 +1,8 @@
 package com.cinema.core.model.impl;
 
 import com.cinema.core.config.Lang;
-import com.cinema.core.dto.Subtitle;
-import com.cinema.core.model.ModelEventType;
+import com.cinema.core.dto.SubtitleFileEntry;
 import com.cinema.core.model.ObservableModel;
-import javafx.event.Event;
 
 import java.time.LocalTime;
 import java.util.Set;
@@ -13,8 +11,8 @@ public class SubtitleModel extends ObservableModel {
 
     public static SubtitleModel INSTANCE = new SubtitleModel();
 
-    private Set<Subtitle> subtitles;
-    private Subtitle activeSubtitle;
+    private Set<SubtitleFileEntry> subtitles;
+    private SubtitleFileEntry activeSubtitle;
     private Lang lang;
     private boolean showSubtitles = false;
 
@@ -34,16 +32,16 @@ public class SubtitleModel extends ObservableModel {
         this.showSubtitles = showSubtitles;
     }
 
-    public void setSubtitles(Set<Subtitle> subtitles) {
+    public void setSubtitles(Set<SubtitleFileEntry> subtitles) {
         this.subtitles = subtitles;
         showSubtitles = true;
     }
 
-    public Subtitle getActiveSubtitle() {
+    public SubtitleFileEntry getActiveSubtitle() {
         return activeSubtitle;
     }
 
-    public Subtitle actualSubtitle(long time) {
+    public SubtitleFileEntry actualSubtitle(long time) {
         LocalTime localTime = LocalTime.ofNanoOfDay(time * 1_000_000);
         return subtitles.stream()
                 .filter(subtitle -> subtitle.getFrom().isBefore(localTime) && subtitle.getTo().isAfter(localTime))

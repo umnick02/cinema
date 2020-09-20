@@ -1,10 +1,8 @@
 package com.cinema.core.service.parser;
 
 import com.cinema.core.config.Lang;
-import com.cinema.core.entity.Episode;
-import com.cinema.core.entity.Magnet;
-import com.cinema.core.entity.Movie;
-import com.cinema.core.entity.Source;
+import com.cinema.core.dto.SubtitleFile;
+import com.cinema.core.entity.*;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -29,40 +27,40 @@ public class SubtitleParser {
         parseSubtitle("Guns Akimbo", 2019, Lang.EN, null, null);
     }
 
-    public static Set<Magnet.Subtitle> buildSubtitles(Source source, Lang... langs) {
+    public static Set<SubtitleFile> buildSubtitles(SubtitleHolder subtitleHolder, Lang... langs) {
         return Arrays.stream(langs)
-                .map(lang -> SubtitleParser.getSubtitleFile(source, lang))
+                .map(lang -> SubtitleParser.getSubtitleFile(subtitleHolder, lang))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
     }
 
-    public static Magnet.Subtitle getSubtitleFile(Source source, Lang lang) {
-        Magnet.Subtitle subtitle = getSubtitle(source.getSubtitles(), lang);
-        if (subtitle != null) {
-            return subtitle;
+    public static SubtitleFile getSubtitleFile(SubtitleHolder subtitleHolder, Lang lang) {
+        SubtitleFile subtitleFile = getSubtitleFile(subtitleHolder.getSubtitle().getSubtitles(), lang);
+        if (subtitleFile != null) {
+            return subtitleFile;
         }
-        if (source instanceof Movie) {
-            Movie movie = (Movie) source;
+        if (subtitleHolder instanceof Movie) {
+            Movie movie = (Movie) subtitleHolder;
             return parseSubtitle(movie.getOriginalTitle(), movie.getReleaseDate().getYear(), lang, null, null);
         } else {
-            Episode episode = (Episode) source;
+            Episode episode = (Episode) subtitleHolder;
             return parseSubtitle(episode.getSeries().getOriginalTitle(), episode.getReleaseDate().getYear(), lang, episode.getSeason(), episode.getEpisode());
         }
     }
 
-    private static Magnet.Subtitle getSubtitle(Set<Magnet.Subtitle> subtitles, Lang lang) {
+    private static SubtitleFile getSubtitleFile(Set<SubtitleFile> subtitles, Lang lang) {
         if (subtitles == null) {
             return null;
         }
-        Optional<Magnet.Subtitle> optionalSubtitle = subtitles.stream().filter(subtitle -> subtitle.getLang() == lang).findFirst();
+        Optional<SubtitleFile> optionalSubtitle = subtitles.stream().filter(subtitle -> subtitle.getLang() == lang).findFirst();
         if (optionalSubtitle.isEmpty()) {
             return null;
         }
-        Magnet.Subtitle subtitle = optionalSubtitle.get();
-        return Files.exists(Paths.get(subtitle.getFile())) ? subtitle : null;
+        SubtitleFile subtitleFile = optionalSubtitle.get();
+        return Files.exists(Paths.get(subtitleFile.getFile())) ? subtitleFile : null;
     }
 
-    private static Magnet.Subtitle parseSubtitle(String movieName, int movieYear, Lang lang, Short season, Short episode) {
+    private static SubtitleFile parseSubtitle(String movieName, int movieYear, Lang lang, Short season, Short episode) {
         String host = "https://www.opensubtitles.org";
         String path = String.format("/en/search2?MovieName=%s&MovieYear=%d&SubLanguageID=%s&Season=%s&Episode=%s&id=8&action=search&SubFormat=srt&MovieImdbRatingSign=1&MovieYearSign=1",
                 URLEncoder.encode(movieName, StandardCharsets.UTF_8), movieYear, lang, Objects.isNull(season) ? "" : season, Objects.isNull(episode) ? "" : episode);
@@ -90,10 +88,10 @@ public class SubtitleParser {
                 HttpRequest subtitleRequest = buildRequest(host + subtitlePath);
                 HttpResponse<InputStream> subtitleResponse = sendRequest(subtitleRequest);
                 String subtitleFilePath = fetchResponseFile(subtitleResponse, movieName);
-                Magnet.Subtitle subtitle = new Magnet.Subtitle();
-                subtitle.setLang(lang);
-                subtitle.setFile(subtitleFilePath);
-                return subtitle;
+                SubtitleFile subtitleFile = new SubtitleFile();
+                subtitleFile.setLang(lang);
+                subtitleFile.setFile(subtitleFilePath);
+                return subtitleFile;
             }
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();

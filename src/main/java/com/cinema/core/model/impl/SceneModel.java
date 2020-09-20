@@ -1,14 +1,15 @@
 package com.cinema.core.model.impl;
 
+import com.cinema.core.entity.Magnet;
 import com.cinema.core.entity.Movie;
-import com.cinema.core.entity.Source;
+import com.cinema.core.entity.Subtitle;
+import com.cinema.core.entity.SubtitleHolder;
 import com.cinema.core.model.ModelEventType;
 import com.cinema.core.model.ObservableModel;
 import javafx.event.Event;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class SceneModel extends ObservableModel {
 
@@ -22,10 +23,6 @@ public class SceneModel extends ObservableModel {
 
     private SceneModel() {}
 
-    public Set<Movie> getMovies() {
-        return movieModels.stream().map(MovieModel::getMovie).collect(Collectors.toSet());
-    }
-
     public Set<MovieModel> getMovieModels() {
         return movieModels;
     }
@@ -38,11 +35,27 @@ public class SceneModel extends ObservableModel {
         return activeMovieModel;
     }
 
-    public Source getActiveSource() {
-        if (SceneModel.INSTANCE.getActiveMovieModel().isSeries()) {
+    public SubtitleHolder getActiveSubtitleHolder() {
+        if (SceneModel.INSTANCE.getActiveMovieModel().getMovie().isSeries()) {
             return SceneModel.INSTANCE.getActiveMovieModel().getActiveSeasonModel().getActiveEpisodeModel().getEpisode();
         } else {
             return SceneModel.INSTANCE.getActiveMovieModel().getMovie();
+        }
+    }
+
+    public Subtitle getActiveSubtitle() {
+        if (SceneModel.INSTANCE.getActiveMovieModel().getMovie().isSeries()) {
+            return SceneModel.INSTANCE.getActiveMovieModel().getActiveSeasonModel().getActiveEpisodeModel().getEpisode().getSubtitle();
+        } else {
+            return SceneModel.INSTANCE.getActiveMovieModel().getMovie().getSubtitle();
+        }
+    }
+
+    public Magnet getActiveMagnet() {
+        if (SceneModel.INSTANCE.getActiveMovieModel().getMovie().isSeries()) {
+            return SceneModel.INSTANCE.getActiveMovieModel().getActiveSeasonModel().getActiveEpisodeModel().getEpisode().getMagnet();
+        } else {
+            return SceneModel.INSTANCE.getActiveMovieModel().getMovie().getMagnet();
         }
     }
 

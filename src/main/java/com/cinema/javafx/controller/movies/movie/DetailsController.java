@@ -59,7 +59,7 @@ public class DetailsController {
 
     @FXML
     public void playMovie() {
-        if (movieModel.isSeries()) {
+        if (movieModel.getMovie().isSeries()) {
             movieModel.fireEvent(new Event(ModelEventType.SEASONS_SHOW.getEventType()));
         } else {
             SceneModel.INSTANCE.setActiveMovieModel(movieModel);

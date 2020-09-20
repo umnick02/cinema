@@ -36,7 +36,7 @@ public class MovieController {
 
     @FXML
     public void initialize() {
-        if (movieModel.isSeries()) {
+        if (movieModel.getMovie().isSeries()) {
             seasonsTab.getStyleClass().remove("hide");
             tabPane.addEventHandler(ModelEventType.SEASONS_SHOW.getEventType(), event -> {
                 logger.info("Handle event {} from source {} on target {}", event.getEventType(), event.getSource(), event.getTarget());

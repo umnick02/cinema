@@ -1,6 +1,6 @@
 package com.cinema.javafx.controller;
 
-import com.cinema.core.entity.Source;
+import com.cinema.core.entity.MagnetHolder;
 import com.cinema.core.model.impl.MovieModel;
 import com.cinema.core.model.impl.SceneModel;
 import com.cinema.core.service.bt.BtClientService;
@@ -90,8 +90,8 @@ public class RootController {
                 pane.addEventHandler(TORRENT_START.getEventType(), start -> {
                     logger.info("Handle event {} from source {} on target {}", start.getEventType(), start.getSource(), start.getTarget());
                     if (!movieModel.isDownloaded()) {
-                        Source source = movieModel.isSeries() ? movieModel.getActiveSeasonModel().getActiveEpisodeModel().getEpisode() : movieModel.getMovie();
-                        EXECUTOR_SERVICE.submit(() -> BtClientService.INSTANCE.downloadTorrentFiles(source));
+                        MagnetHolder magnetHolder = movieModel.getMovie().isSeries() ? movieModel.getActiveSeasonModel().getActiveEpisodeModel().getEpisode() : movieModel.getMovie();
+                        EXECUTOR_SERVICE.submit(() -> BtClientService.INSTANCE.downloadTorrentFiles(magnetHolder));
                     }
                 });
                 pane.addEventHandler(SHUTDOWN.getEventType(), shutdown -> {

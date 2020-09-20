@@ -3,12 +3,8 @@ package com.cinema.core.service.bt.selectors.file;
 import bt.metainfo.TorrentFile;
 import bt.torrent.fileselector.SelectionResult;
 import bt.torrent.fileselector.TorrentFileSelector;
-import com.cinema.core.config.Preferences;
-import com.cinema.core.entity.Episode;
 import com.cinema.core.entity.Magnet;
-import com.cinema.core.entity.Movie;
-import com.cinema.core.entity.Source;
-import com.cinema.core.model.impl.MovieModel;
+import com.cinema.core.entity.MagnetHolder;
 import com.cinema.core.model.impl.SceneModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,10 +17,10 @@ public abstract class AbstractFileSelector extends TorrentFileSelector {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractFileSelector.class);
 
-    protected Source source;
+    protected MagnetHolder magnetHolder;
 
-    protected AbstractFileSelector(Source source) {
-        this.source = source;
+    protected AbstractFileSelector(MagnetHolder magnetHolder) {
+        this.magnetHolder = magnetHolder;
     }
 
     private boolean isVideoFile(TorrentFile file) {
@@ -32,25 +28,27 @@ public abstract class AbstractFileSelector extends TorrentFileSelector {
                 file.getPathElements().get(file.getPathElements().size() - 1).endsWith(".mkv");
     }
 
-    private boolean isVideoFile(Source source, TorrentFile file) {
-        return source != null && isVideoFile(file);
+    private boolean isVideoFile(Magnet magnet, TorrentFile file) {
+        return magnet != null && isVideoFile(file);
     }
 
-    protected abstract void update(Source source);
+    protected abstract void update(MagnetHolder magnetHolder);
     protected abstract boolean isValidFile(TorrentFile file);
 
     @Override
     public List<SelectionResult> selectFiles(List<TorrentFile> files) {
-        File onDiskFile = new File(Preferences.getPreference(Preferences.PrefKey.STORAGE) + source.getFile());
-        if (source.getFile() == null || !onDiskFile.exists() || source.getFileSize() != onDiskFile.length()) {
+        if (magnetHolder.getMagnet().getFullFile() != null) {
+            File onDiskFile = new File(magnetHolder.getMagnet().getFullFile());
+            if (!onDiskFile.exists() || magnetHolder.getMagnet().getFileSize() != onDiskFile.length()) {
 //            files.sort(Comparator.comparingLong(TorrentFile::getSize));
-            List<SelectionResult> selectionResults = new ArrayList<>();
-            for (TorrentFile file : files) {
-                selectionResults.add(select(file));
+                List<SelectionResult> selectionResults = new ArrayList<>();
+                for (TorrentFile file : files) {
+                    selectionResults.add(select(file));
+                }
+                return selectionResults;
             }
-            return selectionResults;
         }
-        logger.info("Find downloaded file [{}] for [{}]. Skip all files", source.getFile(), source);
+        logger.info("Find downloaded file [{}] for [{}]. Skip all files", magnetHolder.getMagnet().getFile(), magnetHolder);
         return files.stream().map(f -> SelectionResult.skip()).collect(Collectors.toList());
     }
 
@@ -59,11 +57,11 @@ public abstract class AbstractFileSelector extends TorrentFileSelector {
         if (!isValidFile(file)) {
             return SelectionResult.skip();
         }
-        if (Objects.isNull(source.getFile()) || (isVideoFile(source, file) && !SceneModel.INSTANCE.getActiveMovieModel().isPlayable())) {
-            source.setFile(MovieModel.getFolder(source) + "\\" + String.join("/", file.getPathElements()));
-            source.setFileSize(file.getSize());
-            logger.info("Set file [{}] for [{}]", source.getFile(), source);
-            update(source);
+        if (magnetHolder.getMagnet().getFile() == null || (isVideoFile(magnetHolder.getMagnet(), file) && !SceneModel.INSTANCE.getActiveMovieModel().isPlayable())) {
+            magnetHolder.getMagnet().setFile(SceneModel.INSTANCE.getActiveMovieModel().getMovie().getFolderName() + "\\" + String.join("/", file.getPathElements()));
+            magnetHolder.getMagnet().setFileSize(file.getSize());
+            logger.info("Set file [{}] for [{}]", magnetHolder.getMagnet().getFile(), magnetHolder);
+            update(magnetHolder);
         }
         return SelectionResult.select().build();
     }

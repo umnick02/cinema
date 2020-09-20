@@ -1,7 +1,8 @@
 package com.cinema.javafx.controller.player;
 
 import com.cinema.core.config.Lang;
-import com.cinema.core.dto.Subtitle;
+import com.cinema.core.dto.SubtitleFileEntry;
+import com.cinema.core.model.impl.PlayerModel;
 import com.cinema.core.model.impl.SceneModel;
 import com.cinema.core.model.impl.SubtitleModel;
 import com.cinema.core.service.Stoppable;
@@ -88,7 +89,7 @@ public class SubtitleController implements Stoppable {
                     return;
                 }
                 subLastRenderTime = newTime;
-                Subtitle subtitle = SubtitleModel.INSTANCE.actualSubtitle(newTime);
+                SubtitleFileEntry subtitle = SubtitleModel.INSTANCE.actualSubtitle(newTime);
                 if (subtitle == null) {
                     hideSub();
                     return;
@@ -101,7 +102,7 @@ public class SubtitleController implements Stoppable {
         };
     }
 
-    private void renderSubElements(Subtitle subtitle) {
+    private void renderSubElements(SubtitleFileEntry subtitle) {
         List<HBox> subtitleTextContainer = new ArrayList<>();
         List<Label> elements = new ArrayList<>();
         Style style = Style.NONE;
@@ -150,7 +151,7 @@ public class SubtitleController implements Stoppable {
     private Label buildLabel(String element, Style style) {
         Label label = new Label();
         label.setText(element);
-        label.getStyleClass().addAll("subtitle-element", SceneModel.INSTANCE.isFullScreen() ? "sub-big" : "sub-small");
+        label.getStyleClass().addAll("subtitle-element", PlayerModel.INSTANCE.isFullScreen() ? "sub-big" : "sub-small");
         switch (style) {
             case ITALIC:
                 label.getStyleClass().add("text-italic");

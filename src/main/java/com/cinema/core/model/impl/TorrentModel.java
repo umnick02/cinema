@@ -1,5 +1,8 @@
 package com.cinema.core.model.impl;
 
+import bt.data.Bitfield;
+import bt.processor.magnet.MagnetContext;
+import bt.runtime.BtClient;
 import bt.torrent.TorrentSessionState;
 import com.cinema.core.entity.Movie;
 import com.cinema.core.model.ModelEventType;
@@ -8,6 +11,7 @@ import com.cinema.core.service.Stoppable;
 import com.cinema.core.service.bt.BtClientService;
 import javafx.event.Event;
 
+import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 
 import static com.cinema.core.config.Preferences.PRELOAD_MIN;
@@ -23,8 +27,13 @@ public class TorrentModel extends ObservableModel implements Stoppable {
     private LocalDateTime start;
 
     private TorrentSessionState torrentSessionState;
-    private int pieceTotal;
     private int pieceMax;
+    private int pieceMaxWithoutSkip;
+    private BtClient btClient;
+
+    public void setBtClient(BtClient btClient) {
+        this.btClient = btClient;
+    }
 
     public int getPieceMax() {
         return pieceMax;
@@ -34,12 +43,12 @@ public class TorrentModel extends ObservableModel implements Stoppable {
         this.pieceMax = pieceMax;
     }
 
-    public int getPieceTotal() {
-        return pieceTotal;
+    public void setPieceMaxWithoutSkip(int pieceMaxWithoutSkip) {
+        this.pieceMaxWithoutSkip = pieceMaxWithoutSkip;
     }
 
-    public void setPieceTotal(int pieceTotal) {
-        this.pieceTotal = pieceTotal;
+    public int getPieceMaxWithoutSkip() {
+        return pieceMaxWithoutSkip;
     }
 
     public void setTorrentSessionState(TorrentSessionState torrentSessionState) {
@@ -76,11 +85,22 @@ public class TorrentModel extends ObservableModel implements Stoppable {
         return (int) (downloadedPart * 100);
     }
 
-    public double getDownloadedPart() {
-        if (torrentSessionState == null || torrentSessionState.getPiecesTotal() == 0) {
+    public double getDownloadedWithoutSkip() {
+        try {
+            Field field = btClient.getClass().getDeclaredField("context");
+            field.setAccessible(true);
+            Bitfield bitfield = ((MagnetContext) field.get(btClient)).getBitfield();
+            int i;
+            for (i = 0; i < bitfield.getPiecesTotal(); i++) {
+                if (!bitfield.isComplete(i)) {
+                    break;
+                }
+            }
+            return (double) i / torrentSessionState.getPiecesTotal();
+        } catch (Exception e) {
+            System.out.println("getDownloadRatio: " + e.getMessage());
             return 0;
         }
-        return (double) torrentSessionState.getPiecesComplete() / torrentSessionState.getPiecesTotal();
     }
 
     public int getPeers() {

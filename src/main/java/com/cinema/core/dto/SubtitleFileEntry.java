@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class Subtitle {
+public class SubtitleFileEntry {
 
     private LocalTime from;
     private LocalTime to;
@@ -35,7 +35,7 @@ public class Subtitle {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Subtitle subtitle = (Subtitle) o;
+        SubtitleFileEntry subtitle = (SubtitleFileEntry) o;
         return from.equals(subtitle.from) &&
                 to.equals(subtitle.to) &&
                 elements.equals(subtitle.elements);

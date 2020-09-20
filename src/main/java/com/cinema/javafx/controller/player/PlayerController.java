@@ -2,9 +2,11 @@ package com.cinema.javafx.controller.player;
 
 import com.cinema.core.config.Lang;
 import com.cinema.core.config.Preferences;
-import com.cinema.core.dto.Subtitle;
+import com.cinema.core.dto.SubtitleFile;
+import com.cinema.core.dto.SubtitleFileEntry;
 import com.cinema.core.entity.Magnet;
 import com.cinema.core.entity.Movie;
+import com.cinema.core.model.impl.PlayerModel;
 import com.cinema.core.model.impl.SceneModel;
 import com.cinema.core.model.impl.SubtitleModel;
 import com.cinema.core.model.impl.TorrentModel;
@@ -113,10 +115,7 @@ public class PlayerController {
     private SubtitleController subtitleController;
     public void play() {
         mediaPlayer.submit(() ->
-                mediaPlayer.media().play(
-                        getPreference(Preferences.PrefKey.STORAGE) +
-                                SceneModel.INSTANCE.getActiveMovieModel().getMovie().getFile()
-                )
+                mediaPlayer.media().play(SceneModel.INSTANCE.getActiveMovieModel().getMovie().getMagnet().getFullFile())
         );
     }
 
@@ -135,7 +134,7 @@ public class PlayerController {
         downloadTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                Platform.runLater(() -> downloadBar.setProgress(TorrentModel.INSTANCE.getDownloadedPart()));
+                Platform.runLater(() -> downloadBar.setProgress(TorrentModel.INSTANCE.getDownloadedWithoutSkip()));
             }
         }, 1000, 1000);
     }
@@ -166,9 +165,9 @@ public class PlayerController {
         startDownloadedTimer();
         Platform.runLater(() -> {
             Movie movie = SceneModel.INSTANCE.getActiveMovieModel().getMovie();
-            Long fileSize = movie.getFileSize();
+            Long fileSize = movie.getMagnet().getFileSize();
             if (fileSize != null) {
-                File file = new File(Preferences.getPreference(Preferences.PrefKey.STORAGE) + movie.getFile());
+                File file = new File(movie.getMagnet().getFullFile());
                 if (file.exists()) {
                     downloadBar.setProgress((float) file.length() / fileSize);
                 }
@@ -384,24 +383,24 @@ public class PlayerController {
     }
 
     private List<RadioMenuItem> buildSubtitleMenuItems() {
-        Set<Magnet.Subtitle> subtitles = SceneModel.INSTANCE.getActiveSource().getSubtitles();
+        Set<SubtitleFile> subtitleFiles = SceneModel.INSTANCE.getActiveSubtitle().getSubtitles();
         List<RadioMenuItem> subtitleItems = new ArrayList<>();
         RadioMenuItem offMenuItem = new RadioMenuItem("Off");
         offMenuItem.setId("Off");
         offMenuItem.setOnAction(event -> Platform.runLater(() -> SubtitleModel.INSTANCE.setShowSubtitles(false)));
         subtitleItems.add(offMenuItem);
-        for (Magnet.Subtitle subtitle : subtitles) {
-            RadioMenuItem menuItem = new RadioMenuItem(subtitle.getLang().getFullName());
-            menuItem.setId(subtitle.getLang().name());
-            ImageView imageView = new ImageView("/icons/" + subtitle.getLang().getIcon());
+        for (SubtitleFile subtitleFile : subtitleFiles) {
+            RadioMenuItem menuItem = new RadioMenuItem(subtitleFile.getLang().getFullName());
+            menuItem.setId(subtitleFile.getLang().name());
+            ImageView imageView = new ImageView("/icons/" + subtitleFile.getLang().getIcon());
             imageView.setFitHeight(20);
             imageView.setPreserveRatio(true);
             menuItem.setGraphic(imageView);
             menuItem.setOnAction(event -> {
-                Set<Subtitle> subtitlesDto = SubtitleService.buildSubtitles(Lang.valueOf(((RadioMenuItem) event.getTarget()).getId()));
+                Set<SubtitleFileEntry> subtitlesDto = SubtitleService.buildSubtitles(Lang.valueOf(((RadioMenuItem) event.getTarget()).getId()));
                 if (subtitlesDto != null) {
                     Platform.runLater(() -> {
-                        SubtitleModel.INSTANCE.setLang(subtitle.getLang());
+                        SubtitleModel.INSTANCE.setLang(subtitleFile.getLang());
                         SubtitleModel.INSTANCE.setSubtitles(subtitlesDto);
                         if (subtitleController != null) {
                             subtitleController.stop();
@@ -461,6 +460,7 @@ public class PlayerController {
     @FXML
     public void changeFullscreenStatus() {
         Stage stage = ((Stage) videoImageView.getScene().getWindow());
+        PlayerModel.INSTANCE.setFullScreen(stage.isFullScreen());
         if (stage.isFullScreen()) {
             stage.getScene().removeEventHandler(ANY, mouseMovedEventHandler);
             stage.setFullScreen(false);
@@ -520,9 +520,9 @@ public class PlayerController {
         timeLabelLastUpdate = 0;
         float ratio = (float) (((MouseEvent) event).getX() / timelineBar.getWidth());
         Movie movie = SceneModel.INSTANCE.getActiveMovieModel().getMovie();
-        Long fileSize = movie.getFileSize();
+        Long fileSize = movie.getMagnet().getFileSize();
         if (fileSize != null) {
-            File file = new File(Preferences.getPreference(Preferences.PrefKey.STORAGE) + movie.getFile());
+            File file = new File(movie.getMagnet().getFullFile());
             if (file.exists() && file.length() > fileSize * ratio * 1.1) {
                 timelineBar.setProgress(ratio);
                 mediaPlayer.controls().setPosition(ratio);

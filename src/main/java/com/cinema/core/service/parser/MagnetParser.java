@@ -25,8 +25,8 @@ public enum MagnetParser {
     public Movie parse(Torrent torrent) {
         Movie movie = parse(torrent.getName());
         movie.setMagnet(new Magnet());
-        movie.setHash(torrent.getTorrentId().toString());
-        movie.setFileSize(torrent.getSize());
+        movie.getMagnet().setHash(torrent.getTorrentId().toString());
+        movie.getMagnet().setFileSize(torrent.getSize());
         return movie;
     }
 

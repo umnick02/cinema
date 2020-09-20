@@ -1,9 +1,9 @@
 package com.cinema.core.service.player.subtitle;
 
 import com.cinema.core.config.Lang;
-import com.cinema.core.dto.Subtitle;
-import com.cinema.core.entity.Magnet;
-import com.cinema.core.entity.Source;
+import com.cinema.core.dto.SubtitleFile;
+import com.cinema.core.dto.SubtitleFileEntry;
+import com.cinema.core.entity.SubtitleHolder;
 import com.cinema.core.model.impl.SceneModel;
 
 import java.io.BufferedReader;
@@ -31,15 +31,15 @@ public class SubtitleService {
         return element.matches("^[^\\d\\W]+$") || element.matches("^[^\\d\\W]+[-']?[^\\d\\W]+$");
     }
 
-    public static Set<Subtitle> buildSubtitles(Lang lang) {
-        Source source = SceneModel.INSTANCE.getActiveSource();
-        Magnet.Subtitle subtitle = getSubtitleWithLang(source, lang);
-        if (subtitle == null) {
+    public static Set<SubtitleFileEntry> buildSubtitles(Lang lang) {
+        SubtitleHolder subtitleHolder = SceneModel.INSTANCE.getActiveSubtitleHolder();
+        SubtitleFile subtitleFile = getSubtitleWithLang(subtitleHolder, lang);
+        if (subtitleFile == null) {
             return null;
         }
-        File file = new File(subtitle.getFile());
+        File file = new File(subtitleFile.getFile());
         if (!file.exists()) {
-            getSubtitleFile(source, lang);
+            getSubtitleFile(subtitleHolder, lang);
             if (!file.exists()) {
                 System.out.println("file not found");
                 return null;
@@ -53,17 +53,17 @@ public class SubtitleService {
         }
     }
 
-    private static Magnet.Subtitle getSubtitleWithLang(Source source, Lang lang) {
-        return source.getSubtitles().stream()
+    private static SubtitleFile getSubtitleWithLang(SubtitleHolder subtitleHolder, Lang lang) {
+        return subtitleHolder.getSubtitle().getSubtitles().stream()
                 .filter(subtitleEntry -> subtitleEntry.getLang() == lang).findFirst().orElse(null);
     }
 
-    private static Set<Subtitle> buildSubtitles(File file) throws IOException {
-        Set<Subtitle> subtitles = new HashSet<>();
+    private static Set<SubtitleFileEntry> buildSubtitles(File file) throws IOException {
+        Set<SubtitleFileEntry> subtitles = new HashSet<>();
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             br.readLine();
             String line;
-            Subtitle subtitle = new Subtitle();
+            SubtitleFileEntry subtitle = new SubtitleFileEntry();
             List<Character> chars = new ArrayList<>();
             while ((line = br.readLine()) != null) {
                 if (line.trim().length() == 0) {
@@ -73,7 +73,7 @@ public class SubtitleService {
                     subtitle.setFrom(LocalTime.parse(times[0].trim(), DateTimeFormatter.ofPattern("HH:mm:ss,SSS")));
                     subtitle.setTo(LocalTime.parse(times[1].trim().split(" ")[0].trim(), DateTimeFormatter.ofPattern("HH:mm:ss,SSS")));
                 } else if (line.trim().matches("^\\d+\\s*$")) {
-                    subtitle = new Subtitle();
+                    subtitle = new SubtitleFileEntry();
                 } else {
                     if (subtitle.getElements().size() > 0) {
                         subtitle.getElements().add("\n");
@@ -124,7 +124,7 @@ public class SubtitleService {
         return c == '\'' || c == '-' || c == '.';
     }
 
-    private static void processChars(Subtitle subtitle, List<Character> chars) {
+    private static void processChars(SubtitleFileEntry subtitle, List<Character> chars) {
         String element = charsToString(chars);
         if (Objects.nonNull(element)) {
             subtitle.getElements().add(element);

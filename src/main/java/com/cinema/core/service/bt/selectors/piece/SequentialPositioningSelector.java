@@ -9,16 +9,8 @@ import java.util.PrimitiveIterator;
 
 public class SequentialPositioningSelector extends BaseStreamSelector {
 
-    private PieceIterator pieceIterator;
-
     @Override
     protected PrimitiveIterator.OfInt createIterator(PieceStatistics pieceStatistics) {
-        pieceIterator = new PieceIterator(pieceStatistics);
-        TorrentModel.INSTANCE.setPieceTotal(pieceStatistics.getPiecesTotal());
-        return pieceIterator;
-    }
-
-    public PieceIterator getPieceIterator() {
-        return pieceIterator;
+        return new PieceIterator(pieceStatistics);
     }
 }

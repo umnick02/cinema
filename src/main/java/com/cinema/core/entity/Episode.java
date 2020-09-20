@@ -3,13 +3,12 @@ package com.cinema.core.entity;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.Objects;
-import java.util.Set;
 
 @Entity
 @Table(indexes = {
         @Index(columnList = "series_id desc, season desc, episode desc")
 })
-public class Episode implements Source {
+public class Episode implements MagnetHolder, SubtitleHolder {
 
     @Id
     @GeneratedValue
@@ -48,45 +47,19 @@ public class Episode implements Source {
     @Embedded
     private Magnet magnet;
 
-    @Override
-    public String getHash() {
-        return magnet.getHash();
-    }
+    @Embedded
+    private Subtitle subtitle;
 
     @Override
-    public void setHash(String hash) {
-        magnet.setHash(hash);
+    public Subtitle getSubtitle() {
+        return subtitle;
     }
 
-    @Override
-    public String getFile() {
-        return magnet.getFile();
-    }
-
-    public Long getFileSize() {
-        return fileSize;
+    public void setSubtitle(Subtitle subtitle) {
+        this.subtitle = subtitle;
     }
 
     @Override
-    public Set<Magnet.Subtitle> getSubtitles() {
-        return magnet.getSubtitles();
-    }
-
-    @Override
-    public void setSubtitles(Set<Magnet.Subtitle> subtitles) {
-        magnet.setSubtitles(subtitles);
-    }
-
-    @Override
-    public void setFileSize(Long fileSize) {
-        this.fileSize = fileSize;
-    }
-
-    @Override
-    public void setFile(String file) {
-        magnet.setFile(file);
-    }
-
     public Magnet getMagnet() {
         return magnet;
     }

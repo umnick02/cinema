@@ -44,7 +44,7 @@ public class MoviesController {
                         return new CastsController(movieModel.getMovie());
                     } else if (param.isAssignableFrom(DetailsController.class)) {
                         return new DetailsController(movieModel);
-                    } else if (param.isAssignableFrom(SeasonsController.class) && movieModel.isSeries()) {
+                    } else if (param.isAssignableFrom(SeasonsController.class) && movieModel.getMovie().isSeries()) {
                         return new SeasonsController(movieModel);
                     }
                     return null;

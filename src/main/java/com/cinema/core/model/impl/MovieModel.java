@@ -4,7 +4,7 @@ import com.cinema.core.config.Preferences;
 import com.cinema.core.dao.MovieDAO;
 import com.cinema.core.entity.Episode;
 import com.cinema.core.entity.Movie;
-import com.cinema.core.entity.Source;
+import com.cinema.core.entity.Series;
 import com.cinema.core.model.Filter;
 import com.cinema.core.model.ModelEventType;
 import com.cinema.core.model.ObservableModel;
@@ -23,16 +23,18 @@ public class MovieModel extends ObservableModel {
 
     public MovieModel(Movie movie) {
         this.movie = movie;
-        if (movie.getEpisodes() != null && movie.getEpisodes().size() > 0) {
-            seasonModels = new LinkedHashSet<>();
-            Map<Short, Set<Episode>> seasons = new HashMap<>();
-            movie.getEpisodes().forEach(episode -> {
-                seasons.putIfAbsent(episode.getSeason(), new HashSet<>());
-                seasons.get(episode.getSeason()).add(episode);
-            });
-            seasons.keySet().stream()
-                    .sorted(Comparator.comparingInt(Short::shortValue))
-                    .forEach((season) -> seasonModels.add(new SeasonModel(this, seasons.get(season))));
+        if (movie instanceof Series) {
+            if (((Series) movie).getEpisodes() != null && ((Series) movie).getEpisodes().size() > 0) {
+                seasonModels = new LinkedHashSet<>();
+                Map<Short, Set<Episode>> seasons = new HashMap<>();
+                ((Series) movie).getEpisodes().forEach(episode -> {
+                    seasons.putIfAbsent(episode.getSeason(), new HashSet<>());
+                    seasons.get(episode.getSeason()).add(episode);
+                });
+                seasons.keySet().stream()
+                        .sorted(Comparator.comparingInt(Short::shortValue))
+                        .forEach((season) -> seasonModels.add(new SeasonModel(this, seasons.get(season))));
+            }
         }
     }
 
@@ -94,10 +96,6 @@ public class MovieModel extends ObservableModel {
         return activeSeasonModel;
     }
 
-    public boolean isSeries() {
-        return movie.getEpisodes() != null && movie.getEpisodes().size() > 0;
-    }
-
     public Movie getMovie() {
         return movie;
     }
@@ -128,29 +126,52 @@ public class MovieModel extends ObservableModel {
     }
 
     public boolean isPlayable() {
-        if (isSeries()) {
+        if (movie.isSeries()) {
             Episode episode = activeSeasonModel.getActiveEpisodeModel().getEpisode();
-            File onDiskFile = new File(Preferences.getPreference(Preferences.PrefKey.STORAGE) + episode.getFile());
-            return episode.getFile() != null && onDiskFile.exists() && onDiskFile.length() > episode.getFileSize() * 0.5 / episode.getSeries().getDuration();
+            if (episode.getMagnet().getFullFile() == null) {
+                return false;
+            }
+            File onDiskFile = new File(episode.getMagnet().getFullFile());
+            return onDiskFile.exists() && onDiskFile.length() > episode.getMagnet().getFileSize() * Preferences.PRELOAD_MIN / episode.getSeries().getDuration();
         } else {
-            File onDiskFile = new File(Preferences.getPreference(Preferences.PrefKey.STORAGE) + movie.getFile());
-            return movie.getFile() != null && onDiskFile.exists() && onDiskFile.length() > movie.getFileSize() * 0.5 / movie.getDuration();
+            if (movie.getMagnet().getFullFile() == null) {
+                return false;
+            }
+            File onDiskFile = new File(movie.getMagnet().getFullFile());
+            return onDiskFile.exists() && onDiskFile.length() > movie.getMagnet().getFileSize() * Preferences.PRELOAD_MIN / movie.getDuration();
         }
     }
 
     public boolean isDownloaded() {
-        if (isSeries()) {
+        if (movie.isSeries()) {
             Episode episode = activeSeasonModel.getActiveEpisodeModel().getEpisode();
-            File onDiskFile = new File(Preferences.getPreference(Preferences.PrefKey.STORAGE) + episode.getFile());
-            return episode.getFile() != null && onDiskFile.exists() && onDiskFile.length() == episode.getFileSize();
+            if (episode.getMagnet().getFullFile() == null) {
+                return false;
+            }
+            File onDiskFile = new File(episode.getMagnet().getFullFile());
+            return onDiskFile.exists() && onDiskFile.length() == episode.getMagnet().getFileSize();
         } else {
-            File onDiskFile = new File(Preferences.getPreference(Preferences.PrefKey.STORAGE) + movie.getFile());
-            return movie.getFile() != null && onDiskFile.exists() && onDiskFile.length() == movie.getFileSize();
+            if (movie.getMagnet().getFullFile() == null) {
+                return false;
+            }
+            File onDiskFile = new File(movie.getMagnet().getFullFile());
+            return onDiskFile.exists() && onDiskFile.length() == movie.getMagnet().getFileSize();
         }
     }
 
-    public static String getFolder(Source source) {
-        return (source instanceof Movie ? ((Movie) source).getOriginalTitle() : ((Episode) source).getSeries().getOriginalTitle()).replaceAll(" ", "_");
+    private File getFile() {
+        if (movie.isSeries()) {
+            Episode episode = activeSeasonModel.getActiveEpisodeModel().getEpisode();
+            if (episode.getMagnet().getFullFile() == null) {
+                return null;
+            }
+            return new File(episode.getMagnet().getFullFile());
+        } else {
+            if (movie.getMagnet().getFullFile() == null) {
+                return null;
+            }
+            return new File(movie.getMagnet().getFullFile());
+        }
     }
 
     public Movie processMovieFromMagnet(Movie movie) {

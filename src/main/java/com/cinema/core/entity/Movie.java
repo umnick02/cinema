@@ -1,5 +1,6 @@
 package com.cinema.core.entity;
 
+import com.cinema.core.config.Preferences;
 import com.cinema.core.dto.Award;
 import com.cinema.core.dto.Cast;
 import com.google.gson.Gson;
@@ -17,7 +18,7 @@ import static com.cinema.core.utils.StringUtils.longToString;
 
 @Entity
 @Table(name = "movie")
-public class Movie implements Source {
+public class Movie implements MagnetHolder, SubtitleHolder {
 
     @Id
     @GeneratedValue
@@ -29,9 +30,6 @@ public class Movie implements Source {
 
     @Column(name = "release_date")
     private LocalDate releaseDate;
-
-    @Column(name = "finish_date")
-    private LocalDate finishDate;
 
     @Column(name = "original_title", updatable = false, nullable = false)
     @NaturalId(mutable = true)
@@ -73,9 +71,6 @@ public class Movie implements Source {
     @UpdateTimestamp
     private LocalDateTime updated;
 
-    @OneToMany(mappedBy = "series", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
-    private Set<Episode> episodes;
-
     @Column(name = "title", updatable = false, nullable = false)
     private String title;
 
@@ -109,6 +104,9 @@ public class Movie implements Source {
     @Embedded
     private Magnet magnet;
 
+    @Embedded
+    private Subtitle subtitle;
+
     public enum Type {
         SERIES("Сериал"), MOVIE("Фильм"), CARTOON("Мультфильм");
 
@@ -124,52 +122,22 @@ public class Movie implements Source {
         }
     }
 
+    @Override
+    public Subtitle getSubtitle() {
+        return subtitle;
+    }
+
+    public void setSubtitle(Subtitle subtitle) {
+        this.subtitle = subtitle;
+    }
+
+    @Override
     public Magnet getMagnet() {
         return magnet;
     }
 
     public void setMagnet(Magnet magnet) {
         this.magnet = magnet;
-    }
-
-    @Override
-    public String getHash() {
-        return magnet.getHash();
-    }
-
-    @Override
-    public void setHash(String hash) {
-        magnet.setHash(hash);
-    }
-
-    @Override
-    public String getFile() {
-        return magnet.getFile();
-    }
-
-    @Override
-    public void setFile(String file) {
-        magnet.setFile(file);
-    }
-
-    @Override
-    public void setFileSize(Long fileSize) {
-        magnet.setFileSize(fileSize);
-    }
-
-    @Override
-    public Long getFileSize() {
-        return magnet.getFileSize();
-    }
-
-    @Override
-    public Set<Magnet.Subtitle> getSubtitles() {
-        return magnet.getSubtitles();
-    }
-
-    @Override
-    public void setSubtitles(Set<Magnet.Subtitle> subtitles) {
-        magnet.setSubtitles(subtitles);
     }
 
     public Award getAward() {
@@ -180,28 +148,12 @@ public class Movie implements Source {
         this.award = new Gson().toJson(award);
     }
 
-    public short getMaxSeason() {
-        return episodes.stream().map(Episode::getSeason).max(Short::compareTo).orElseGet(() -> (short) 0);
-    }
-
     public String fetchTitle() {
-        if (type != Movie.Type.SERIES) {
-            return String.format("%s (%d)", title, releaseDate.getYear());
-        } else if (finishDate == null) {
-            return String.format("%s (%d — %s)", title, releaseDate.getYear(),  ". . .");
-        } else {
-            return String.format("%s (%d — %d)", title, releaseDate.getYear(),  finishDate.getYear());
-        }
+        return String.format("%s (%d)", title, releaseDate.getYear());
     }
 
     public String fetchType() {
-        if (type != Movie.Type.SERIES) {
-            return type.toString();
-        }
-        return episodes.stream()
-                .max(Comparator.comparing(Episode::getSeason))
-                .map(value -> String.format("Сериал (%d сезонов)", value.getSeason()))
-                .orElse(null);
+        return getType().toString();
     }
 
     public String fetchGenres() {
@@ -253,14 +205,6 @@ public class Movie implements Source {
         return id;
     }
 
-    public LocalDate getFinishDate() {
-        return finishDate;
-    }
-
-    public void setFinishDate(LocalDate finishDate) {
-        this.finishDate = finishDate;
-    }
-
     public List<Cast> getCasts() {
         return new Gson().fromJson(this.casts, new TypeToken<List<Cast>>() {}.getType());
     }
@@ -295,6 +239,14 @@ public class Movie implements Source {
 
     public String getOriginalTitle() {
         return originalTitle;
+    }
+
+    public String getFolderName() {
+        return originalTitle.replaceAll(" ", "_");
+    }
+
+    public boolean isSeries() {
+        return false;
     }
 
     public void setOriginalTitle(String originalTitle) {
@@ -379,14 +331,6 @@ public class Movie implements Source {
 
     public void setUpdated(LocalDateTime updated) {
         this.updated = updated;
-    }
-
-    public Set<Episode> getEpisodes() {
-        return episodes;
-    }
-
-    public void setEpisodes(Set<Episode> episodes) {
-        this.episodes = episodes;
     }
 
     public String getTitle() {

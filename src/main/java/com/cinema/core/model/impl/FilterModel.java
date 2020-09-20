@@ -9,7 +9,6 @@ import com.cinema.core.service.parser.MagnetParser;
 import com.cinema.core.service.parser.SubtitleParser;
 import com.cinema.javafx.controller.RootController;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -34,7 +33,7 @@ public class FilterModel {
             RootController.EXECUTOR_SERVICE.submit(() -> {
                 Torrent torrent = BtClientService.INSTANCE.downloadTorrent(filter.getTitle());
                 Movie movie = MagnetParser.INSTANCE.parse(torrent);
-                movie.setSubtitles(SubtitleParser.buildSubtitles(movie, Lang.EN, Lang.RU, Lang.DE));
+                movie.getSubtitle().setSubtitles(SubtitleParser.buildSubtitles(movie, Lang.EN, Lang.RU, Lang.DE));
                 MovieModel.update(movie);
                 SceneModel.INSTANCE.setMovies(Set.of(movie));
             });
@@ -42,7 +41,7 @@ public class FilterModel {
             RootController.EXECUTOR_SERVICE.submit(() -> {
                 Movie movie = MovieModel.getMovie(filter.getTitle());
                 if (Objects.nonNull(movie)) {
-                    movie.setSubtitles(SubtitleParser.buildSubtitles(movie, Lang.EN, Lang.RU, Lang.DE));
+                    movie.getSubtitle().setSubtitles(SubtitleParser.buildSubtitles(movie, Lang.EN, Lang.RU, Lang.DE));
                     MovieModel.update(movie);
                     SceneModel.INSTANCE.setMovies(Set.of(movie));
                 }

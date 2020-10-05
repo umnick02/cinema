@@ -27,28 +27,11 @@ public class TorrentModel extends ObservableModel implements Stoppable {
     private LocalDateTime start;
 
     private TorrentSessionState torrentSessionState;
-    private int pieceMax;
     private int pieceMaxWithoutSkip;
     private BtClient btClient;
 
     public void setBtClient(BtClient btClient) {
         this.btClient = btClient;
-    }
-
-    public int getPieceMax() {
-        return pieceMax;
-    }
-
-    public void setPieceMax(int pieceMax) {
-        this.pieceMax = pieceMax;
-    }
-
-    public void setPieceMaxWithoutSkip(int pieceMaxWithoutSkip) {
-        this.pieceMaxWithoutSkip = pieceMaxWithoutSkip;
-    }
-
-    public int getPieceMaxWithoutSkip() {
-        return pieceMaxWithoutSkip;
     }
 
     public void setTorrentSessionState(TorrentSessionState torrentSessionState) {

@@ -143,6 +143,9 @@ public class PlayerController {
         if (timer != null) {
             timer.cancel();
         }
+        if (downloadTimer != null) {
+            downloadTimer.cancel();
+        }
     }
 
     private void bindVideoImageViewSize() {

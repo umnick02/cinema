@@ -68,7 +68,7 @@ public class SubtitleController implements Stoppable {
             renderSubElements(SubtitleModel.INSTANCE.getSubtitleFileEntry());
         });
         SubtitleModel.INSTANCE.registerEventTarget(subVBox);
-        subVBox.hoverProperty().addListener((observable, oldValue, newValue) -> {
+        subTextVBox.hoverProperty().addListener((observable, oldValue, newValue) -> {
             if (!oldValue && newValue) {
                 if (mediaPlayer.status().isPlaying()) {
                     playerWasPaused.set(false);

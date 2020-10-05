@@ -22,8 +22,11 @@ import java.time.format.DateTimeFormatterBuilder;
 import java.util.ArrayList;
 import java.util.List;
 
-public enum MovieParser implements Parser, MovieFields {
-    INSTANCE;
+public class MovieParser implements Parser, MovieFields {
+
+    public static MovieParser INSTANCE = new MovieParser();
+
+    MovieParser() {}
 
     private static final Logger logger = LoggerFactory.getLogger(MovieParser.class);
 
@@ -102,13 +105,13 @@ public enum MovieParser implements Parser, MovieFields {
 
     @Override
     public String fetchTitle(Document html) {
-        return html.select(".styles_title__2l0HH").text();
+        return html.select("span[class^=styles_title]").text();
     }
 
     @Override
     public String fetchOriginalTitle(Document html) {
         try {
-            return html.select(".styles_originalTitle__31aMS").text();
+            return html.select("span[class^=styles_originalTitle]").text();
         } catch (Exception e) {
             logger.info("", e);
             return null;

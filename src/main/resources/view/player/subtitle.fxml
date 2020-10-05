@@ -5,5 +5,5 @@
 <VBox xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
       alignment="CENTER" fx:id="subVBox">
-             <VBox fx:id="subTextVBox" alignment="CENTER" maxWidth="-Infinity" />
+             <VBox fx:id="subTextVBox" styleClass="" alignment="CENTER" maxWidth="-Infinity" />
 </VBox>

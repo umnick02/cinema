@@ -316,8 +316,8 @@
     -fx-font-size: 1.4em;
 }
 
-#subtitleBox:hover {
-    -fx-background-color: rgba(0, 0, 0, .3);
+#subTextVBox {
+    -fx-background-color: rgba(0, 0, 0, .4);
 }
 
 .progress-bar > .track {

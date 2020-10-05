@@ -19,7 +19,7 @@ public enum MagnetParser {
     private static final Logger logger = LoggerFactory.getLogger(MagnetParser.class);
 
     public static void main(String[] args) {
-        MagnetParser.INSTANCE.parse("Пушки акимбо");
+        MagnetParser.INSTANCE.parse("Пацаны 2019");
     }
 
     public Movie parse(Torrent torrent) {
